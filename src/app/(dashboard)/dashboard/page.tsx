@@ -4,16 +4,17 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import AttributeCard from "@/components/dashboard/AttributeCard";
 import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
 import AIQuestBanner from "@/components/dashboard/AIQuestBanner";
+import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
 import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
 import MilestonesWidget from "@/components/dashboard/MilestonesWidget";
 import { CharacterStats } from "@/types/user";
 import { Quest } from "@/types/quest";
-import { 
-  Heart, 
-  BookOpen, 
-  Dumbbell, 
-  PiggyBank, 
-  Palette 
+import {
+  Heart,
+  BookOpen,
+  Dumbbell,
+  PiggyBank,
+  Palette
 } from "lucide-react";
 
 // Rich Mock Data
@@ -83,10 +84,10 @@ export default function DashboardPage() {
 
       {/* 2. Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
+
         {/* Left Column (Wide) */}
         <div className="lg:col-span-8 space-y-10">
-          
+
           {/* Attributes Horizontal Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
             <AttributeCard
@@ -129,6 +130,9 @@ export default function DashboardPage() {
           {/* AI Banner */}
           <AIQuestBanner />
 
+          {/* Productivity Trends */}
+          <ProductivityTrendsWidget />
+
           {/* Daily Quest Log */}
           <DailyQuestPanel quests={mockQuests} />
         </div>
@@ -137,16 +141,16 @@ export default function DashboardPage() {
         <div className="lg:col-span-4 space-y-10">
           <ActiveStreaksWidget />
           <MilestonesWidget />
-          
+
           {/* Subtle Tip / Info Card */}
           <div className="p-6 rounded-3xl bg-[var(--bg-sidebar)] border border-dashed border-[var(--border-light)] flex flex-col items-center text-center gap-3 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
-             <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
-               <span className="text-xl">💡</span>
-             </div>
-             <div>
-               <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Pro Tip</p>
-               <p className="text-[10px] leading-relaxed">Completing habits early in the morning grants a 1.2x XP multiplier!</p>
-             </div>
+            <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
+              <span className="text-xl">💡</span>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Pro Tip</p>
+              <p className="text-[10px] leading-relaxed">Completing habits early in the morning grants a 1.2x XP multiplier!</p>
+            </div>
           </div>
         </div>
       </div>
