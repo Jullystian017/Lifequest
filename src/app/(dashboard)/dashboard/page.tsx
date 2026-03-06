@@ -5,7 +5,7 @@ import AttributeCard from "@/components/dashboard/AttributeCard";
 import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
 import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
 import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
-import MilestonesWidget from "@/components/dashboard/MilestonesWidget";
+import RecentActivityWidget from "@/components/dashboard/RecentActivityWidget";
 import { CharacterStats } from "@/types/user";
 import { Quest } from "@/types/quest";
 import {
@@ -143,7 +143,7 @@ export default function DashboardPage() {
         {/* Right Column (Narrow) */}
         <div className="lg:col-span-4 space-y-10">
           <ActiveStreaksWidget />
-          <MilestonesWidget />
+          <RecentActivityWidget />
 
           {/* Subtle Tip / Info Card */}
           <div className="p-6 rounded-3xl bg-[var(--bg-sidebar)] border border-dashed border-[var(--border-light)] flex flex-col items-center text-center gap-3 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
