@@ -5,23 +5,23 @@
    ============================== */
 
 :root {
-  /* Core Palette */
+  /* Core Palette (Aligned with lifequest.png) */
   --bg-sidebar: #0A0D14;
   --bg-main: #0D1017;
   --bg-card: #161B22;
   --bg-card-hover: #1C2128;
   
-  --primary: #6366F1;
-  --primary-light: #818CF8;
-  --primary-dark: #4F46E5;
+  --primary: #8B5CF6;       /* Vibrant Purple */
+  --primary-light: #A78BFA;
+  --primary-dark: #7C3AED;
   
-  --secondary: #22C55E;
-  --secondary-light: #4ADE80;
-  --secondary-dark: #16A34A;
+  --secondary: #D946EF;     /* Magenta/Fuchsia */
+  --secondary-light: #E879F9;
+  --secondary-dark: #C026D3;
   
-  --accent: #F59E0B;
-  --accent-light: #FBBF24;
-  --accent-dark: #D97706;
+  --accent: #6366F1;        /* Indigo Accent */
+  --accent-light: #818CF8;
+  --accent-dark: #4F46E5;
 
   /* Status Colors (Image Match) */
   --health: #EF4444;   /* HP - Red */

@@ -32,8 +32,8 @@ const features = [
   {
     title: "Epic Achievements",
     description: "Unlock unique badges and rare achievements as you conquer new heights in your personal development.",
-    icon: <Trophy className="text-[#8B5CF6]" />,
-    color: "#8B5CF6",
+    icon: <Trophy className="text-[var(--primary)]" />,
+    color: "var(--primary)",
   },
   {
     title: "Boss Battles",

@@ -8,8 +8,8 @@ export default function LandingHero() {
     <section className="relative pt-48 pb-32 md:pt-56 md:pb-40 overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] pointer-events-none">
-        <div className="absolute top-[0%] left-[-5%] w-[30%] h-[30%] bg-[var(--primary)]/10 blur-[100px] rounded-full animate-float"></div>
-        <div className="absolute top-[10%] right-[0%] w-[25%] h-[25%] bg-[var(--accent)]/10 blur-[100px] rounded-full delay-700"></div>
+        <div className="absolute top-[0%] left-[-5%] w-[30%] h-[30%] bg-[var(--primary)]/20 blur-[100px] rounded-full animate-float"></div>
+        <div className="absolute top-[10%] right-[0%] w-[25%] h-[25%] bg-[var(--secondary)]/10 blur-[100px] rounded-full delay-700"></div>
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
