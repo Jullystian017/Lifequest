@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Github, Twitter, Instagram, Linkedin, Mail } from "lucide-react";
+import { Github, Twitter, Instagram, Linkedin, Mail, Sword } from "lucide-react";
 
 export default function LandingFooter() {
   const currentYear = new Date().getFullYear();
@@ -44,7 +44,7 @@ export default function LandingFooter() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4 group">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20 transition-transform group-hover:scale-110">
-                <span className="text-lg">⚔️</span>
+                <Sword className="text-white" size={18} />
               </div>
               <span className="text-xl font-black font-[family-name:var(--font-heading)] text-white">
                 LifeQuest

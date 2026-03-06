@@ -42,8 +42,9 @@
   --glass-border: rgba(255, 255, 255, 0.08);
 
   /* Next.js Font placeholders */
-  --font-sans: var(--font-inter), 'Inter', sans-serif;
-  --font-heading: var(--font-outfit), 'Outfit', sans-serif;
+  --font-plus-jakarta: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
+  --font-sans: var(--font-plus-jakarta);
+  --font-heading: var(--font-plus-jakarta);
 }
 
 @theme inline {

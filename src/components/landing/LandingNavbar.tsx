@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sword } from "lucide-react";
 
 export default function LandingNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -28,7 +28,7 @@ export default function LandingNavbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20 transition-transform group-hover:scale-110">
-            <span className="text-lg">⚔️</span>
+            <Sword className="text-white" size={18} />
           </div>
           <span className="text-xl font-black font-[family-name:var(--font-heading)] bg-gradient-to-r from-white to-[var(--text-secondary)] bg-clip-text text-transparent">
             LifeQuest

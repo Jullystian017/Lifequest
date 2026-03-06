@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Play, Star } from "lucide-react";
+import { ArrowRight, Play, Star, Sword } from "lucide-react";
 
 export default function LandingHero() {
   return (
