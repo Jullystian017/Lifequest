@@ -5,24 +5,23 @@ import { ArrowRight, Play, Star } from "lucide-react";
 
 export default function LandingHero() {
   return (
-    <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+    <section className="relative pt-48 pb-32 md:pt-56 md:pb-40 overflow-hidden">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--primary)]/20 blur-[120px] rounded-full animate-pulse-orange"></div>
-        <div className="absolute top-[20%] right-[-5%] w-[35%] h-[35%] bg-[var(--accent)]/15 blur-[100px] rounded-full delay-700"></div>
-        <div className="absolute bottom-0 left-[20%] w-[30%] h-[30%] bg-[var(--secondary)]/10 blur-[90px] rounded-full delay-1000"></div>
+        <div className="absolute top-[0%] left-[-5%] w-[30%] h-[30%] bg-[var(--primary)]/10 blur-[100px] rounded-full animate-float"></div>
+        <div className="absolute top-[10%] right-[0%] w-[25%] h-[25%] bg-[var(--accent)]/10 blur-[100px] rounded-full delay-700"></div>
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-card)] border border-[var(--border-light)] mb-8 animate-fade-in shadow-xl">
-            <span className="flex h-2 w-2 rounded-full bg-[var(--secondary)] shadow-[0_0_10px_var(--secondary)]"></span>
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">The Ultimate Life Gamification Tool</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)]/50 border border-[var(--border-light)] mb-10 animate-fade-in shadow-xl backdrop-blur-sm">
+            <span className="flex h-1.5 w-1.5 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]"></span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-secondary)]">The Ultimate Gamified Productivity Tool</span>
           </div>
 
           {/* Main Content */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black font-[family-name:var(--font-heading)] leading-[1.1] mb-8 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-[family-name:var(--font-heading)] leading-[1.05] mb-10 animate-fade-in">
             <span className="text-white">Coding Your </span>
             <span className="bg-gradient-to-r from-[var(--primary-light)] via-[var(--secondary-light)] to-[var(--accent-light)] bg-clip-text text-transparent">
               Life
@@ -34,27 +33,27 @@ export default function LandingHero() {
             </span>
           </h1>
 
-          <p className="text-xl md:text-2xl text-[var(--text-secondary)] mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            Transform your daily grind into an epic adventure. Earn XP, conquer habits, 
-            and battle real-life challenges as if they were RPG quests.
+          <p className="text-lg md:text-xl text-[var(--text-secondary)] mb-12 max-w-xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            Transform your daily grind into an epic adventure. Level up your 
+            character by completing real-world tasks and building legendary habits.
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <Link
               href="/register"
-              className="group w-full sm:w-auto px-8 py-5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-2xl shadow-[var(--primary)]/30 hover:shadow-[var(--primary)]/50"
+              className="group w-full sm:w-auto px-7 py-4 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all active:scale-95 shadow-2xl shadow-[var(--primary)]/20"
             >
-              Start Your Quest Today
-              <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+              Start Quest
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <button
-              className="group w-full sm:w-auto px-8 py-5 bg-[var(--bg-card)] border border-[var(--border-medium)] text-white font-bold rounded-2xl flex items-center justify-center gap-3 transition-all hover:bg-[var(--bg-card-hover)] active:scale-95 shadow-xl"
+              className="group w-full sm:w-auto px-7 py-4 bg-[var(--bg-card)] border border-[var(--border-medium)] text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all hover:bg-[var(--bg-card-hover)] active:scale-95"
             >
-              <div className="w-8 h-8 rounded-full bg-[var(--primary)]/10 flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
-                <Play size={16} className="text-[var(--primary)] fill-[var(--primary)]" />
+              <div className="w-6 h-6 rounded-full bg-[var(--primary)]/10 flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
+                <Play size={12} className="text-[var(--primary)] fill-[var(--primary)]" />
               </div>
-              Watch Trailer
+              Watch Demo
             </button>
           </div>
 

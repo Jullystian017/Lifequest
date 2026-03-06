@@ -57,59 +57,62 @@ const features = [
 
 export default function LandingFeatures() {
   return (
-    <section id="features" className="py-24 bg-[var(--bg-main)] relative">
+    <section id="features" className="py-32 bg-[var(--bg-main)] relative">
       <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-20 animate-fade-in">
-          <h2 className="text-4xl md:text-5xl font-black font-[family-name:var(--font-heading)] mb-6">
+        <div className="text-center max-w-2xl mx-auto mb-24 animate-fade-in">
+          <h2 className="text-3xl md:text-4xl font-black font-[family-name:var(--font-heading)] mb-6">
             Master Every Aspect of Your Life
           </h2>
-          <p className="text-xl text-[var(--text-secondary)] leading-relaxed">
+          <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
             LifeQuest provides the ultimate toolkit for personal growth, 
-            blending productivity with the addictive mechanics of modern gaming.
+            blending productivity with the mechanics of modern gaming.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="group p-8 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] hover:border-[var(--border-medium)] transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/40"
+              className="group p-7 rounded-2xl bg-[var(--bg-card)]/30 border border-[var(--border-light)] hover:border-[var(--primary)]/30 hover:bg-[var(--bg-card)]/50 transition-all duration-300"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               <div 
-                className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:rotate-3 shadow-lg"
-                style={{ backgroundColor: `${feature.color}15` }}
+                className="w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 shadow-lg"
+                style={{ backgroundColor: `${feature.color}10` }}
               >
-                {feature.icon}
+                {/* Scale down lucide icons by ensuring they don't grow too large */}
+                <div className="scale-75">
+                    {feature.icon}
+                </div>
               </div>
-              <h3 className="text-xl font-bold mb-4 text-white group-hover:text-[var(--primary-light)] transition-colors">
+              <h3 className="text-lg font-bold mb-3 text-white group-hover:text-[var(--primary-light)] transition-colors">
                 {feature.title}
               </h3>
-              <p className="text-[var(--text-secondary)] leading-relaxed">
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
                 {feature.description}
               </p>
             </div>
           ))}
           
           {/* Multi-Purpose Card */}
-          <div className="lg:col-span-2 p-8 rounded-3xl bg-gradient-to-br from-[var(--primary)]/10 to-transparent border border-[var(--primary)]/20 flex flex-col md:flex-row items-center gap-8 group">
+          <div className="lg:col-span-2 p-7 rounded-2xl bg-gradient-to-br from-[var(--primary)]/5 to-transparent border border-[var(--border-light)] flex flex-col md:flex-row items-center gap-8 group">
             <div className="flex-1">
-                <h3 className="text-2xl font-black mb-4 text-white">Ready to Level Up?</h3>
-                <p className="text-lg text-[var(--text-secondary)] mb-6">
+                <h3 className="text-xl font-bold mb-3 text-white">Ready to Level Up?</h3>
+                <p className="text-sm text-[var(--text-secondary)] mb-6 leading-relaxed">
                     Join over 10,000 players who are already transforming their lives. 
                     Your journey starts with a single quest.
                 </p>
-                <div className="flex items-center gap-4">
-                    <div className="flex -space-x-2">
+                <div className="flex items-center gap-3">
+                    <div className="flex -space-x-1.5">
                          {[1,2,3].map(i => (
-                            <img key={i} src={`https://i.pravatar.cc/100?u=feat${i}`} className="w-10 h-10 rounded-full border-2 border-[var(--bg-main)]" alt="user" />
+                            <img key={i} src={`https://i.pravatar.cc/100?u=feat${i}`} className="w-8 h-8 rounded-full border-2 border-[var(--bg-main)]" alt="user" />
                          ))}
                     </div>
-                    <span className="text-sm font-bold text-[var(--text-secondary)]">+2.4k joined this week</span>
+                    <span className="text-xs font-semibold text-[var(--text-muted)] italic">+2.4k joined this week</span>
                 </div>
             </div>
             <div className="w-full md:w-auto">
-                 <button className="w-full px-8 py-4 bg-white text-black font-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/10">
+                 <button className="w-full px-6 py-3.5 bg-white text-black text-sm font-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/5">
                     Join the Guild
                  </button>
             </div>
