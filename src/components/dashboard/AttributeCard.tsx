@@ -20,41 +20,39 @@ export default function AttributeCard({
   color,
   shortLabel,
 }: AttributeCardProps) {
-  const percentage = (value / max) * 100;
+  // Mock trend for the Stitch-style visual
+  const trend = Math.floor(value / 10) + 1; 
 
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-2xl p-4 flex flex-col gap-3 group hover:border-[var(--primary)]/30 transition-all cursor-default">
-      {/* Content Row */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center bg-opacity-10 group-hover:scale-110 transition-transform"
-            style={{ backgroundColor: `${color}20`, color }}
-          >
-            {icon}
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[9px] font-semibold uppercase tracking-[1px] text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
-              {shortLabel}
+    <div className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-3xl p-5 flex flex-col justify-between group hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-1 hover:border-[var(--border-medium)] transition-all duration-300 min-h-[140px]">
+      
+      {/* Top Row: Label & Icon */}
+      <div className="flex items-start justify-between">
+         <div className="flex flex-col gap-1">
+            <span className="text-sm font-semibold text-[var(--text-muted)]">{label}</span>
+            <span className="text-[10px] uppercase tracking-widest font-semibold text-[var(--text-secondary)]">
+               {shortLabel}
             </span>
-            <span className="text-xs font-semibold leading-none">{label}</span>
+         </div>
+         <div 
+            className="w-10 h-10 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-inner"
+            style={{ backgroundColor: `${color}15`, color: color }}
+          >
+            <div className="scale-110">{icon}</div>
           </div>
-        </div>
-        <div className="text-right">
-          <span className="text-sm font-semibold italic">{value}%</span>
-        </div>
+      </div>
+      
+      {/* Bottom Row: Big Value & Trend */}
+      <div className="flex items-baseline gap-3 mt-4">
+         <h4 className="text-3xl font-bold font-[family-name:var(--font-heading)] text-white">
+            {value}
+         </h4>
+         <div className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <span>↗</span>
+            <span>{trend}%</span>
+         </div>
       </div>
 
-      {/* Mini Progress Bar */}
-      <div className="h-1 w-full bg-[var(--bg-sidebar)] rounded-full overflow-hidden border border-[var(--border-light)]">
-        <motion.div
-            className="h-full rounded-full shadow-[0_0_8px_rgba(255,255,255,0.1)]"
-            style={{ backgroundColor: color }}
-            initial={{ width: 0 }}
-            animate={{ width: `${percentage}%` }}
-            transition={{ duration: 1, ease: "circOut" }}
-          />
-      </div>
     </div>
   );
 }

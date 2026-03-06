@@ -3,7 +3,6 @@
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import AttributeCard from "@/components/dashboard/AttributeCard";
 import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
-import AIQuestBanner from "@/components/dashboard/AIQuestBanner";
 import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
 import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
 import MilestonesWidget from "@/components/dashboard/MilestonesWidget";
@@ -82,53 +81,52 @@ export default function DashboardPage() {
         maxXp={1500}
       />
 
+      {/* Attributes Horizontal Row (Full Width) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+        <AttributeCard
+          label="Health"
+          shortLabel="HP"
+          value={mockStats.health}
+          icon={<Heart size={16} />}
+          color="var(--health)"
+        />
+        <AttributeCard
+          label="Knowledge"
+          shortLabel="INT"
+          value={mockStats.knowledge}
+          icon={<BookOpen size={16} />}
+          color="var(--knowledge)"
+        />
+        <AttributeCard
+          label="Discipline"
+          shortLabel="DIS"
+          value={mockStats.discipline}
+          icon={<Dumbbell size={16} />}
+          color="var(--discipline)"
+        />
+        <AttributeCard
+          label="Finance"
+          shortLabel="FIN"
+          value={mockStats.finance}
+          icon={<PiggyBank size={16} />}
+          color="var(--finance)"
+        />
+        <AttributeCard
+          label="Creativity"
+          shortLabel="CRT"
+          value={mockStats.creativity}
+          icon={<Palette size={16} />}
+          color="var(--creativity)"
+        />
+      </div>
+
       {/* 2. Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
         {/* Left Column (Wide) */}
         <div className="lg:col-span-8 space-y-10">
 
-          {/* Attributes Horizontal Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-            <AttributeCard
-              label="Health"
-              shortLabel="HP"
-              value={mockStats.health}
-              icon={<Heart size={16} />}
-              color="var(--health)"
-            />
-            <AttributeCard
-              label="Knowledge"
-              shortLabel="INT"
-              value={mockStats.knowledge}
-              icon={<BookOpen size={16} />}
-              color="var(--knowledge)"
-            />
-            <AttributeCard
-              label="Discipline"
-              shortLabel="DIS"
-              value={mockStats.discipline}
-              icon={<Dumbbell size={16} />}
-              color="var(--discipline)"
-            />
-            <AttributeCard
-              label="Finance"
-              shortLabel="FIN"
-              value={mockStats.finance}
-              icon={<PiggyBank size={16} />}
-              color="var(--finance)"
-            />
-            <AttributeCard
-              label="Creativity"
-              shortLabel="CRT"
-              value={mockStats.creativity}
-              icon={<Palette size={16} />}
-              color="var(--creativity)"
-            />
-          </div>
 
-          {/* AI Banner */}
-          <AIQuestBanner />
 
           {/* Productivity Trends */}
           <ProductivityTrendsWidget />
