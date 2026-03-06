@@ -84,18 +84,20 @@ export default function DashboardPage() {
       {/* Attributes Horizontal Row (Full Width) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         <AttributeCard
-          label="Health"
+          label="Vitality"
           shortLabel="HP"
           value={mockStats.health}
           icon={<Heart size={16} />}
           color="var(--health)"
+          subtitle="Rest recommended in 4h"
         />
         <AttributeCard
-          label="Knowledge"
+          label="Intelligence"
           shortLabel="INT"
           value={mockStats.knowledge}
           icon={<BookOpen size={16} />}
           color="var(--knowledge)"
+          subtitle="Next level in 140 XP"
         />
         <AttributeCard
           label="Discipline"
@@ -103,6 +105,7 @@ export default function DashboardPage() {
           value={mockStats.discipline}
           icon={<Dumbbell size={16} />}
           color="var(--discipline)"
+          subtitle="High Focus State"
         />
         <AttributeCard
           label="Finance"
@@ -110,6 +113,7 @@ export default function DashboardPage() {
           value={mockStats.finance}
           icon={<PiggyBank size={16} />}
           color="var(--finance)"
+          subtitle="Savings goal: 24% met"
         />
         <AttributeCard
           label="Creativity"
@@ -117,6 +121,7 @@ export default function DashboardPage() {
           value={mockStats.creativity}
           icon={<Palette size={16} />}
           color="var(--creativity)"
+          subtitle="Inspire phase active"
         />
       </div>
 
