@@ -57,10 +57,10 @@ export default function Sidebar() {
     <aside className="fixed left-0 top-0 h-screen w-64 bg-[var(--bg-sidebar)] border-r border-[var(--border-light)] flex flex-col z-50">
       {/* Branding */}
       <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20">
-          <Sparkles className="text-white" size={22} />
+        <div className="w-10 h-10 rounded-xl overflow-hidden transition-transform group-hover:scale-110">
+          <img src="/lifequest.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
         </div>
-        <span className="text-xl font-black font-[family-name:var(--font-heading)] tracking-tight">
+        <span className="text-xl font-semibold font-[family-name:var(--font-heading)] tracking-tight">
           LifeQuest
         </span>
       </div>
@@ -69,7 +69,7 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-8 scrollbar-hide">
         {navigationGroups.map((group) => (
           <div key={group.title} className="space-y-3">
-            <h3 className="px-3 text-[10px] font-black tracking-[2px] text-[var(--text-muted)] uppercase">
+            <h3 className="px-3 text-[10px] font-semibold tracking-[2px] text-[var(--text-muted)] uppercase">
               {group.title}
             </h3>
             <div className="space-y-1">
@@ -92,7 +92,7 @@ export default function Sidebar() {
                       size={18}
                       className={isActive ? "text-white" : "text-[var(--text-muted)] group-hover:text-white transition-colors"}
                     />
-                    <span className="text-sm font-bold">{item.label}</span>
+                    <span className="text-sm font-semibold">{item.label}</span>
                   </Link>
                 );
               })}
@@ -112,8 +112,8 @@ export default function Sidebar() {
              />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-sm font-bold truncate">Alex Miller</span>
-            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+            <span className="text-sm font-semibold truncate">Alex Miller</span>
+            <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               LVL 12 Adventurer
             </span>
           </div>

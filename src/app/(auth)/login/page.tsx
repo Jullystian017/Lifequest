@@ -27,7 +27,7 @@ export default function LoginPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] mb-4">
                         <span className="text-3xl">⚔️</span>
                     </div>
-                    <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)] bg-gradient-to-r from-[var(--primary-light)] to-[var(--secondary)] bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-semibold font-[family-name:var(--font-heading)] bg-gradient-to-r from-[var(--primary-light)] to-[var(--secondary)] bg-clip-text text-transparent">
                         Welcome Back
                     </h1>
                     <p className="text-sm text-[var(--text-muted)] mt-1">

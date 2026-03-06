@@ -40,13 +40,12 @@ export default function LandingFooter() {
     <footer className="bg-[var(--bg-main)] border-t border-[var(--border-light)] pt-16 pb-10 font-[family-name:var(--font-sans)]">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-          {/* Brand Section */}
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20 transition-transform group-hover:scale-110">
-                <Sword className="text-white" size={18} />
+              <div className="w-8 h-8 rounded-lg overflow-hidden transition-transform group-hover:scale-110">
+                <img src="/lifequest.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="text-xl font-black font-[family-name:var(--font-heading)] text-white">
+              <span className="text-xl font-semibold font-[family-name:var(--font-heading)] text-white">
                 LifeQuest
               </span>
             </Link>
@@ -70,7 +69,7 @@ export default function LandingFooter() {
           {/* Links Sections */}
           {footerSections.map((section, idx) => (
             <div key={idx}>
-              <h4 className="text-white font-bold mb-5 uppercase tracking-[0.15em] text-[10px]">
+              <h4 className="text-white font-semibold mb-5 uppercase tracking-[0.15em] text-[10px]">
                 {section.title}
               </h4>
               <ul className="flex flex-col gap-3">
@@ -97,7 +96,7 @@ export default function LandingFooter() {
             <span className="text-[var(--text-muted)] text-[10px] italic">Built for the Quest Seekers</span>
             <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--secondary)]/5 border border-[var(--secondary)]/10">
                <span className="w-1 h-1 rounded-full bg-[var(--secondary)]/50 animate-pulse"></span>
-               <span className="text-[9px] uppercase font-bold text-[var(--secondary)]/70">Secure</span>
+               <span className="text-[9px] uppercase font-semibold text-[var(--secondary)]/70">Secure</span>
             </div>
           </div>
         </div>

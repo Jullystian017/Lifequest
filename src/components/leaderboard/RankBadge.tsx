@@ -22,7 +22,7 @@ export default function RankBadge({ rank, level, size = "md" }: RankBadgeProps) 
         <div className="flex flex-col items-center gap-1">
             <div
                 className={`
-          ${sizes[size]} rounded-2xl flex items-center justify-center font-bold
+          ${sizes[size]} rounded-2xl flex items-center justify-center font-semibold
           border-2
         `}
                 style={{

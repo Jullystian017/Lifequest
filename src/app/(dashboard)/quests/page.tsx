@@ -9,7 +9,7 @@ export default function QuestsPage() {
         <div className="space-y-6 animate-fade-in">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold font-[family-name:var(--font-heading)]">
+                    <h1 className="text-2xl font-semibold font-[family-name:var(--font-heading)]">
                         ⚔️ Quests
                     </h1>
                     <p className="text-sm text-[var(--text-muted)] mt-0.5">

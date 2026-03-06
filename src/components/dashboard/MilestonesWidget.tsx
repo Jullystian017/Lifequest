@@ -15,11 +15,11 @@ export default function MilestonesWidget() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Award size={20} className="text-yellow-500" />
-          <h3 className="text-lg font-black font-[family-name:var(--font-heading)]">
+          <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)]">
             Recent Milestones
           </h3>
         </div>
-        <button className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--primary-light)] transition-colors">
+        <button className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--primary-light)] transition-colors">
           History
         </button>
       </div>
@@ -43,7 +43,7 @@ export default function MilestonesWidget() {
               <ms.icon size={20} />
             </div>
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-bold leading-tight truncate px-1">{ms.name}</span>
+              <span className="text-[10px] font-semibold leading-tight truncate px-1">{ms.name}</span>
               {ms.description && (
                 <span className="text-[8px] text-[var(--text-muted)] leading-tight">{ms.description}</span>
               )}

@@ -37,7 +37,7 @@ export default function HabitCard({ habit, onComplete }: HabitCardProps) {
                 </div>
                 <div className="text-right flex-shrink-0">
                     <p className="text-xs text-[var(--text-muted)]">Best</p>
-                    <p className="text-sm font-bold text-[var(--primary-light)]">{habit.longest_streak}🔥</p>
+                    <p className="text-sm font-semibold text-[var(--primary-light)]">{habit.longest_streak}🔥</p>
                 </div>
             </div>
         </Card>

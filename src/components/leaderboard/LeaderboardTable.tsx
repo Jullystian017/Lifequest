@@ -37,7 +37,7 @@ export default function LeaderboardTable({ entries, currentUserId }: Leaderboard
             `}
                     >
                         {/* Rank */}
-                        <div className="w-8 text-center font-bold text-lg">
+                        <div className="w-8 text-center font-semibold text-lg">
                             {entry.rank <= 3 ? (
                                 <span>{entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : "🥉"}</span>
                             ) : (
@@ -47,7 +47,7 @@ export default function LeaderboardTable({ entries, currentUserId }: Leaderboard
 
                         {/* Avatar */}
                         <div
-                            className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                            className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0"
                             style={{
                                 background: `linear-gradient(135deg, ${levelColor}60, ${levelColor}30)`,
                                 color: levelColor,
@@ -64,7 +64,7 @@ export default function LeaderboardTable({ entries, currentUserId }: Leaderboard
 
                         {/* XP */}
                         <div className="text-right flex-shrink-0">
-                            <p className="text-sm font-bold text-[var(--accent)]">
+                            <p className="text-sm font-semibold text-[var(--accent)]">
                                 {entry.xp.toLocaleString()} XP
                             </p>
                             <p className="text-xs text-[var(--text-muted)]">

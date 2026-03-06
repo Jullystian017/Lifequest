@@ -52,7 +52,7 @@ export default function CharacterCard({
       {/* Header with Avatar and Level */}
       <div className="flex items-center gap-4 mb-6 relative z-10">
         <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-black shadow-lg transform transition-transform group-hover:rotate-3"
+          className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-semibold shadow-lg transform transition-transform group-hover:rotate-3"
           style={{
             background: `linear-gradient(135deg, ${levelColor}, ${levelColor}CC)`,
             color: 'white',
@@ -66,12 +66,12 @@ export default function CharacterCard({
           )}
         </div>
         <div>
-          <h3 className="text-xl font-bold font-[family-name:var(--font-heading)] leading-none mb-2">
+          <h3 className="text-xl font-semibold font-[family-name:var(--font-heading)] leading-none mb-2">
             {username}
           </h3>
           <div className="flex items-center gap-2">
             <Badge label={`Level ${level}`} color={levelColor} size="sm" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)]">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
               {levelTitle}
             </span>
           </div>
@@ -80,7 +80,7 @@ export default function CharacterCard({
 
       {/* Stats Breakdown */}
       <div className="space-y-4 relative z-10">
-        <h4 className="text-[10px] font-bold uppercase tracking-[2px] text-[var(--text-muted)] mb-2">
+        <h4 className="text-[10px] font-semibold uppercase tracking-[2px] text-[var(--text-muted)] mb-2">
           Attribute Matrix
         </h4>
         <div className="grid grid-cols-1 gap-4">

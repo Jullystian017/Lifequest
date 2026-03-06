@@ -25,12 +25,11 @@ export default function LandingNavbar() {
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
-        {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20 transition-transform group-hover:scale-110">
-            <Sword className="text-white" size={18} />
+          <div className="w-8 h-8 rounded-lg overflow-hidden transition-transform group-hover:scale-110">
+            <img src="/lifequest.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
           </div>
-          <span className="text-xl font-black font-[family-name:var(--font-heading)] bg-gradient-to-r from-white to-[var(--text-secondary)] bg-clip-text text-transparent">
+          <span className="text-xl font-semibold font-[family-name:var(--font-heading)] bg-gradient-to-r from-white to-[var(--text-secondary)] bg-clip-text text-transparent">
             LifeQuest
           </span>
         </Link>
@@ -53,13 +52,13 @@ export default function LandingNavbar() {
         <div className="hidden md:flex items-center gap-4">
           <Link
             href="/login"
-            className="px-5 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-white transition-colors"
+            className="px-5 py-2 text-sm font-semibold text-[var(--text-secondary)] hover:text-white transition-colors"
           >
             Log In
           </Link>
           <Link
             href="/register"
-            className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white text-sm font-bold rounded-xl transition-all active:scale-95 shadow-lg shadow-[var(--primary)]/20"
+            className="px-6 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white text-sm font-semibold rounded-xl transition-all active:scale-95 shadow-lg shadow-[var(--primary)]/20"
           >
             Start Your Quest
           </Link>
@@ -102,7 +101,7 @@ export default function LandingNavbar() {
             </Link>
             <Link
               href="/register"
-              className="w-full py-3 text-center bg-[var(--primary)] text-white font-bold rounded-xl"
+              className="w-full py-3 text-center bg-[var(--primary)] text-white font-semibold rounded-xl"
               onClick={() => setMobileMenuOpen(false)}
             >
               Start Your Quest

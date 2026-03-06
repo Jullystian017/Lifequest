@@ -30,7 +30,7 @@ export default function BossCard({
                     {isDefeated ? "💀" : "👹"}
                 </div>
                 <div>
-                    <h3 className="font-bold text-lg font-[family-name:var(--font-heading)]">
+                    <h3 className="font-semibold text-lg font-[family-name:var(--font-heading)]">
                         {name}
                     </h3>
                     <p className="text-sm text-[var(--text-muted)]">{description}</p>
@@ -57,7 +57,7 @@ export default function BossCard({
 
             {isDefeated && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-2xl">
-                    <span className="text-2xl font-bold text-[var(--secondary)] font-[family-name:var(--font-heading)]">
+                    <span className="text-2xl font-semibold text-[var(--secondary)] font-[family-name:var(--font-heading)]">
                         ✅ DEFEATED
                     </span>
                 </div>

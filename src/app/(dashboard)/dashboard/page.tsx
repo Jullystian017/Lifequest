@@ -144,7 +144,7 @@ export default function DashboardPage() {
                <span className="text-xl">💡</span>
              </div>
              <div>
-               <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Pro Tip</p>
+               <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Pro Tip</p>
                <p className="text-[10px] leading-relaxed">Completing habits early in the morning grants a 1.2x XP multiplier!</p>
              </div>
           </div>

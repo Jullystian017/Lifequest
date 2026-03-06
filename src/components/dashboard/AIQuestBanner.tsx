@@ -16,7 +16,7 @@ export default function AIQuestBanner() {
             <Wand2 size={32} className="text-white animate-float" />
           </div>
           <div className="flex flex-col">
-            <h2 className="text-2xl font-black font-[family-name:var(--font-heading)] text-white tracking-tight">
+            <h2 className="text-2xl font-semibold font-[family-name:var(--font-heading)] text-white tracking-tight">
               AI Quest Generator
             </h2>
             <p className="text-purple-100 font-medium max-w-sm">
@@ -25,7 +25,7 @@ export default function AIQuestBanner() {
           </div>
         </div>
 
-        <button className="px-8 py-3.5 bg-white text-purple-700 font-black rounded-2xl shadow-xl hover:bg-purple-50 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+        <button className="px-8 py-3.5 bg-white text-purple-700 font-semibold rounded-2xl shadow-xl hover:bg-purple-50 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
           <Sparkles size={18} />
           Generate Today
         </button>

@@ -17,11 +17,11 @@ export default function LandingHero() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--bg-card)]/50 border border-[var(--border-light)] mb-10 animate-fade-in shadow-xl backdrop-blur-sm">
             <span className="flex h-1.5 w-1.5 rounded-full bg-[var(--primary)] shadow-[0_0_8px_var(--primary)]"></span>
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--text-secondary)]">The Ultimate Gamified Productivity Tool</span>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]">The Ultimate Gamified Productivity Tool</span>
           </div>
 
           {/* Main Content */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black font-[family-name:var(--font-heading)] leading-[1.05] mb-10 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-semibold font-[family-name:var(--font-heading)] leading-[1.05] mb-10 animate-fade-in">
             <span className="text-white">Coding Your </span>
             <span className="bg-gradient-to-r from-[var(--primary-light)] via-[var(--secondary-light)] to-[var(--accent-light)] bg-clip-text text-transparent">
               Life
@@ -42,13 +42,13 @@ export default function LandingHero() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             <Link
               href="/register"
-              className="group w-full sm:w-auto px-7 py-4 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all active:scale-95 shadow-2xl shadow-[var(--primary)]/20"
+              className="group w-full sm:w-auto px-7 py-4 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white font-semibold rounded-xl flex items-center justify-center gap-2.5 transition-all active:scale-95 shadow-2xl shadow-[var(--primary)]/20"
             >
               Start Quest
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <button
-              className="group w-full sm:w-auto px-7 py-4 bg-[var(--bg-card)] border border-[var(--border-medium)] text-white font-bold rounded-xl flex items-center justify-center gap-2.5 transition-all hover:bg-[var(--bg-card-hover)] active:scale-95"
+              className="group w-full sm:w-auto px-7 py-4 bg-[var(--bg-card)] border border-[var(--border-medium)] text-white font-semibold rounded-xl flex items-center justify-center gap-2.5 transition-all hover:bg-[var(--bg-card-hover)] active:scale-95"
             >
               <div className="w-6 h-6 rounded-full bg-[var(--primary)]/10 flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
                 <Play size={12} className="text-[var(--primary)] fill-[var(--primary)]" />
@@ -71,11 +71,11 @@ export default function LandingHero() {
                     <div className="flex items-center gap-1">
                         {[1,2,3,4,5].map(i => <Star key={i} size={10} className="fill-[var(--accent)] text-[var(--accent)]" />)}
                     </div>
-                    <span className="text-[10px] font-bold text-white">4.9/5 from 2,000+ Players</span>
+                    <span className="text-[10px] font-semibold text-white">4.9/5 from 2,000+ Players</span>
                 </div>
              </div>
              <div className="h-8 w-px bg-[var(--border-light)] hidden md:block"></div>
-             <div className="text-sm font-bold tracking-widest uppercase text-[var(--text-muted)]">Built for the Discipline Seekers</div>
+             <div className="text-sm font-semibold tracking-widest uppercase text-[var(--text-muted)]">Built for the Discipline Seekers</div>
           </div>
         </div>
       </div>

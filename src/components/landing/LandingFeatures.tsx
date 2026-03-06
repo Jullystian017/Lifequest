@@ -60,7 +60,7 @@ export default function LandingFeatures() {
     <section id="features" className="py-32 bg-[var(--bg-main)] relative">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-24 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-black font-[family-name:var(--font-heading)] mb-6">
+          <h2 className="text-3xl md:text-4xl font-semibold font-[family-name:var(--font-heading)] mb-6">
             Master Every Aspect of Your Life
           </h2>
           <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
@@ -85,7 +85,7 @@ export default function LandingFeatures() {
                     {feature.icon}
                 </div>
               </div>
-              <h3 className="text-lg font-bold mb-3 text-white group-hover:text-[var(--primary-light)] transition-colors">
+              <h3 className="text-lg font-semibold mb-3 text-white group-hover:text-[var(--primary-light)] transition-colors">
                 {feature.title}
               </h3>
               <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
@@ -97,7 +97,7 @@ export default function LandingFeatures() {
           {/* Multi-Purpose Card */}
           <div className="lg:col-span-2 p-7 rounded-2xl bg-gradient-to-br from-[var(--primary)]/5 to-transparent border border-[var(--border-light)] flex flex-col md:flex-row items-center gap-8 group">
             <div className="flex-1">
-                <h3 className="text-xl font-bold mb-3 text-white">Ready to Level Up?</h3>
+                <h3 className="text-xl font-semibold mb-3 text-white">Ready to Level Up?</h3>
                 <p className="text-sm text-[var(--text-secondary)] mb-6 leading-relaxed">
                     Join over 10,000 players who are already transforming their lives. 
                     Your journey starts with a single quest.
@@ -112,7 +112,7 @@ export default function LandingFeatures() {
                 </div>
             </div>
             <div className="w-full md:w-auto">
-                 <button className="w-full px-6 py-3.5 bg-white text-black text-sm font-black rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/5">
+                 <button className="w-full px-6 py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/5">
                     Join the Guild
                  </button>
             </div>

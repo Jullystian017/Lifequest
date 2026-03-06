@@ -25,8 +25,8 @@ export default function Navbar() {
             <Flame size={16} className="text-orange-500" />
           </div>
           <div className="flex flex-col">
-            <span className="text-[8px] font-black text-orange-500 uppercase tracking-widest leading-none">Legendary Streak</span>
-            <span className="text-sm font-bold leading-tight">42 Days</span>
+            <span className="text-[8px] font-semibold text-orange-500 uppercase tracking-widest leading-none">Legendary Streak</span>
+            <span className="text-sm font-semibold leading-tight">42 Days</span>
           </div>
         </div>
 

@@ -34,14 +34,14 @@ export default function AttributeCard({
             {icon}
           </div>
           <div className="flex flex-col">
-            <span className="text-[9px] font-black uppercase tracking-[1px] text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
+            <span className="text-[9px] font-semibold uppercase tracking-[1px] text-[var(--text-muted)] group-hover:text-[var(--text-secondary)] transition-colors">
               {shortLabel}
             </span>
-            <span className="text-xs font-bold leading-none">{label}</span>
+            <span className="text-xs font-semibold leading-none">{label}</span>
           </div>
         </div>
         <div className="text-right">
-          <span className="text-sm font-black italic">{value}%</span>
+          <span className="text-sm font-semibold italic">{value}%</span>
         </div>
       </div>
 

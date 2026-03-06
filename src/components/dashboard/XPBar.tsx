@@ -28,11 +28,11 @@ export default function XPBar({
       <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-6">
         {/* Level Counter */}
         <div className="flex flex-col items-center">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">
             Stage
           </span>
           <div
-            className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center font-black text-2xl shadow-lg ring-4 ring-offset-4 ring-offset-[var(--dark-secondary)] transition-transform group-hover:scale-105"
+            className="w-16 h-16 rounded-2xl flex flex-col items-center justify-center font-semibold text-2xl shadow-lg ring-4 ring-offset-4 ring-offset-[var(--dark-secondary)] transition-transform group-hover:scale-105"
             style={{
               background: `linear-gradient(135deg, ${color}, ${color}CC)`,
               color: 'white',
@@ -48,7 +48,7 @@ export default function XPBar({
         <div className="flex-1 space-y-3">
           <div className="flex justify-between items-end">
             <div>
-              <h4 className="text-sm font-bold flex items-center gap-2">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
                 Experience Progress
                 <ArrowUpCircle size={14} className="text-[var(--primary)] animate-pulse" />
               </h4>
@@ -57,7 +57,7 @@ export default function XPBar({
               </p>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-black text-[var(--text-primary)]">
+              <span className="text-2xl font-semibold text-[var(--text-primary)]">
                 {Math.round(percentage)}%
               </span>
             </div>
@@ -83,8 +83,8 @@ export default function XPBar({
 
         {/* Milestone Indicator */}
         <div className="hidden lg:flex flex-col items-center opacity-40 hover:opacity-100 transition-opacity">
-           <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Target</span>
-           <div className="w-12 h-12 rounded-xl bg-[var(--dark-surface)] border-2 border-dashed border-[var(--dark-border)] flex items-center justify-center font-bold text-sm text-[var(--text-muted)]">
+           <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Target</span>
+           <div className="w-12 h-12 rounded-xl bg-[var(--dark-surface)] border-2 border-dashed border-[var(--dark-border)] flex items-center justify-center font-semibold text-sm text-[var(--text-muted)]">
              {level + 1}
            </div>
         </div>

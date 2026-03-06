@@ -15,7 +15,7 @@ export default function ActiveStreaksWidget() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Flame size={20} className="text-orange-500" />
-          <h3 className="text-lg font-black font-[family-name:var(--font-heading)]">
+          <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)]">
             Active Streaks
           </h3>
         </div>
@@ -29,12 +29,12 @@ export default function ActiveStreaksWidget() {
           <div key={streak.name} className="space-y-2 group cursor-default">
             <div className="flex justify-between items-start">
               <div className="flex flex-col">
-                <span className="text-sm font-bold group-hover:text-[var(--primary-light)] transition-colors">{streak.name}</span>
+                <span className="text-sm font-semibold group-hover:text-[var(--primary-light)] transition-colors">{streak.name}</span>
                 <span className="text-[10px] text-[var(--text-muted)] mt-0.5">Goal: {streak.goal}</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-sm font-black italic">{streak.days}</span>
-                <span className="text-[10px] font-black uppercase tracking-tighter text-[var(--text-muted)]">DAYS</span>
+                <span className="text-sm font-semibold italic">{streak.days}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-tighter text-[var(--text-muted)]">DAYS</span>
               </div>
             </div>
             <div className="h-1.5 w-full bg-[var(--bg-sidebar)] rounded-full overflow-hidden border border-[var(--border-light)]">
