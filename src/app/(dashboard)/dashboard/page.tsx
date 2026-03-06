@@ -1,34 +1,40 @@
 "use client";
 
-import CharacterCard from "@/components/dashboard/CharacterCard";
-import XPBar from "@/components/dashboard/XPBar";
-import StatsRadar from "@/components/dashboard/StatsRadar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import AttributeCard from "@/components/dashboard/AttributeCard";
 import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
-import ProgressChart from "@/components/dashboard/ProgressChart";
-import QuickActions from "@/components/dashboard/QuickActions";
+import AIQuestBanner from "@/components/dashboard/AIQuestBanner";
+import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
+import MilestonesWidget from "@/components/dashboard/MilestonesWidget";
 import { CharacterStats } from "@/types/user";
 import { Quest } from "@/types/quest";
-import { Coins, Flame, Star } from "lucide-react";
+import { 
+  Heart, 
+  BookOpen, 
+  Dumbbell, 
+  PiggyBank, 
+  Palette 
+} from "lucide-react";
 
-// Rich Mock Data for UI/UX demonstration
+// Rich Mock Data
 const mockStats: CharacterStats = {
-  health: 82,
-  knowledge: 65,
-  discipline: 88,
-  finance: 42,
-  creativity: 55,
+  health: 75,
+  knowledge: 60,
+  discipline: 80,
+  finance: 45,
+  creativity: 50,
 };
 
 const mockQuests: Quest[] = [
   {
     id: "q1",
-    title: "The Scholar's Path",
-    description: "Read 10 pages of any non-fiction book.",
-    difficulty: "easy",
-    xp_reward: 50,
-    coin_reward: 10,
-    current_value: 7,
-    target_value: 10,
+    title: "Study JavaScript",
+    description: "Learn about ES6 features and more.",
+    difficulty: "medium",
+    xp_reward: 250,
+    coin_reward: 50,
+    current_value: 0,
+    target_value: 1,
     is_completed: false,
     type: "daily",
     stat_rewards: { knowledge: 2 },
@@ -36,92 +42,112 @@ const mockQuests: Quest[] = [
   },
   {
     id: "q2",
-    title: "Iron Core",
-    description: "Complete a 20-minute core workout session.",
-    difficulty: "medium",
-    xp_reward: 120,
-    coin_reward: 25,
-    current_value: 20,
-    target_value: 20,
-    is_completed: true,
+    title: "Drink 2L Water",
+    description: "Stay hydrated for better health.",
+    difficulty: "easy",
+    xp_reward: 100,
+    coin_reward: 20,
+    current_value: 1.5,
+    target_value: 2,
+    is_completed: false,
     type: "daily",
-    stat_rewards: { health: 4 },
+    stat_rewards: { health: 1 },
     created_at: new Date().toISOString(),
   },
   {
     id: "q3",
-    title: "Digital Architect",
-    description: "Design one UI component from scratch.",
+    title: "Workout 30 mins",
+    description: "Physical strength is key.",
     difficulty: "hard",
-    xp_reward: 250,
-    coin_reward: 50,
+    xp_reward: 300,
+    coin_reward: 75,
     current_value: 0,
     target_value: 1,
     is_completed: false,
     type: "daily",
-    stat_rewards: { creativity: 5 },
+    stat_rewards: { health: 5, discipline: 2 },
     created_at: new Date().toISOString(),
   },
 ];
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Dynamic Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)]">
-            Morning, <span className="text-[var(--primary)]">Alex</span>!
-          </h1>
-          <p className="text-[var(--text-secondary)] mt-1 flex items-center gap-2">
-            <Flame size={16} className="text-orange-500" /> 
-            You're on a 7-day streak! Keep it up.
-          </p>
-        </div>
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-20 animate-fade-in">
+      {/* 1. Header Section */}
+      <DashboardHeader
+        username="Alex"
+        questCount={3}
+        currentXp={1240}
+        maxXp={1500}
+      />
 
-        <div className="flex items-center gap-4 bg-[var(--dark-secondary)] p-3 rounded-2xl border border-[var(--dark-border)]">
-          <div className="flex items-center gap-2 px-3 border-r border-[var(--dark-border)]">
-            <Coins size={18} className="text-yellow-500" />
-            <span className="font-bold">1,240</span>
+      {/* 2. Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        {/* Left Column (Wide) */}
+        <div className="lg:col-span-8 space-y-10">
+          
+          {/* Attributes Horizontal Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+            <AttributeCard
+              label="Health"
+              shortLabel="HP"
+              value={mockStats.health}
+              icon={<Heart size={16} />}
+              color="var(--health)"
+            />
+            <AttributeCard
+              label="Knowledge"
+              shortLabel="INT"
+              value={mockStats.knowledge}
+              icon={<BookOpen size={16} />}
+              color="var(--knowledge)"
+            />
+            <AttributeCard
+              label="Discipline"
+              shortLabel="DIS"
+              value={mockStats.discipline}
+              icon={<Dumbbell size={16} />}
+              color="var(--discipline)"
+            />
+            <AttributeCard
+              label="Finance"
+              shortLabel="FIN"
+              value={mockStats.finance}
+              icon={<PiggyBank size={16} />}
+              color="var(--finance)"
+            />
+            <AttributeCard
+              label="Creativity"
+              shortLabel="CRT"
+              value={mockStats.creativity}
+              icon={<Palette size={16} />}
+              color="var(--creativity)"
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <Star size={18} className="text-[var(--primary)]" />
-            <span className="font-bold text-[var(--text-secondary)]">Master tier</span>
-          </div>
-        </div>
-      </div>
 
-      {/* Main Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="md:col-span-3">
-          <XPBar currentXP={1240} maxXP={1500} level={12} />
-        </div>
-        <div className="hidden md:block">
-           <div className="h-full flex items-center justify-end">
-             <span className="text-xs text-[var(--text-muted)] animate-pulse">Leveling up soon...</span>
-           </div>
-        </div>
-      </div>
+          {/* AI Banner */}
+          <AIQuestBanner />
 
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Main Column */}
-        <div className="lg:col-span-8 space-y-6">
+          {/* Daily Quest Log */}
           <DailyQuestPanel quests={mockQuests} />
-          <ProgressChart />
         </div>
 
-        {/* Sidebar Column */}
-        <div className="lg:col-span-4 space-y-6">
-          <CharacterCard
-            username="Alex"
-            level={12}
-            xp={1240}
-            xpToNext={1500}
-            stats={mockStats}
-          />
-          <QuickActions onAction={(type) => console.log("Action:", type)} />
-          <StatsRadar stats={mockStats} />
+        {/* Right Column (Narrow) */}
+        <div className="lg:col-span-4 space-y-10">
+          <ActiveStreaksWidget />
+          <MilestonesWidget />
+          
+          {/* Subtle Tip / Info Card */}
+          <div className="p-6 rounded-3xl bg-[var(--bg-sidebar)] border border-dashed border-[var(--border-light)] flex flex-col items-center text-center gap-3 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+             <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
+               <span className="text-xl">💡</span>
+             </div>
+             <div>
+               <p className="text-xs font-bold uppercase tracking-widest text-[var(--text-muted)] mb-1">Pro Tip</p>
+               <p className="text-[10px] leading-relaxed">Completing habits early in the morning grants a 1.2x XP multiplier!</p>
+             </div>
+          </div>
         </div>
       </div>
     </div>

@@ -4,103 +4,121 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-    LayoutDashboard,
-    Swords,
-    ListChecks,
-    Repeat,
-    Trophy,
-    Crown,
-    Skull,
-    ChevronLeft,
-    ChevronRight,
+  LayoutDashboard,
+  Swords,
+  Repeat,
+  Target,
+  Skull,
+  Trophy,
+  Users,
+  BarChart3,
+  User,
+  Settings,
+  Sparkles,
 } from "lucide-react";
-import { useState } from "react";
 
-const navItems = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Quests", href: "/quests", icon: Swords },
-    { label: "Tasks", href: "/tasks", icon: ListChecks },
-    { label: "Habits", href: "/habits", icon: Repeat },
-    { label: "Achievements", href: "/achievements", icon: Trophy },
-    { label: "Leaderboard", href: "/leaderboard", icon: Crown },
-    { label: "Boss Challenge", href: "/boss-challenge", icon: Skull },
+const navigationGroups = [
+  {
+    title: "CORE PRODUCTIVITY",
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { label: "Quests", href: "/quests", icon: Swords },
+      { label: "Habits", href: "/habits", icon: Repeat },
+      { label: "Focus Mode", href: "/focus", icon: Target },
+    ],
+  },
+  {
+    title: "GAMIFICATION",
+    items: [
+      { label: "Boss Challenge", href: "/boss-challenge", icon: Skull },
+      { label: "Achievements", href: "/achievements", icon: Trophy },
+    ],
+  },
+  {
+    title: "SOCIAL & ANALYTICS",
+    items: [
+      { label: "Social", href: "/social", icon: Users },
+      { label: "Analytics", href: "/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "ACCOUNT",
+    items: [
+      { label: "Profile", href: "/profile", icon: User },
+      { label: "Settings", href: "/settings", icon: Settings },
+    ],
+  },
 ];
 
 export default function Sidebar() {
-    const pathname = usePathname();
-    const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
 
-    return (
-        <motion.aside
-            className={`
-        fixed left-0 top-0 h-screen z-40
-        bg-[var(--dark-secondary)] border-r border-[var(--dark-border)]
-        flex flex-col transition-all duration-300
-        ${collapsed ? "w-[72px]" : "w-64"}
-      `}
-            initial={false}
-        >
-            {/* Logo */}
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-[var(--dark-border)]">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-dark)] flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">⚔️</span>
-                </div>
-                {!collapsed && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.1 }}
-                    >
-                        <h1 className="text-lg font-bold font-[family-name:var(--font-heading)] bg-gradient-to-r from-[var(--primary-light)] to-[var(--secondary)] bg-clip-text text-transparent">
-                            LifeQuest
-                        </h1>
-                    </motion.div>
-                )}
+  return (
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-[var(--bg-sidebar)] border-r border-[var(--border-light)] flex flex-col z-50">
+      {/* Branding */}
+      <div className="p-6 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[var(--primary)] flex items-center justify-center shadow-lg shadow-[var(--primary)]/20">
+          <Sparkles className="text-white" size={22} />
+        </div>
+        <span className="text-xl font-black font-[family-name:var(--font-heading)] tracking-tight">
+          LifeQuest
+        </span>
+      </div>
+
+      {/* Navigation Groups */}
+      <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-8 scrollbar-hide">
+        {navigationGroups.map((group) => (
+          <div key={group.title} className="space-y-3">
+            <h3 className="px-3 text-[10px] font-black tracking-[2px] text-[var(--text-muted)] uppercase">
+              {group.title}
+            </h3>
+            <div className="space-y-1">
+              {group.items.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`
+                      flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
+                      ${
+                        isActive
+                          ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
+                          : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-white"
+                      }
+                    `}
+                  >
+                    <item.icon
+                      size={18}
+                      className={isActive ? "text-white" : "text-[var(--text-muted)] group-hover:text-white transition-colors"}
+                    />
+                    <span className="text-sm font-bold">{item.label}</span>
+                  </Link>
+                );
+              })}
             </div>
+          </div>
+        ))}
+      </nav>
 
-            {/* Navigation */}
-            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-                {navItems.map((item) => {
-                    const isActive = pathname === item.href;
-                    const Icon = item.icon;
-
-                    return (
-                        <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl
-                transition-all duration-200 group relative
-                ${isActive
-                                    ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
-                                    : "text-[var(--text-secondary)] hover:bg-[var(--dark-surface)] hover:text-[var(--text-primary)]"
-                                }
-              `}
-                        >
-                            <Icon size={20} className="flex-shrink-0" />
-                            {!collapsed && (
-                                <span className="text-sm font-medium">{item.label}</span>
-                            )}
-                            {collapsed && (
-                                <div className="absolute left-full ml-2 px-2 py-1 bg-[var(--dark)] text-[var(--text-primary)] text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                                    {item.label}
-                                </div>
-                            )}
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* Collapse Toggle */}
-            <div className="px-3 py-4 border-t border-[var(--dark-border)]">
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-xl w-full text-[var(--text-muted)] hover:bg-[var(--dark-surface)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
-                >
-                    {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-                    {!collapsed && <span className="text-sm">Collapse</span>}
-                </button>
-            </div>
-        </motion.aside>
-    );
+      {/* Bottom Profile Card */}
+      <div className="p-4 border-t border-[var(--border-light)]">
+        <div className="p-3 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-3 group cursor-pointer hover:border-[var(--primary)]/30 transition-all">
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-[var(--border-medium)]">
+             <img 
+               src="https://i.pravatar.cc/150?u=alexmiller" 
+               alt="Alex Miller" 
+               className="w-full h-full object-cover"
+             />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-bold truncate">Alex Miller</span>
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+              LVL 12 Adventurer
+            </span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
 }

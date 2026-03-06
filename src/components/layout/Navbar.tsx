@@ -1,41 +1,46 @@
 "use client";
 
-import { Bell, Search, Settings } from "lucide-react";
+import { Bell, Search, Flame } from "lucide-react";
 
 export default function Navbar() {
-    return (
-        <header className="h-16 bg-[var(--dark-secondary)] border-b border-[var(--dark-border)] flex items-center justify-between px-6 sticky top-0 z-30">
-            {/* Search */}
-            <div className="relative w-72">
-                <Search
-                    size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"
-                />
-                <input
-                    type="text"
-                    placeholder="Search quests, tasks..."
-                    className="w-full bg-[var(--dark-surface)] border border-[var(--dark-border)] rounded-xl pl-10 pr-4 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all"
-                />
-            </div>
+  return (
+    <header className="h-20 flex items-center justify-between px-8 bg-transparent sticky top-0 z-30">
+      {/* Search Bar */}
+      <div className="relative group flex-1 max-w-xl">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+          <Search size={18} className="text-[var(--text-muted)] group-focus-within:text-[var(--primary)] transition-colors" />
+        </div>
+        <input
+          type="text"
+          placeholder="Search quests, habits..."
+          className="w-full bg-[var(--bg-sidebar)] border border-[var(--border-light)] rounded-2xl pl-12 pr-4 py-3 text-sm text-[var(--text-primary)] transition-all focus:outline-none focus:border-[var(--primary)]/50 focus:ring-4 focus:ring-[var(--primary)]/10"
+        />
+      </div>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-3">
-                {/* Notifications */}
-                <button className="relative p-2 rounded-xl hover:bg-[var(--dark-surface)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">
-                    <Bell size={20} />
-                    <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--accent)] rounded-full" />
-                </button>
+      {/* Right Side Actions */}
+      <div className="flex items-center gap-6">
+        {/* Legendary Streak Pill */}
+        <div className="flex items-center gap-2.5 bg-[var(--bg-card)] border border-[var(--border-medium)] px-4 py-2.5 rounded-2xl shadow-lg ring-1 ring-orange-500/10">
+          <div className="p-1 bg-orange-500/20 rounded-lg">
+            <Flame size={16} className="text-orange-500" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[8px] font-black text-orange-500 uppercase tracking-widest leading-none">Legendary Streak</span>
+            <span className="text-sm font-bold leading-tight">42 Days</span>
+          </div>
+        </div>
 
-                {/* Settings */}
-                <button className="p-2 rounded-xl hover:bg-[var(--dark-surface)] transition-colors text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer">
-                    <Settings size={20} />
-                </button>
+        {/* Notifications */}
+        <button className="p-3 bg-[var(--bg-sidebar)] border border-[var(--border-light)] rounded-2xl text-[var(--text-secondary)] hover:text-white transition-all relative">
+          <Bell size={20} />
+          <span className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full border-2 border-[var(--bg-sidebar)]" />
+        </button>
 
-                {/* Avatar */}
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] flex items-center justify-center text-white font-bold text-sm ml-1 cursor-pointer">
-                    A
-                </div>
-            </div>
-        </header>
-    );
+        {/* User Mini Avatar */}
+        <div className="w-12 h-12 rounded-2xl overflow-hidden border border-[var(--border-medium)] cursor-pointer hover:border-[var(--primary)] transition-colors">
+          <img src="https://i.pravatar.cc/150?u=alexmiller" alt="Profile" className="w-full h-full object-cover" />
+        </div>
+      </div>
+    </header>
+  );
 }
