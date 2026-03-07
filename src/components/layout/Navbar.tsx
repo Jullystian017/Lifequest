@@ -81,7 +81,7 @@ export default function Navbar() {
           </button>
           <div className="flex flex-col items-start leading-none group cursor-pointer mr-2">
             <span className="text-[9px] font-bold text-orange-400/80 uppercase tracking-widest hidden sm:block">Wealth</span>
-            <span className="text-sm font-black text-white group-hover:text-amber-400 transition-colors mt-[1px] whitespace-nowrap">2,450 <span className="text-amber-500/80 text-xs font-bold">G</span></span>
+            <span className="text-sm font-black text-white group-hover:text-white transition-colors mt-[1px] whitespace-nowrap">2,450 <span className="text-amber-500/80 text-xs font-bold">G</span></span>
           </div>
         </div>
 
@@ -145,7 +145,7 @@ export default function Navbar() {
                 </div>
 
                 {/* Footer Action */}
-                <button className="p-3 text-xs font-bold text-indigo-400 hover:text-indigo-300 hover:bg-white/[0.02] transition-colors text-center w-full">
+                <button className="p-3 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/[0.02] transition-colors text-center w-full">
                   Mark all as read
                 </button>
               </motion.div>
@@ -163,11 +163,11 @@ export default function Navbar() {
               <img src="https://i.pravatar.cc/150?u=alexmiller" alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col items-start hidden md:flex min-w-[100px]">
-              <span className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors truncate">Alex Miller</span>
+              <span className="text-sm font-bold text-white group-hover:text-white transition-colors truncate">Alex Miller</span>
               <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase truncate">LVL 12 Adventurer</span>
             </div>
             <div className="hidden md:flex pl-1">
-              <MoreHorizontal size={16} className="text-slate-500 group-hover:text-indigo-400 transition-colors" />
+              <MoreHorizontal size={16} className="text-slate-500 group-hover:text-white transition-colors" />
             </div>
           </div>
 

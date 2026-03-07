@@ -16,15 +16,23 @@ export default function DailyQuestPanel({
   onCompleteQuest,
 }: DailyQuestPanelProps) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 size={24} className="text-[var(--primary)]" />
-          <h3 className="text-xl font-semibold font-[family-name:var(--font-heading)]">
-            Daily Quest Log
-          </h3>
+    <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">
+      {/* Background Subtle Glow */}
+      <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-indigo-500/10 transition-colors"></div>
+
+      <div className="flex items-center justify-between mb-8 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-indigo-400">
+            <CheckCircle2 size={20} />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white font-[family-name:var(--font-heading)]">
+              Daily Quest Log
+            </h3>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">Conquer your daily objectives</p>
+          </div>
         </div>
-        <button className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--primary-light)] transition-colors">
+        <button className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
           All Quests
         </button>
       </div>
@@ -44,12 +52,12 @@ export default function DailyQuestPanel({
             <div className="flex items-center gap-6">
               {/* Icon / Mini Tag */}
               <div className="w-14 h-14 rounded-2xl bg-[var(--bg-sidebar)] border border-[var(--border-light)] flex items-center justify-center font-semibold text-[var(--text-secondary)] shadow-inner">
-                 {quest.title.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                {quest.title.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
               </div>
 
               {/* Info */}
               <div className="flex flex-col gap-1">
-                <span className="text-lg font-semibold group-hover:text-[var(--primary-light)] transition-colors">
+                <span className="text-lg font-semibold group-hover:text-white transition-colors">
                   {quest.title}
                 </span>
                 <div className="flex items-center gap-4">

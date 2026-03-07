@@ -11,15 +11,23 @@ const streaks = [
 
 export default function ActiveStreaksWidget() {
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-3xl p-6 shadow-xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Flame size={20} className="text-orange-500" />
-          <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)]">
-            Active Streaks
-          </h3>
+    <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">
+      {/* Background Subtle Glow */}
+      <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-orange-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-orange-500/10 transition-colors"></div>
+
+      <div className="flex items-center justify-between mb-8 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-orange-500">
+            <Flame size={20} />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white font-[family-name:var(--font-heading)]">
+              Active Streaks
+            </h3>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">Maintain your daily momentum</p>
+          </div>
         </div>
-        <button className="w-8 h-8 rounded-xl bg-[var(--bg-sidebar)] border border-[var(--border-light)] flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:border-[var(--primary)] transition-all">
+        <button className="w-8 h-8 rounded-xl bg-[var(--bg-sidebar)] border border-[var(--border-light)] flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:border-orange-500 transition-all">
           <Plus size={16} />
         </button>
       </div>
@@ -29,7 +37,7 @@ export default function ActiveStreaksWidget() {
           <div key={streak.name} className="space-y-2 group cursor-default">
             <div className="flex justify-between items-start">
               <div className="flex flex-col">
-                <span className="text-sm font-semibold group-hover:text-[var(--primary-light)] transition-colors">{streak.name}</span>
+                <span className="text-sm font-semibold group-hover:text-white transition-colors">{streak.name}</span>
                 <span className="text-[10px] text-[var(--text-muted)] mt-0.5">Goal: {streak.goal}</span>
               </div>
               <div className="flex items-baseline gap-1">

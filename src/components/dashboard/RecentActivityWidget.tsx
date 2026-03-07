@@ -35,12 +35,20 @@ const activities = [
 
 export default function RecentActivityWidget() {
   return (
-    <div className="bg-[var(--bg-card)] border border-[var(--border-medium)] rounded-3xl p-6 shadow-xl space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <History size={20} className="text-[var(--text-muted)]" />
-        <h3 className="text-lg font-bold text-white font-[family-name:var(--font-heading)] leading-none pt-1">
-          Recent Activity
-        </h3>
+    <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">
+      {/* Background Subtle Glow */}
+      <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-colors"></div>
+
+      <div className="flex items-center gap-3 mb-6 relative z-10">
+        <div className="p-2.5 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-blue-400">
+          <History size={20} />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-white font-[family-name:var(--font-heading)] leading-none pt-1">
+            Recent Activity
+          </h3>
+          <p className="text-xs text-[var(--text-muted)] mt-1">Your latest milestones</p>
+        </div>
       </div>
 
       <div className="relative space-y-6 before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[var(--border-light)] before:to-transparent">
