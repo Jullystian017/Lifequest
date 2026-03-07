@@ -17,30 +17,15 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const navigationGroups = [
-  {
-    title: "CORE PRODUCTIVITY",
-    items: [
-      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { label: "Quests", href: "/quests", icon: Swords },
-      { label: "Habits", href: "/habits", icon: Repeat },
-      { label: "Focus Mode", href: "/focus", icon: Target },
-    ],
-  },
-  {
-    title: "GAMIFICATION",
-    items: [
-      { label: "Boss Challenge", href: "/boss-challenge", icon: Skull },
-      { label: "Achievements", href: "/achievements", icon: Trophy },
-    ],
-  },
-  {
-    title: "SOCIAL & ANALYTICS",
-    items: [
-      { label: "Social", href: "/social", icon: Users },
-      { label: "Analytics", href: "/analytics", icon: BarChart3 },
-    ],
-  },
+const navItems = [
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Quests", href: "/quests", icon: Swords },
+  { label: "Growth", href: "/habits", icon: Sparkles },
+  { label: "Focus", href: "/focus", icon: Target },
+  { label: "Progress", href: "/analytics", icon: BarChart3 },
+  { label: "Social", href: "/social", icon: Users },
+  { label: "Boss Challenge", href: "/boss-challenge", icon: Skull },
+  { label: "Achievements", href: "/achievements", icon: Trophy },
 ];
 
 export default function Sidebar() {
@@ -58,39 +43,30 @@ export default function Sidebar() {
         </span>
       </div>
 
-      {/* Navigation Groups */}
-      <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-8 scrollbar-hide">
-        {navigationGroups.map((group) => (
-          <div key={group.title} className="space-y-3">
-            <h3 className="px-3 text-[10px] font-semibold tracking-[2px] text-[var(--text-muted)] uppercase">
-              {group.title}
-            </h3>
-            <div className="space-y-1">
-              {group.items.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`
-                      flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
-                      ${isActive
-                        ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-white"
-                      }
-                    `}
-                  >
-                    <item.icon
-                      size={18}
-                      className={isActive ? "text-white" : "text-[var(--text-muted)] group-hover:text-white transition-colors"}
-                    />
-                    <span className="text-sm font-semibold">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      {/* Navigation items */}
+      <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1 scrollbar-hide">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`
+                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
+                ${isActive
+                  ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
+                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-white"
+                }
+              `}
+            >
+              <item.icon
+                size={18}
+                className={isActive ? "text-white" : "text-[var(--text-muted)] group-hover:text-white transition-colors"}
+              />
+              <span className="text-sm font-semibold">{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Bottom Profile Card */}
