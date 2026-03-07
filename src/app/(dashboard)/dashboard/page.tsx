@@ -1,6 +1,5 @@
 "use client";
 
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import AttributeCard from "@/components/dashboard/AttributeCard";
 import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
 import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
@@ -73,14 +72,6 @@ const mockQuests: Quest[] = [
 export default function DashboardPage() {
   return (
     <div className="max-w-[1400px] mx-auto space-y-8 pb-20 animate-fade-in">
-      {/* 1. Header Section */}
-      <DashboardHeader
-        username="Alex"
-        questCount={3}
-        currentXp={1240}
-        maxXp={1500}
-      />
-
       {/* Attributes Horizontal Row (Full Width) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         <AttributeCard
