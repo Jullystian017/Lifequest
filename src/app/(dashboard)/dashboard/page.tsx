@@ -11,8 +11,10 @@ import GoalPlannerWidget from "@/components/dashboard/GoalPlannerWidget";
 import { useUserStatsStore } from "@/store/userStatsStore";
 import { useQuestStore } from "@/store/questStore";
 import { useHabitStore } from "@/store/habitStore";
+import { useGoalStore } from "@/store/goalStore";
 import { Quest } from "@/types/quest";
 import { Habit } from "@/types/habit";
+import { Goal } from "@/types/goal";
 import { useEffect } from "react";
 import {
   Heart,
@@ -86,19 +88,100 @@ const INITIAL_QUESTS: Quest[] = [
 ];
 
 const INITIAL_HABITS: Habit[] = [
-  { id: "h1", user_id: "u1", title: "Morning Reading", description: "15 mins daily", frequency: "daily", stat_reward: "knowledge", xp_per_completion: 50, current_streak: 12, longest_streak: 20, completed_today: true, completions: [], created_at: new Date().toISOString() },
-  { id: "h3", user_id: "u1", title: "No Junk Food", description: "All day", frequency: "daily", stat_reward: "health", xp_per_completion: 30, current_streak: 21, longest_streak: 30, completed_today: true, completions: [], created_at: new Date().toISOString() },
+  {
+    id: "h1",
+    user_id: "u1",
+    title: "Morning Reading",
+    description: "15 mins daily",
+    icon: "📖",
+    frequency: "daily",
+    stat_reward: "knowledge",
+    xp_per_completion: 50,
+    current_streak: 12,
+    longest_streak: 20,
+    completed_today: true,
+    completions: [],
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "h3",
+    user_id: "u1",
+    title: "Morning Workout",
+    description: "30 min session",
+    icon: "💪",
+    frequency: "daily",
+    stat_reward: "health",
+    xp_per_completion: 80,
+    current_streak: 5,
+    longest_streak: 30,
+    completed_today: false,
+    completions: [],
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "h2",
+    user_id: "u1",
+    title: "Meditation",
+    description: "10 mins",
+    icon: "🧘",
+    frequency: "daily",
+    stat_reward: "discipline",
+    xp_per_completion: 40,
+    current_streak: 8,
+    longest_streak: 15,
+    completed_today: true,
+    completions: [],
+    created_at: new Date().toISOString()
+  },
+];
+
+const INITIAL_GOALS: Goal[] = [
+  {
+    id: "g1",
+    title: "Become Frontend Master",
+    description: "Learn React, Next.js, and TypeScript to build premium web apps.",
+    category: "career",
+    status: "in_progress",
+    priority: "high",
+    progress: 65,
+    milestones: [
+      { id: "m1", goal_id: "g1", title: "Master React Hooks", is_completed: true, order: 1 },
+      { id: "m2", goal_id: "g1", title: "Learn Next.js App Router", is_completed: true, order: 2 },
+      { id: "m3", goal_id: "g1", title: "Build 3 Large Projects", is_completed: false, order: 3 },
+    ],
+    stat_rewards: { knowledge: 20, creativity: 10 },
+    xp_reward: 1500,
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "g2",
+    title: "Health Transformation",
+    description: "Reach 15% body fat and run a 5k.",
+    category: "fitness",
+    status: "in_progress",
+    priority: "medium",
+    progress: 30,
+    milestones: [
+      { id: "m4", goal_id: "g2", title: "Lose 5kg", is_completed: true, order: 1 },
+      { id: "m5", goal_id: "g2", title: "Run 3km without stopping", is_completed: false, order: 2 },
+    ],
+    stat_rewards: { health: 25, discipline: 15 },
+    xp_reward: 1200,
+    created_at: new Date().toISOString(),
+  }
 ];
 
 export default function DashboardPage() {
   const { stats, addXp, addCoins, updateStat } = useUserStatsStore();
   const { quests, setQuests, completeQuest } = useQuestStore();
   const { habits, setHabits } = useHabitStore();
+  const { goals, setGoals } = useGoalStore();
 
   useEffect(() => {
     if (quests.length === 0) setQuests(INITIAL_QUESTS);
     if (habits.length === 0) setHabits(INITIAL_HABITS);
-  }, [quests.length, habits.length, setQuests, setHabits]);
+    if (goals.length === 0) setGoals(INITIAL_GOALS);
+  }, [quests.length, habits.length, goals.length, setQuests, setHabits, setGoals]);
 
   const handleCompleteQuest = (questId: string) => {
     const quest = quests.find(q => q.id === questId);

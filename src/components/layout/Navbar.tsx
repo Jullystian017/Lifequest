@@ -46,7 +46,7 @@ export default function Navbar() {
       case "/quests":
         return { title: "Active Quests", subtitle: "Manage your daily objectives" };
       case "/habits":
-        return { title: "Habit Tracker", subtitle: "Build consistency" };
+        return { title: "Growth", subtitle: "Track your life goals and build habits that move you forward" };
       default:
         return { title: "LifeQuest", subtitle: "Welcome back, Alex" };
     }
