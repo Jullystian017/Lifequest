@@ -12,10 +12,11 @@ import {
   Trophy,
   Users,
   BarChart3,
-  User,
-  Settings,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { useSidebarStore } from "@/store/sidebarStore";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -30,17 +31,24 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { isCollapsed, toggleSidebar } = useSidebarStore();
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-[var(--bg-sidebar)] border-r border-[var(--border-light)] flex flex-col z-50">
+    <aside className={`fixed left-0 top-0 h-screen transition-all duration-300 bg-[var(--bg-sidebar)] border-r border-[var(--border-light)] flex flex-col z-50 ${isCollapsed ? 'w-20' : 'w-64'}`}>
       {/* Branding */}
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl overflow-hidden transition-transform group-hover:scale-110">
+      <div className="p-6 flex items-center gap-3 overflow-hidden">
+        <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
           <img src="/lifequest.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
         </div>
-        <span className="text-xl font-semibold font-[family-name:var(--font-heading)] tracking-tight">
-          LifeQuest
-        </span>
+        {!isCollapsed && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-xl font-semibold font-[family-name:var(--font-heading)] tracking-tight whitespace-nowrap"
+          >
+            LifeQuest
+          </motion.span>
+        )}
       </div>
 
       {/* Navigation items */}
@@ -51,41 +59,52 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              title={isCollapsed ? item.label : ""}
               className={`
                 flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
                 ${isActive
                   ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
                   : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-white"
                 }
+                ${isCollapsed ? "justify-center px-0" : ""}
               `}
             >
               <item.icon
                 size={18}
                 className={isActive ? "text-white" : "text-[var(--text-muted)] group-hover:text-white transition-colors"}
               />
-              <span className="text-sm font-semibold">{item.label}</span>
+              {!isCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-sm font-semibold truncate"
+                >
+                  {item.label}
+                </motion.span>
+              )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Bottom Profile Card */}
+      {/* Bottom Toggle Button */}
       <div className="p-4 border-t border-[var(--border-light)]">
-        <div className="p-3 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-3 group cursor-pointer hover:border-[var(--primary)]/30 transition-all">
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-[var(--border-medium)]">
-            <img
-              src="https://i.pravatar.cc/150?u=alexmiller"
-              alt="Alex Miller"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-semibold truncate">Alex Miller</span>
-            <span className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-              LVL 12 Adventurer
-            </span>
-          </div>
-        </div>
+        <button
+          onClick={toggleSidebar}
+          className={`h-11 rounded-xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center justify-center gap-2 text-[var(--text-muted)] hover:text-white hover:border-[var(--primary)] transition-all shadow-lg overflow-hidden ${isCollapsed ? "w-10 mx-auto" : "w-full px-4"
+            }`}
+        >
+          {isCollapsed ? (
+            <ChevronRight size={18} />
+          ) : (
+            <>
+              <ChevronLeft size={18} />
+              <span className="text-xs font-bold uppercase tracking-wider whitespace-nowrap">
+                Collapse View
+              </span>
+            </>
+          )}
+        </button>
       </div>
     </aside>
   );
