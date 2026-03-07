@@ -26,22 +26,22 @@ export default function AttributeRadarChart() {
     const points = data.map((d, i) => {
         const value = Math.min(100, Math.max(10, d.value)); // Clamp for visual
         const r = (value / 100) * radius;
-        const x = center + r * Math.sin(i * angleStep);
-        const y = center - r * Math.cos(i * angleStep);
+        const x = Number((center + r * Math.sin(i * angleStep)).toFixed(4));
+        const y = Number((center - r * Math.cos(i * angleStep)).toFixed(4));
         return { x, y };
     });
 
     // Calculate background polygon points (max 100%)
     const bgPoints = data.map((_, i) => {
-        const x = center + radius * Math.sin(i * angleStep);
-        const y = center - radius * Math.cos(i * angleStep);
+        const x = Number((center + radius * Math.sin(i * angleStep)).toFixed(4));
+        const y = Number((center - radius * Math.cos(i * angleStep)).toFixed(4));
         return `${x},${y}`;
     }).join(" ");
 
     // Points for the 50% line
     const halfPoints = data.map((_, i) => {
-        const x = center + (radius * 0.5) * Math.sin(i * angleStep);
-        const y = center - (radius * 0.5) * Math.cos(i * angleStep);
+        const x = Number((center + (radius * 0.5) * Math.sin(i * angleStep)).toFixed(4));
+        const y = Number((center - (radius * 0.5) * Math.cos(i * angleStep)).toFixed(4));
         return `${x},${y}`;
     }).join(" ");
 
@@ -68,8 +68,8 @@ export default function AttributeRadarChart() {
 
                 {/* Axes */}
                 {data.map((_, i) => {
-                    const x = center + radius * Math.sin(i * angleStep);
-                    const y = center - radius * Math.cos(i * angleStep);
+                    const x = Number((center + radius * Math.sin(i * angleStep)).toFixed(4));
+                    const y = Number((center - radius * Math.cos(i * angleStep)).toFixed(4));
                     return (
                         <line
                             key={i}
@@ -98,8 +98,8 @@ export default function AttributeRadarChart() {
                 {/* Labels */}
                 {data.map((d, i) => {
                     const labelRadius = radius + 25;
-                    const x = center + labelRadius * Math.sin(i * angleStep);
-                    const y = center - labelRadius * Math.cos(i * angleStep);
+                    const x = Number((center + labelRadius * Math.sin(i * angleStep)).toFixed(4));
+                    const y = Number((center - labelRadius * Math.cos(i * angleStep)).toFixed(4));
                     return (
                         <text
                             key={i}

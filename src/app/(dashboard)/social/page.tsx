@@ -21,7 +21,7 @@ export default function SocialPage() {
     const [activeTab, setActiveTab] = useState("overview");
 
     return (
-        <div className="flex flex-col lg:flex-row gap-12 max-w-[1400px] mx-auto pb-20 animate-fade-in px-4 lg:px-0">
+        <div className="flex flex-col lg:flex-row gap-12 pb-20 animate-fade-in w-full">
             {/* Left Column: Community Feed & Streaks */}
             <div className="flex-1 space-y-10">
 

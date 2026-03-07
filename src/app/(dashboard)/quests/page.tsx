@@ -64,7 +64,7 @@ export default function QuestsPage() {
     };
 
     return (
-        <div className="flex h-[calc(100vh-140px)] -mt-2 -mx-6 -mb-6 overflow-hidden bg-[#0a0b14]">
+        <div className="flex h-[calc(100vh-140px)] -mt-4 -mx-10 -mb-8 overflow-hidden bg-[#0a0b14]">
             {/* 1. Center Column: Quest List */}
             <div className="flex-1 flex flex-col min-w-0 border-r border-white/5">
                 <div className="p-8 pb-20 overflow-y-auto scrollbar-hide space-y-8 pt-6">

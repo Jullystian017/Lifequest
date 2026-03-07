@@ -43,7 +43,7 @@ export default function HabitsPage() {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row gap-10 max-w-[1400px] mx-auto pb-20 animate-fade-in">
+        <div className="flex flex-col lg:flex-row gap-10 pb-20 animate-fade-in w-full">
             {/* Left Column: Goals & Habits (Main Content) */}
             <div className="flex-1 space-y-12">
 

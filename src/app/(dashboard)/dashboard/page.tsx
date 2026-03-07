@@ -199,7 +199,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8 pb-20 animate-fade-in">
+    <div className="space-y-8 pb-20 animate-fade-in w-full">
       {/* 1. Attributes Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         <AttributeCard

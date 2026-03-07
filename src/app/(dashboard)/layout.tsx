@@ -16,7 +16,7 @@ export default function DashboardLayout({
             <Sidebar />
             <div className={`transition-all duration-300 ${isCollapsed ? 'ml-20' : 'ml-64'}`}>
                 <Navbar />
-                <main className="p-6">{children}</main>
+                <main className="px-10 py-8">{children}</main>
             </div>
         </div>
     );
