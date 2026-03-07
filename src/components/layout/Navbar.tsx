@@ -1,16 +1,47 @@
 "use client";
 
-import { Bell, Flame } from "lucide-react";
+import { Bell, Flame, LogOut, Settings, User, MoreHorizontal, CheckCircle2, Clock } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Determine dynamic title based on the active route
   const getPageInfo = () => {
+    const hour = new Date().getHours();
+    let greeting = "";
+
+    if (hour >= 5 && hour < 12) {
+      greeting = "Rise and grind! Start your first quest to boost your Discipline.";
+    } else if (hour >= 12 && hour < 18) {
+      greeting = "Keep the momentum going! You're making great progress today.";
+    } else {
+      greeting = "Great work today. Check your daily summary before you rest.";
+    }
+
     switch (pathname) {
       case "/dashboard":
-        return { title: "System Overview", subtitle: "Node Sync: Optimal" };
+        return { title: "Command Center", subtitle: greeting };
       case "/quests":
         return { title: "Active Quests", subtitle: "Manage your daily objectives" };
       case "/habits":
@@ -23,10 +54,10 @@ export default function Navbar() {
   const { title, subtitle } = getPageInfo();
 
   return (
-    <header className="h-24 flex items-center justify-between px-10 bg-[var(--bg-main)] sticky top-0 z-30 w-full">
+    <header className="h-24 flex items-center justify-between px-10 bg-[var(--bg-main)] sticky top-0 z-30 w-full border-b border-white/[0.02]">
 
-      {/* Left Side: Page Title */}
-      <div className="flex flex-col gap-1.5">
+      {/* 1. Left Side: Page Title */}
+      <div className="flex flex-col gap-1.5 w-1/3">
         <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] text-white tracking-tight leading-none">
           {title}
         </h1>
@@ -35,29 +66,179 @@ export default function Navbar() {
         </p>
       </div>
 
-      {/* Right Side Actions */}
-      <div className="flex items-center gap-6">
-        {/* Legendary Streak Pill */}
-        <div className="flex items-center gap-3 bg-[#1e1511] border border-orange-900/30 px-5 py-2.5 rounded-2xl shadow-lg ring-1 ring-orange-500/10 hidden md:flex">
-          <div className="bg-orange-500/20 rounded-full p-1.5 flex items-center justify-center">
-            <Flame size={16} className="text-orange-500" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-orange-500 uppercase tracking-widest leading-none mb-0.5">Legendary Streak</span>
-            <span className="text-sm font-bold text-white leading-none">42 Days</span>
+      {/* 2. Center: Empty per user request */}
+      <div className="flex-1 flex justify-center items-center">
+      </div>
+
+      {/* 3. Right Side: Resources & Identity (The Essentials) */}
+      <div className="flex items-center justify-end gap-3 w-1/3">
+
+        {/* Currency (Gold) */}
+        <div className="flex items-center gap-2">
+          <button className="w-10 h-10 p-2.5 bg-[#1b1c28] border border-white/[0.05] rounded-xl flex items-center justify-center hover:bg-white/[0.05] transition-all relative shadow-sm cursor-pointer group shrink-0">
+            <span className="text-base leading-none group-hover:scale-110 transition-transform duration-300">🪙</span>
+            <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none"></div>
+          </button>
+          <div className="flex flex-col items-start leading-none group cursor-pointer mr-2">
+            <span className="text-[9px] font-bold text-orange-400/80 uppercase tracking-widest hidden sm:block">Wealth</span>
+            <span className="text-sm font-black text-white group-hover:text-amber-400 transition-colors mt-[1px] whitespace-nowrap">2,450 <span className="text-amber-500/80 text-xs font-bold">G</span></span>
           </div>
         </div>
 
         {/* Notifications */}
-        <button className="p-3 bg-[#1b1c28] border border-white/[0.05] rounded-2xl text-slate-400 hover:text-white transition-all relative shadow-sm">
-          <Bell size={20} />
-          <span className="absolute top-3 right-3 w-2 h-2 bg-indigo-500 rounded-full border-2 border-[#1b1c28]" />
-        </button>
+        <div className="relative mr-1" ref={notifRef}>
+          <button
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+            className={`p-2.5 bg-[#1b1c28] border rounded-xl text-slate-400 hover:text-white transition-all relative shadow-sm ${isNotifOpen ? 'border-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.2)]' : 'border-white/[0.05]'}`}
+          >
+            <Bell size={18} />
+            <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-[#1b1c28]" />
+          </button>
 
-        {/* User Mini Avatar */}
-        <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/[0.05] cursor-pointer hover:border-indigo-500 transition-colors shadow-sm">
-          <img src="/lifequest.png" alt="Profile" className="w-[120%] h-[120%] object-cover opacity-80" />
+          {/* Notification Dropdown Modal */}
+          <AnimatePresence>
+            {isNotifOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 top-full mt-4 w-80 bg-[#1b1c28] border border-white/[0.05] rounded-3xl shadow-2xl overflow-hidden z-50 flex flex-col"
+              >
+                {/* Header */}
+                <div className="p-4 border-b border-white/[0.05] bg-white/[0.01] flex items-center justify-between">
+                  <h4 className="text-white font-bold text-sm">Notifications</h4>
+                  <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">2 NEW</span>
+                </div>
+
+                {/* Notification List */}
+                <div className="max-h-[300px] overflow-y-auto flex flex-col">
+                  {/* Item 1 */}
+                  <div className="p-4 border-b border-white/[0.02] flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-pointer relative overflow-hidden group">
+                    <div className="w-1 absolute left-0 top-0 bottom-0 bg-indigo-500"></div>
+                    <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
+                      <CheckCircle2 size={16} className="text-indigo-400" />
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-bold text-white leading-tight">Quest Completed</h5>
+                      <p className="text-xs text-slate-400 mt-1 leading-snug">You just finished "Morning Workout". +50 XP and 100 G earned.</p>
+                      <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
+                        <Clock size={10} /> 2m ago
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Item 2 */}
+                  <div className="p-4 border-b border-white/[0.02] flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-pointer relative overflow-hidden group">
+                    <div className="w-1 absolute left-0 top-0 bottom-0 bg-orange-500"></div>
+                    <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0">
+                      <Flame size={16} className="text-orange-400" />
+                    </div>
+                    <div>
+                      <h5 className="text-sm font-bold text-white leading-tight">Streak Warning</h5>
+                      <p className="text-xs text-slate-400 mt-1 leading-snug">Don't lose your 42-day momentum! Complete a daily habit soon.</p>
+                      <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
+                        <Clock size={10} /> 1h ago
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Action */}
+                <button className="p-3 text-xs font-bold text-indigo-400 hover:text-indigo-300 hover:bg-white/[0.02] transition-colors text-center w-full">
+                  Mark all as read
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
+
+        {/* User Profile */}
+        <div className="relative" ref={profileRef}>
+          <div
+            className="flex items-center gap-3 cursor-pointer group bg-[#1b1c28] border border-white/[0.05] p-1.5 pr-4 rounded-2xl hover:bg-white/[0.05] transition-all shadow-sm relative"
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+          >
+            <div className={`w-10 h-10 rounded-xl overflow-hidden border transition-all shadow-sm shrink-0 ${isProfileOpen ? 'border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'border-white/[0.05] group-hover:border-indigo-500 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.3)]'}`}>
+              <img src="https://i.pravatar.cc/150?u=alexmiller" alt="Profile" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex flex-col items-start hidden md:flex min-w-[100px]">
+              <span className="text-sm font-bold text-white group-hover:text-indigo-400 transition-colors truncate">Alex Miller</span>
+              <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase truncate">LVL 12 Adventurer</span>
+            </div>
+            <div className="hidden md:flex pl-1">
+              <MoreHorizontal size={16} className="text-slate-500 group-hover:text-indigo-400 transition-colors" />
+            </div>
+          </div>
+
+          {/* Profile Dropdown Modal */}
+          <AnimatePresence>
+            {isProfileOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 top-full mt-4 w-72 bg-[#1b1c28] border border-white/[0.05] rounded-3xl shadow-2xl overflow-hidden z-50 flex flex-col"
+              >
+                {/* Header / XP Info */}
+                <div className="p-5 border-b border-white/[0.05] bg-white/[0.01]">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-indigo-500/50">
+                      <img src="https://i.pravatar.cc/150?u=alexmiller" alt="Profile" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold text-base leading-tight">Alex Miller</h4>
+                      <p className="text-indigo-400 font-semibold text-xs tracking-wide">LVL 12 ADVENTURER</p>
+                    </div>
+                  </div>
+
+                  {/* XP Bar inside modal */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex justify-between items-end">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Experience</span>
+                      <span className="text-[10px] font-bold text-white">1240 / 1500 XP</span>
+                    </div>
+                    <div className="h-2 w-full bg-[#2a2b3d] rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 w-[82%] rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                    </div>
+                    <p className="text-[10px] text-slate-500 text-center mt-1">260 XP to next level</p>
+                  </div>
+                </div>
+
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-2 gap-px bg-white/[0.05]">
+                  <div className="bg-[#1b1c28] p-3 flex flex-col items-center justify-center gap-1 hover:bg-white/[0.02] transition-colors cursor-pointer">
+                    <span className="text-orange-500 font-bold text-lg leading-none">42</span>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Day Streak</span>
+                  </div>
+                  <div className="bg-[#1b1c28] p-3 flex flex-col items-center justify-center gap-1 hover:bg-white/[0.02] transition-colors cursor-pointer">
+                    <span className="text-emerald-400 font-bold text-lg leading-none">128</span>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Quests Done</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="p-2 flex flex-col gap-1">
+                  <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold">
+                    <User size={16} className="text-slate-400" />
+                    View Full Profile
+                  </button>
+                  <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold">
+                    <Settings size={16} className="text-slate-400" />
+                    Account Settings
+                  </button>
+                  <div className="h-px bg-white/[0.05] my-1"></div>
+                  <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors text-sm font-semibold">
+                    <LogOut size={16} />
+                    Log Out
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
       </div>
     </header>
   );
