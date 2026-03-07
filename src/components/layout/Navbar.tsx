@@ -4,6 +4,7 @@ import { Bell, Flame, LogOut, Settings, User, MoreHorizontal, CheckCircle2, Cloc
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUserStatsStore } from "@/store/userStatsStore";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -52,6 +53,7 @@ export default function Navbar() {
   };
 
   const { title, subtitle } = getPageInfo();
+  const { coins, level, xp, xpToNextLevel } = useUserStatsStore();
 
   return (
     <header className="h-24 flex items-center justify-between px-10 bg-[var(--bg-main)] sticky top-0 z-30 w-full border-b border-white/[0.02]">
@@ -81,7 +83,7 @@ export default function Navbar() {
           </button>
           <div className="flex flex-col items-start leading-none group cursor-pointer mr-2">
             <span className="text-[9px] font-bold text-orange-400/80 uppercase tracking-widest hidden sm:block">Wealth</span>
-            <span className="text-sm font-black text-white group-hover:text-white transition-colors mt-[1px] whitespace-nowrap">2,450 <span className="text-amber-500/80 text-xs font-bold">G</span></span>
+            <span className="text-sm font-black text-white group-hover:text-white transition-colors mt-[1px] whitespace-nowrap">{coins.toLocaleString()} <span className="text-amber-500/80 text-xs font-bold">G</span></span>
           </div>
         </div>
 
@@ -164,7 +166,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col items-start hidden md:flex min-w-[100px]">
               <span className="text-sm font-bold text-white group-hover:text-white transition-colors truncate">Alex Miller</span>
-              <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase truncate">LVL 12 Adventurer</span>
+              <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase truncate">LVL {level} Adventurer</span>
             </div>
             <div className="hidden md:flex pl-1">
               <MoreHorizontal size={16} className="text-slate-500 group-hover:text-white transition-colors" />
@@ -189,7 +191,7 @@ export default function Navbar() {
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-base leading-tight">Alex Miller</h4>
-                      <p className="text-indigo-400 font-semibold text-xs tracking-wide">LVL 12 ADVENTURER</p>
+                      <p className="text-indigo-400 font-semibold text-xs tracking-wide">LVL {level} ADVENTURER</p>
                     </div>
                   </div>
 
@@ -197,12 +199,17 @@ export default function Navbar() {
                   <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-end">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Experience</span>
-                      <span className="text-[10px] font-bold text-white">1240 / 1500 XP</span>
+                      <span className="text-[10px] font-bold text-white">{xp} / {xpToNextLevel} XP</span>
                     </div>
-                    <div className="h-2 w-full bg-[#2a2b3d] rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 w-[82%] rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"></div>
+                    <div className="h-2 w-full bg-[#2a2b3d] rounded-full overflow-hidden border border-white/5">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(xp / xpToNextLevel) * 100}%` }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                      />
                     </div>
-                    <p className="text-[10px] text-slate-500 text-center mt-1">260 XP to next level</p>
+                    <p className="text-[10px] text-slate-500 text-center mt-1">{xpToNextLevel - xp} XP to next level</p>
                   </div>
                 </div>
 

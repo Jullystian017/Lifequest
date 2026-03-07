@@ -6,6 +6,7 @@ export interface Quest {
     description: string;
     type: QuestType;
     difficulty: QuestDifficulty;
+    priority: QuestPriority;
     xp_reward: number;
     coin_reward: number;
     stat_rewards: Partial<Record<StatKey, number>>;
@@ -18,3 +19,4 @@ export interface Quest {
 
 export type QuestType = "daily" | "weekly" | "story" | "ai_generated";
 export type QuestDifficulty = "easy" | "medium" | "hard" | "epic";
+export type QuestPriority = "low" | "medium" | "high" | "urgent";
