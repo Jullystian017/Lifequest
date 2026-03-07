@@ -1,5 +1,11 @@
 import { StatKey } from "./user";
 
+export interface QuestTask {
+    id: string;
+    title: string;
+    is_completed: boolean;
+}
+
 export interface Quest {
     id: string;
     title: string;
@@ -13,6 +19,7 @@ export interface Quest {
     target_value: number;
     current_value: number;
     is_completed: boolean;
+    tasks?: QuestTask[];
     expires_at?: string;
     created_at: string;
 }
