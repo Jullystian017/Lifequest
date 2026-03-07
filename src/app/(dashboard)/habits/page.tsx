@@ -55,8 +55,8 @@ export default function HabitsPage() {
                                 <Award size={20} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Life Goals</h2>
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Epic Objectives</p>
+                                <h2 className="text-xl font-semibold text-white font-[family-name:var(--font-heading)]">Life Goals</h2>
+                                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Epic Objectives</p>
                             </div>
                         </div>
                         <Button className="rounded-xl flex items-center gap-2 bg-[#1b1c28] border border-white/5 hover:bg-white/5 transition-all">
@@ -79,8 +79,8 @@ export default function HabitsPage() {
                                 <Sparkles size={20} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Daily Habits</h2>
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">Momentum Builder</p>
+                                <h2 className="text-xl font-semibold text-white font-[family-name:var(--font-heading)]">Daily Habits</h2>
+                                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Momentum Builder</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
@@ -121,14 +121,14 @@ export default function HabitsPage() {
 
                 {/* Radar Chart Card */}
                 <div className="space-y-4">
-                    <h3 className="text-xs font-black text-slate-500 uppercase tracking-[2px] ml-2">Growth Analysis</h3>
+                    <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-[2px] ml-2">Growth Analysis</h3>
                     <AttributeRadarChart />
                 </div>
 
                 {/* Detailed Stats List */}
                 <div className="bg-[#151921] rounded-3xl p-6 border border-white/5 space-y-6">
                     <div className="flex items-center justify-between">
-                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[2px]">Attribute Mastery</h4>
+                        <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-[2px]">Attribute Mastery</h4>
                         <TrendingUp size={14} className="text-emerald-400" />
                     </div>
 
@@ -144,9 +144,9 @@ export default function HabitsPage() {
                                 <div className="flex justify-between items-center px-1">
                                     <div className="flex items-center gap-2">
                                         <stat.icon size={12} style={{ color: stat.color }} />
-                                        <span className="text-[11px] font-bold text-white">{stat.label}</span>
+                                        <span className="text-[11px] font-semibold text-white">{stat.label}</span>
                                     </div>
-                                    <span className="text-[10px] font-black text-white italic">LVL {Math.floor(stat.value / 10)}</span>
+                                    <span className="text-[10px] font-semibold text-white italic">LVL {Math.floor(stat.value / 10)}</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-slate-800/50 rounded-full overflow-hidden">
                                     <motion.div
@@ -160,32 +160,32 @@ export default function HabitsPage() {
                         ))}
                     </div>
 
-                    <button className="w-full py-3 text-[10px] font-bold text-slate-400 hover:text-white bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 rounded-2xl transition-all uppercase tracking-widest">
+                    <button className="w-full py-3 text-[10px] font-semibold text-slate-400 hover:text-white bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 rounded-2xl transition-all uppercase tracking-widest">
                         View Detailed Stats
                     </button>
                 </div>
 
                 {/* Next Milestone Card */}
-                <div className="relative group overflow-hidden bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-6 shadow-xl shadow-indigo-500/10">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                        <Trophy size={80} />
+                <div className="relative group overflow-hidden bg-[#151921] rounded-3xl p-6 border border-white/5">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                        <Trophy size={80} className="text-white" />
                     </div>
                     <div className="relative z-10 space-y-4">
-                        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20">
-                            <Trophy size={20} className="text-white fill-white/20" />
+                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                            <Trophy size={20} className="text-[var(--primary)]" />
                         </div>
                         <div>
-                            <h4 className="text-sm font-black text-white uppercase tracking-tight">Next Milestone</h4>
-                            <p className="text-xs text-indigo-100/80 font-medium">Intelligence Level 6</p>
+                            <h4 className="text-sm font-semibold text-white uppercase tracking-tight">Next Milestone</h4>
+                            <p className="text-xs text-slate-400 font-medium">Intelligence Level 6</p>
                         </div>
-                        <div className="h-1.5 w-full bg-black/20 rounded-full overflow-hidden">
+                        <div className="h-1.5 w-full bg-slate-800/50 rounded-full overflow-hidden">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: "85%" }}
-                                className="h-full bg-white rounded-full"
+                                className="h-full bg-[var(--primary)] rounded-full shadow-[0_0_8px_rgba(139,92,246,0.5)]"
                             />
                         </div>
-                        <button className="flex items-center gap-2 text-[10px] font-black text-white uppercase tracking-widest group/btn">
+                        <button className="flex items-center gap-2 text-[10px] font-semibold text-white uppercase tracking-widest group/btn">
                             Track Progress <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                         </button>
                     </div>

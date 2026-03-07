@@ -108,7 +108,7 @@ export default function AttributeRadarChart() {
                             textAnchor="middle"
                             dominantBaseline="middle"
                             fill="rgba(255,255,255,0.4)"
-                            className="text-[10px] font-black tracking-widest uppercase"
+                            className="text-[10px] font-semibold tracking-widest uppercase"
                         >
                             {d.label}
                         </text>
@@ -129,7 +129,7 @@ export default function AttributeRadarChart() {
             </svg>
 
             <div className="mt-4 text-center">
-                <h4 className="text-xs font-bold text-white uppercase tracking-widest">Character Shape</h4>
+                <h4 className="text-xs font-semibold text-white uppercase tracking-widest">Character Shape</h4>
                 <p className="text-[10px] text-slate-500 font-medium">Balanced Growth Active</p>
             </div>
         </div>

@@ -15,8 +15,8 @@ export default function HabitCard({ habit, onToggle }: HabitCardProps) {
         <motion.div
             layout
             className={`group bg-[#151921] rounded-2xl p-5 border transition-all ${habit.completed_today
-                    ? "border-emerald-500/30 bg-emerald-500/5 shadow-lg shadow-emerald-500/5"
-                    : "border-white/5 hover:border-white/10"
+                ? "border-emerald-500/30 bg-emerald-500/5 shadow-lg shadow-emerald-500/5"
+                : "border-white/5 hover:border-white/10"
                 }`}
         >
             <div className="flex items-center gap-5">
@@ -42,13 +42,13 @@ export default function HabitCard({ habit, onToggle }: HabitCardProps) {
                 {/* 2. Info */}
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                        <h4 className={`text-base font-bold truncate ${habit.completed_today ? "text-slate-400 font-medium" : "text-white"}`}>
+                        <h4 className={`text-base font-semibold truncate ${habit.completed_today ? "text-slate-400 font-medium" : "text-white"}`}>
                             {habit.title}
                         </h4>
-                        <span className="text-[10px] font-black text-[var(--primary)] uppercase tracking-tighter">+{habit.xp_per_completion} XP</span>
+                        <span className="text-[10px] font-semibold text-[var(--primary)] uppercase tracking-tighter">+{habit.xp_per_completion} XP</span>
                     </div>
 
-                    <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+                    <div className="flex items-center gap-4 text-[10px] font-semibold text-slate-500 uppercase tracking-tight">
                         <span className="flex items-center gap-1.5"><Flame size={12} className="text-orange-500" /> {habit.current_streak} Day Streak</span>
                         <span className="flex items-center gap-1.5"><TrendingUp size={12} className="text-blue-400" /> Best: {habit.longest_streak}</span>
                     </div>
@@ -56,7 +56,7 @@ export default function HabitCard({ habit, onToggle }: HabitCardProps) {
 
                 {/* 3. Consistency Radar (Mini) */}
                 <div className="hidden sm:flex flex-col items-end gap-2 pr-2">
-                    <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Consistency</span>
+                    <span className="text-[8px] font-semibold text-slate-600 uppercase tracking-widest">Consistency</span>
                     <div className="flex gap-1">
                         {consistency.map((done, i) => (
                             <div
@@ -71,7 +71,7 @@ export default function HabitCard({ habit, onToggle }: HabitCardProps) {
                 {/* 4. Reward Badge */}
                 <div className="hidden lg:flex flex-col items-center justify-center w-16 h-16 bg-white/[0.02] rounded-2xl border border-white/5">
                     <Zap size={18} className="text-[var(--primary)] mb-1" />
-                    <span className="text-[9px] font-black text-slate-400 uppercase">+{habit.xp_per_completion}</span>
+                    <span className="text-[9px] font-semibold text-slate-400 uppercase">+{habit.xp_per_completion}</span>
                 </div>
             </div>
         </motion.div>
