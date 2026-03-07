@@ -44,7 +44,7 @@ export default function RecentActivityWidget() {
           <History size={20} />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-white font-[family-name:var(--font-heading)] leading-none pt-1">
+          <h3 className="text-lg font-semibold text-white font-[family-name:var(--font-heading)] leading-none pt-1">
             Recent Activity
           </h3>
           <p className="text-xs text-[var(--text-muted)] mt-1">Your latest milestones</p>

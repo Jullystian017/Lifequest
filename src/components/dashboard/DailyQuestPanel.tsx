@@ -26,7 +26,7 @@ export default function DailyQuestPanel({
             <CheckCircle2 size={20} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white font-[family-name:var(--font-heading)]">
+            <h3 className="text-lg font-semibold text-white font-[family-name:var(--font-heading)]">
               Daily Quest Log
             </h3>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">Conquer your daily objectives</p>

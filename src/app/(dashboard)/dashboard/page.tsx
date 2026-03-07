@@ -5,6 +5,7 @@ import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
 import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
 import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
 import RecentActivityWidget from "@/components/dashboard/RecentActivityWidget";
+import AIInsightWidget from "@/components/dashboard/AIInsightWidget";
 import { CharacterStats } from "@/types/user";
 import { Quest } from "@/types/quest";
 import {
@@ -133,19 +134,9 @@ export default function DashboardPage() {
 
         {/* Right Column (Narrow) */}
         <div className="lg:col-span-4 space-y-10">
+          <AIInsightWidget />
           <ActiveStreaksWidget />
           <RecentActivityWidget />
-
-          {/* Subtle Tip / Info Card */}
-          <div className="p-6 rounded-3xl bg-[var(--bg-sidebar)] border border-dashed border-[var(--border-light)] flex flex-col items-center text-center gap-3 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
-            <div className="w-12 h-12 rounded-full bg-[var(--primary)]/10 flex items-center justify-center text-[var(--primary)]">
-              <span className="text-xl">💡</span>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Pro Tip</p>
-              <p className="text-[10px] leading-relaxed">Completing habits early in the morning grants a 1.2x XP multiplier!</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
