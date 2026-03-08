@@ -9,7 +9,8 @@ import Button from "@/components/ui/Button";
 
 export default function BossBattlesPage() {
     const { bosses, dealDamage } = useBossStore();
-    const { activeWorkspaceId, activeWorkspace } = useWorkspaceStore();
+    const { activeWorkspaceId, workspaces = [], activeRole } = useWorkspaceStore();
+    const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
     const { addXp, addCoins } = useUserStatsStore();
 
     // Filter bosses by active workspace
@@ -30,6 +31,8 @@ export default function BossBattlesPage() {
         addCoins(Math.floor(damage * 0.1));
     };
 
+    const canSummonBoss = activeRole !== 'member';
+
     return (
         <div className="flex flex-col gap-12 pb-20 animate-fade-in w-full">
             
@@ -48,9 +51,11 @@ export default function BossBattlesPage() {
                     <p className="text-sm text-slate-500 font-medium">Turn massive projects into epic encounters. Deal damage by completing tasks.</p>
                 </div>
                 
-                <Button className="rounded-xl flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white border-0 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
-                    <Plus size={16} /> <span className="text-[11px] font-semibold uppercase tracking-widest">Summon Boss</span>
-                </Button>
+                {canSummonBoss && (
+                    <Button className="rounded-xl flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white border-0 shadow-[0_0_15px_rgba(220,38,38,0.3)]">
+                        <Plus size={16} /> <span className="text-[11px] font-semibold uppercase tracking-widest">Summon Boss</span>
+                    </Button>
+                )}
             </header>
 
             {/* 2. Active Boss Arena (The Main Event) */}
@@ -148,12 +153,20 @@ export default function BossBattlesPage() {
                                                     <Swords size={18} />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <span className={`block text-sm font-semibold mb-1 truncate ${task.is_completed ? 'text-slate-500 line-through' : 'text-slate-200 group-hover:text-white transition-colors'}`}>
+                                                    <span className={`block text-sm font-semibold mb-1.5 truncate ${task.is_completed ? 'text-slate-500 line-through' : 'text-slate-200 group-hover:text-white transition-colors'}`}>
                                                         {task.title}
                                                     </span>
-                                                    <span className="inline-block text-[10px] font-black uppercase text-red-500/80 bg-red-500/10 px-1.5 py-0.5 rounded">
-                                                        {task.damage} DMG
-                                                    </span>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="inline-block text-[10px] font-black uppercase text-red-500/80 bg-red-500/10 px-1.5 py-0.5 rounded">
+                                                            {task.damage} DMG
+                                                        </span>
+                                                        {task.assigneeAvatar && (
+                                                            <div className="flex items-center gap-1.5 bg-white/5 px-2 py-0.5 rounded-full border border-white/10" title={`Assigned to ${task.assigneeName}`}>
+                                                                <span className="text-xs">{task.assigneeAvatar}</span>
+                                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{task.assigneeName?.split(' ')[0]}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </button>
                                         ))}

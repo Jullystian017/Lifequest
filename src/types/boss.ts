@@ -3,6 +3,9 @@ export interface BossTask {
     title: string;
     is_completed: boolean;
     damage: number; // HP removed from Boss when completed
+    assigneeId?: string;
+    assigneeName?: string;
+    assigneeAvatar?: string;
 }
 
 export interface BossReward {

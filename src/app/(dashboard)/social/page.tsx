@@ -1,6 +1,8 @@
 "use client";
 
 import { useSocialStore } from "@/store/socialStore";
+import { useTeamStore, TeamRole } from "@/store/teamStore";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import {
     Users,
     Search as SearchIcon,
@@ -19,6 +21,44 @@ import FriendsList from "@/components/social/FriendsList";
 export default function SocialPage() {
     const { friendStreaks } = useSocialStore();
     const [activeTab, setActiveTab] = useState("overview");
+
+    const { addWorkspace, setActiveWorkspace } = useWorkspaceStore();
+    const { createTeam } = useTeamStore();
+    const [isCreatingTeam, setIsCreatingTeam] = useState(false);
+
+    const handleCreateTeam = () => {
+        setIsCreatingTeam(true);
+        // Mock creation delay
+        setTimeout(() => {
+            const newTeamId = `team-${Date.now()}`;
+            
+            // 1. Create Workspace
+            addWorkspace({
+                id: newTeamId,
+                name: 'New Custom Squad',
+                type: 'team',
+                icon: '🏰',
+                memberCount: 1
+            });
+
+            // 2. Create Team Data
+            createTeam({
+                id: newTeamId,
+                name: 'New Custom Squad',
+                description: 'A newly summoned guild',
+                current_streak: 0,
+                longest_streak: 0,
+                created_at: new Date().toISOString(),
+                members: [
+                    { userId: 'u-1', name: 'Alex Miller', avatar_url: '🧔', role: 'owner' as TeamRole, joined_at: new Date().toISOString() }
+                ]
+            });
+
+            // 3. Navigate
+            setActiveWorkspace(newTeamId);
+            setIsCreatingTeam(false);
+        }, 1000);
+    };
 
     return (
         <div className="flex flex-col lg:flex-row gap-12 pb-20 animate-fade-in w-full">
@@ -47,6 +87,16 @@ export default function SocialPage() {
                                     className="bg-[#151921] border border-white/5 rounded-xl pl-9 pr-4 py-2 text-xs text-white outline-none focus:border-indigo-500/30 transition-all w-full sm:w-48"
                                 />
                             </div>
+                            <Button 
+                                onClick={handleCreateTeam}
+                                disabled={isCreatingTeam}
+                                className="rounded-xl flex items-center gap-2 px-4 whitespace-nowrap bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)] transition-all"
+                            >
+                                <Users size={16} /> 
+                                <span className="text-[11px] font-semibold uppercase tracking-widest">
+                                    {isCreatingTeam ? 'Summoning...' : 'Create Team'}
+                                </span>
+                            </Button>
                             <Button className="rounded-xl flex items-center gap-2 px-4 whitespace-nowrap bg-indigo-600 hover:bg-indigo-500 text-white border-0 shadow-[0_0_15px_rgba(79,70,229,0.3)]">
                                 <UserPlus size={16} /> <span className="text-[11px] font-semibold uppercase tracking-widest">Add Friend</span>
                             </Button>

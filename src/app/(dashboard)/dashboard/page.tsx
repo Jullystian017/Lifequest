@@ -12,6 +12,7 @@ import { useUserStatsStore } from "@/store/userStatsStore";
 import { useQuestStore } from "@/store/questStore";
 import { useHabitStore } from "@/store/habitStore";
 import { useGoalStore } from "@/store/goalStore";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import { Quest } from "@/types/quest";
 import { Habit } from "@/types/habit";
 import { Goal } from "@/types/goal";
@@ -28,6 +29,7 @@ import {
 const INITIAL_QUESTS: Quest[] = [
   {
     id: "q1",
+    workspaceId: "personal-1",
     title: "Study React Basics",
     description: "Dive deep into the core concepts of React.js to build a solid foundation.",
     difficulty: "medium",
@@ -49,6 +51,7 @@ const INITIAL_QUESTS: Quest[] = [
   },
   {
     id: "q2",
+    workspaceId: "personal-1",
     title: "Workout 30 Minutes",
     description: "Keep your physical stats high with a quick session.",
     difficulty: "hard",
@@ -68,6 +71,7 @@ const INITIAL_QUESTS: Quest[] = [
   },
   {
     id: "q3",
+    workspaceId: "personal-1",
     title: "Read 20 Pages",
     description: "Expand your knowledge through consistent reading.",
     difficulty: "easy",
@@ -82,6 +86,28 @@ const INITIAL_QUESTS: Quest[] = [
     tasks: [
       { id: "t7", title: "Select a book", is_completed: true },
       { id: "t8", title: "Read for 20 mins", is_completed: false },
+    ],
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: "q4",
+    workspaceId: "team-1",
+    assigneeId: "u-1",
+    title: "Review PR #42",
+    description: "Review the authentication flow pull request.",
+    difficulty: "medium",
+    priority: "high",
+    xp_reward: 150,
+    coin_reward: 40,
+    current_value: 0,
+    target_value: 1,
+    is_completed: false,
+    type: "daily",
+    stat_rewards: { knowledge: 10, discipline: 5 },
+    tasks: [
+      { id: "t9", title: "Check login mutations", is_completed: false },
+      { id: "t10", title: "Verify JWT storage", is_completed: false },
+      { id: "t11", title: "Approve PR", is_completed: false },
     ],
     created_at: new Date().toISOString(),
   },
@@ -172,10 +198,13 @@ const INITIAL_GOALS: Goal[] = [
 ];
 
 export default function DashboardPage() {
+  const { activeWorkspaceId } = useWorkspaceStore();
   const { stats, addXp, addCoins, updateStat } = useUserStatsStore();
   const { quests, setQuests, completeQuest } = useQuestStore();
   const { habits, setHabits } = useHabitStore();
   const { goals, setGoals } = useGoalStore();
+
+  const activeQuests = quests.filter(q => q.workspaceId === activeWorkspaceId);
 
   useEffect(() => {
     if (quests.length === 0) setQuests(INITIAL_QUESTS);
@@ -250,7 +279,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-8 space-y-10">
           <GoalPlannerWidget />
           <ProductivityTrendsWidget />
-          <DailyQuestPanel quests={quests} onCompleteQuest={handleCompleteQuest} />
+          <DailyQuestPanel quests={activeQuests} onCompleteQuest={handleCompleteQuest} />
         </div>
 
         {/* Right Column (Narrow) */}

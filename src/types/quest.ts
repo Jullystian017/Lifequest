@@ -8,6 +8,8 @@ export interface QuestTask {
 
 export interface Quest {
     id: string;
+    workspaceId: string;
+    assigneeId?: string;
     title: string;
     description: string;
     type: QuestType;

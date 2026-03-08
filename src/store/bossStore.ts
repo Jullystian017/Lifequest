@@ -50,12 +50,12 @@ const MOCK_BOSSES: Boss[] = [
         deadline: '2026-03-20T00:00:00Z',
         created_at: new Date().toISOString(),
         tasks: [
-            { id: 't-1', title: 'Fix Database Concurrency Issue', is_completed: true, damage: 1000 },
-            { id: 't-2', title: 'Write Product Hunt Launch Copy', is_completed: true, damage: 500 },
-            { id: 't-3', title: 'Finalize Pricing Page Stripe Integration', is_completed: false, damage: 1500 },
-            { id: 't-4', title: 'Record Demo Video', is_completed: false, damage: 800 },
-            { id: 't-5', title: 'QA Testing Phase 2', is_completed: true, damage: 400 },
-            { id: 't-6', title: 'Send Newsletter Teaser', is_completed: false, damage: 800 },
+            { id: 't-1', title: 'Fix Database Concurrency Issue', is_completed: true, damage: 1000, assigneeId: 'u-3', assigneeName: 'Daniel Park', assigneeAvatar: '🧑‍🚀' },
+            { id: 't-2', title: 'Write Product Hunt Launch Copy', is_completed: true, damage: 500, assigneeId: 'u-2', assigneeName: 'Sarah Chen', assigneeAvatar: '👩‍💻' },
+            { id: 't-3', title: 'Finalize Pricing Page Stripe Integration', is_completed: false, damage: 1500, assigneeId: 'u-1', assigneeName: 'Alex Miller', assigneeAvatar: '🧔' },
+            { id: 't-4', title: 'Record Demo Video', is_completed: false, damage: 800, assigneeId: 'u-1', assigneeName: 'Alex Miller', assigneeAvatar: '🧔' },
+            { id: 't-5', title: 'QA Testing Phase 2', is_completed: true, damage: 400, assigneeId: 'u-4', assigneeName: 'Elena Rostova', assigneeAvatar: '🧝‍♀️' },
+            { id: 't-6', title: 'Send Newsletter Teaser', is_completed: false, damage: 800, assigneeId: 'u-2', assigneeName: 'Sarah Chen', assigneeAvatar: '👩‍💻' },
         ],
         rewards: {
             xp: 15000,
