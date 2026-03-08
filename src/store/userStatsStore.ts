@@ -9,6 +9,7 @@ interface UserStatsState {
     stats: CharacterStats;
     addXp: (amount: number) => void;
     addCoins: (amount: number) => void;
+    subtractCoins: (amount: number) => void;
     updateStat: (stat: StatKey, amount: number) => void;
     setLevel: (level: number) => void;
 }
@@ -40,6 +41,7 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
             return { xp: newXp, level: newLevel, xpToNextLevel: newXpToNextLevel };
         }),
     addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
+    subtractCoins: (amount) => set((state) => ({ coins: Math.max(0, state.coins - amount) })),
     updateStat: (stat, amount) =>
         set((state) => ({
             stats: { ...state.stats, [stat]: Math.min(100, state.stats[stat] + amount) },
