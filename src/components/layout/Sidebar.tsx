@@ -15,18 +15,20 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  Store,
+  UserCircle
 } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
+import WorkspaceSwitcher from "./WorkspaceSwitcher";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Quests", href: "/quests", icon: Swords },
-  { label: "Growth", href: "/habits", icon: Sparkles },
-  { label: "Focus", href: "/focus", icon: Target },
-  { label: "Progress", href: "/analytics", icon: BarChart3 },
-  { label: "Social", href: "/social", icon: Users },
-  { label: "Boss Challenge", href: "/boss-challenge", icon: Skull },
-  { label: "Achievements", href: "/achievements", icon: Trophy },
+  { label: "Boss Battles", href: "/bosses", icon: Skull },
+  { label: "Party", href: "/social", icon: Users },
+  { label: "Character", href: "/character", icon: UserCircle },
+  { label: "Shop", href: "/shop", icon: Store },
+  { label: "Insights", href: "/analytics", icon: BarChart3 },
 ];
 
 export default function Sidebar() {
@@ -51,8 +53,17 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Navigation items */}
       <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1 scrollbar-hide">
+        {/* Workspace Switcher */}
+        {!isCollapsed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <WorkspaceSwitcher />
+          </motion.div>
+        )}
+
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (

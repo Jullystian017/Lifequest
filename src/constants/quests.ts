@@ -15,6 +15,7 @@ export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_v
         coin_reward: 10,
         stat_rewards: { discipline: 2 },
         target_value: 3,
+        priority: 'medium',
     },
     {
         title: "Study for 1 Hour",
@@ -25,6 +26,7 @@ export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_v
         coin_reward: 15,
         stat_rewards: { knowledge: 3 },
         target_value: 1,
+        priority: 'high',
     },
     {
         title: "Drink 2L Water",
@@ -35,6 +37,7 @@ export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_v
         coin_reward: 5,
         stat_rewards: { health: 2 },
         target_value: 2,
+        priority: 'medium',
     },
     {
         title: "Read 10 Pages",
@@ -45,6 +48,7 @@ export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_v
         coin_reward: 8,
         stat_rewards: { knowledge: 2, creativity: 1 },
         target_value: 10,
+        priority: 'medium',
     },
     {
         title: "30 Min Workout",
@@ -55,6 +59,7 @@ export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_v
         coin_reward: 12,
         stat_rewards: { health: 4 },
         target_value: 1,
+        priority: 'high',
     },
     {
         title: "Save Money Today",
@@ -65,6 +70,7 @@ export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_v
         coin_reward: 20,
         stat_rewards: { finance: 3 },
         target_value: 1,
+        priority: 'low',
     },
 ];
 

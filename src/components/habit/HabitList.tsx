@@ -22,7 +22,7 @@ export default function HabitList({ habits, onCompleteHabit }: HabitListProps) {
     return (
         <div className="space-y-3">
             {habits.map((habit) => (
-                <HabitCard key={habit.id} habit={habit} onComplete={onCompleteHabit} />
+                <HabitCard key={habit.id} habit={habit} onToggle={onCompleteHabit} />
             ))}
         </div>
     );

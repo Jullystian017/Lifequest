@@ -36,9 +36,9 @@ export default function XPBar({
             style={{
               background: `linear-gradient(135deg, ${color}, ${color}CC)`,
               color: 'white',
-              ringColor: `${color}30`,
+              '--tw-ring-color': `${color}30`,
               boxShadow: `0 10px 20px -5px ${color}50`,
-            }}
+            } as React.CSSProperties}
           >
             {level}
           </div>
