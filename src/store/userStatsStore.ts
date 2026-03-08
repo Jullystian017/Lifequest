@@ -6,10 +6,12 @@ interface UserStatsState {
     xp: number;
     xpToNextLevel: number;
     coins: number;
+    equippedItems: Record<string, string>; // category -> itemId
     stats: CharacterStats;
     addXp: (amount: number) => void;
     addCoins: (amount: number) => void;
     subtractCoins: (amount: number) => void;
+    equipItem: (category: string, itemId: string) => void;
     updateStat: (stat: StatKey, amount: number) => void;
     setLevel: (level: number) => void;
 }
@@ -19,6 +21,7 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
     xp: 740,
     xpToNextLevel: 1000,
     coins: 2450,
+    equippedItems: {},
     stats: {
         health: 75,
         knowledge: 60,
@@ -42,6 +45,10 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
         }),
     addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
     subtractCoins: (amount) => set((state) => ({ coins: Math.max(0, state.coins - amount) })),
+    equipItem: (category, itemId) => 
+        set((state) => ({ 
+            equippedItems: { ...state.equippedItems, [category]: itemId } 
+        })),
     updateStat: (stat, amount) =>
         set((state) => ({
             stats: { ...state.stats, [stat]: Math.min(100, state.stats[stat] + amount) },

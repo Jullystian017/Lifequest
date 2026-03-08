@@ -67,6 +67,33 @@ const INITIAL_ITEMS: ShopItem[] = [
         icon: 'Sparkles',
         color: '#8B5CF6' // Purple
     },
+    {
+        id: 's6',
+        name: 'Royal Cape',
+        description: 'A majestic crimson cape for legendary adventurers.',
+        price: 800,
+        category: 'cosmetic',
+        icon: 'Shirt',
+        color: '#B91C1C' // Dark Red
+    },
+    {
+        id: 's7',
+        name: 'Wizard Hat',
+        description: 'Increase your perceived intelligence by 100%.',
+        price: 600,
+        category: 'cosmetic',
+        icon: 'Hat',
+        color: '#1D4ED8' // Dark Blue
+    },
+    {
+        id: 's8',
+        name: 'Cyberpunk Visor',
+        description: 'High-tech eyewear for the modern quest slayer.',
+        price: 1200,
+        category: 'cosmetic',
+        icon: 'Eye',
+        color: '#06B6D4' // Cyan
+    },
     // Custom rewards
     {
         id: 'c1',
