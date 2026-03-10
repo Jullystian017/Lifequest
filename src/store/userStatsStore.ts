@@ -46,9 +46,20 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
     addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
     subtractCoins: (amount) => set((state) => ({ coins: Math.max(0, state.coins - amount) })),
     equipItem: (category, itemId) => 
-        set((state) => ({ 
-            equippedItems: { ...state.equippedItems, [category]: itemId } 
-        })),
+        set((state) => {
+            const currentItem = state.equippedItems[category];
+            const newEquipped = { ...state.equippedItems };
+            
+            if (currentItem === itemId) {
+                // Toggle off
+                delete newEquipped[category];
+            } else {
+                // Toggle on (replaces existing item in that slot)
+                newEquipped[category] = itemId;
+            }
+            
+            return { equippedItems: newEquipped };
+        }),
     updateStat: (stat, amount) =>
         set((state) => ({
             stats: { ...state.stats, [stat]: Math.min(100, state.stats[stat] + amount) },

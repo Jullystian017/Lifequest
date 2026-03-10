@@ -17,6 +17,7 @@ import {
     ArrowUpRight
 } from "lucide-react";
 import CharacterAvatar from "@/components/dashboard/CharacterAvatar";
+import AvatarRenderer from "@/components/character/AvatarRenderer";
 import AttributeRadarChart from "@/components/dashboard/AttributeRadarChart";
 import { motion } from "framer-motion";
 
@@ -54,7 +55,7 @@ export default function CharacterPage() {
                     <div className="relative">
                         <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] p-[1px] shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                             <div className="w-full h-full rounded-[23px] bg-[var(--bg-card)] flex items-center justify-center overflow-hidden">
-                                <img src="/characters/base.png" alt="Avatar" className="w-full h-full object-cover p-2" />
+                                <AvatarRenderer className="w-full h-full p-2" />
                             </div>
                         </div>
                         <div className="absolute -bottom-2 -right-2 bg-[var(--primary)] text-white text-[10px] font-bold px-3 py-1.5 rounded-full border-2 border-[var(--bg-card)]">
@@ -177,28 +178,33 @@ export default function CharacterPage() {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                             {ownedCosmetics.length > 0 ? (
-                                ownedCosmetics.map(item => (
-                                    <div 
-                                        key={item.id} 
-                                        onClick={() => equipItem(item.category, item.id)}
-                                        className={`group relative p-4 rounded-2xl border transition-all cursor-pointer ${
-                                            equippedItems[item.category] === item.id 
-                                            ? "bg-[var(--primary)]/10 border-[var(--primary)] ring-2 ring-[var(--primary)]/20 shadow-[0_0_20px_rgba(139,92,246,0.15)]" 
-                                            : "bg-[var(--bg-card)] border-[var(--border-light)] hover:border-[var(--border-active)] hover:-translate-y-1"
-                                        }`}
-                                    >
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className={`p-2 rounded-lg bg-[var(--bg-main)] ${equippedItems[item.category] === item.id ? "text-[var(--primary)] shadow-glow" : "text-slate-400"}`}>
-                                                <Star size={16} />
+                                ownedCosmetics.map(item => {
+                                    const slot = item.slot || 'none';
+                                    const isEquipped = equippedItems[slot] === item.id;
+                                    
+                                    return (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => equipItem(slot, item.id)}
+                                            className={`group relative p-4 rounded-2xl border transition-all cursor-pointer ${
+                                                isEquipped 
+                                                ? "bg-[var(--primary)]/10 border-[var(--primary)] ring-2 ring-[var(--primary)]/20 shadow-[0_0_20px_rgba(139,92,246,0.15)]" 
+                                                : "bg-[var(--bg-card)] border-[var(--border-light)] hover:border-[var(--border-active)] hover:-translate-y-1"
+                                            }`}
+                                        >
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className={`p-2 rounded-lg bg-[var(--bg-main)] ${isEquipped ? "text-[var(--primary)] shadow-glow" : "text-slate-400"}`}>
+                                                    <Star size={16} />
+                                                </div>
+                                                {isEquipped && (
+                                                    <span className="text-[8px] font-bold uppercase tracking-widest py-0.5 px-2 bg-[var(--primary)] text-white rounded-full">Equipped</span>
+                                                )}
                                             </div>
-                                            {equippedItems[item.category] === item.id && (
-                                                <span className="text-[8px] font-bold uppercase tracking-widest py-0.5 px-2 bg-[var(--primary)] text-white rounded-full">Equipped</span>
-                                            )}
+                                            <p className="text-sm font-bold text-white truncate">{item.name}</p>
+                                            <p className="text-[10px] text-slate-500 font-medium mt-1 capitalize">{slot === 'none' ? 'Cosmetic' : slot}</p>
                                         </div>
-                                        <p className="text-sm font-bold text-white truncate">{item.name}</p>
-                                        <p className="text-[10px] text-slate-500 font-medium mt-1">Cosmetic Set</p>
-                                    </div>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <div className="col-span-full py-12 flex flex-col items-center justify-center bg-[var(--bg-card)] border border-dashed border-[var(--border-light)] rounded-3xl">
                                     <Package size={48} className="text-slate-700 mb-4" />

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { useUserStatsStore } from './userStatsStore';
 
 export type ShopItemCategory = 'consumable' | 'cosmetic' | 'custom';
+export type EquipmentSlot = 'head' | 'body' | 'outerwear' | 'accessory' | 'none';
 
 export interface ShopItem {
     id: string;
@@ -12,6 +13,8 @@ export interface ShopItem {
     icon: string; // Lucide icon name or emoji
     color: string;
     isOwned?: boolean; // Mainly for cosmetics
+    slot?: EquipmentSlot;
+    svgPart?: string; // Name of the SVG part to render
 }
 
 interface ShopState {
@@ -51,21 +54,25 @@ const INITIAL_ITEMS: ShopItem[] = [
     },
     {
         id: 's4',
-        name: 'Dark Knight Avatar',
-        description: 'Unlock this exclusive cosmetic profile picture.',
+        name: 'Dark Knight Armor',
+        description: 'Heavy plated armor for those who seek discipline.',
         price: 1000,
         category: 'cosmetic',
         icon: 'Shield',
-        color: '#6B7280' // Gray
+        color: '#4B5563', // Gray
+        slot: 'outerwear',
+        svgPart: 'dark_knight'
     },
     {
         id: 's5',
-        name: 'Neon Profile Glow',
-        description: 'Add a cool neon glow effect to your profile card.',
-        price: 1500,
+        name: 'Basic T-Shirt',
+        description: 'A comfortable white tee. Every hero starts somewhere.',
+        price: 100,
         category: 'cosmetic',
-        icon: 'Sparkles',
-        color: '#8B5CF6' // Purple
+        icon: 'Shirt',
+        color: '#FFFFFF',
+        slot: 'body',
+        svgPart: 'tshirt'
     },
     {
         id: 's6',
@@ -74,7 +81,9 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 800,
         category: 'cosmetic',
         icon: 'Shirt',
-        color: '#B91C1C' // Dark Red
+        color: '#B91C1C', // Dark Red
+        slot: 'accessory',
+        svgPart: 'royal_cape'
     },
     {
         id: 's7',
@@ -83,7 +92,9 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 600,
         category: 'cosmetic',
         icon: 'Hat',
-        color: '#1D4ED8' // Dark Blue
+        color: '#1D4ED8', // Dark Blue
+        slot: 'head',
+        svgPart: 'wizard_hat'
     },
     {
         id: 's8',
@@ -92,7 +103,20 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 1200,
         category: 'cosmetic',
         icon: 'Eye',
-        color: '#06B6D4' // Cyan
+        color: '#06B6D4', // Cyan
+        slot: 'head',
+        svgPart: 'visor'
+    },
+    {
+        id: 's9',
+        name: 'Leather Jacket',
+        description: 'Tough and stylish. Ready for any adventure.',
+        price: 500,
+        category: 'cosmetic',
+        icon: 'Wind',
+        color: '#78350F',
+        slot: 'outerwear',
+        svgPart: 'leather_jacket'
     },
     // Custom rewards
     {
