@@ -93,29 +93,30 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
 
-                    <div className="h-[250px] flex items-end justify-between gap-2 pl-8 pr-2 pb-6 border-b border-white/5 relative">
-                        {/* Background grid lines */}
-                        <div className="absolute inset-x-0 bottom-6 top-0 flex flex-col justify-between pointer-events-none z-0">
-                            {[100, 75, 50, 25, 0].map(val => (
-                                <div key={val} className="border-b border-white/5 w-full h-0 flex items-center">
-                                    <span className="absolute -left-6 text-[10px] text-slate-600 font-bold">{val}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Bars */}
+                    <div className="h-[280px] mt-6 flex justify-between gap-2 sm:gap-6 px-2 sm:px-6">
                         {fakeData.map((val, i) => (
-                            <div key={i} className="relative z-10 flex flex-col items-center w-full group">
-                                <div className="absolute -top-8 text-[10px] font-bold text-white bg-black/50 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div key={i} className="flex flex-col items-center justify-end w-full h-full group">
+                                {/* Hover Values on top */}
+                                <div className="opacity-0 group-hover:opacity-100 mb-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 text-xs font-bold text-white bg-[var(--primary)] shadow-lg shadow-[var(--primary)]/20 px-2 py-1 rounded-lg pointer-events-none">
                                     {val}%
                                 </div>
-                                <div className="w-full max-w-[40px] bg-slate-800 rounded-t-lg overflow-hidden h-[200px] flex items-end">
+                                
+                                {/* Capsule Bar Container */}
+                                <div className="w-full max-w-[48px] flex-1 bg-slate-800/40 rounded-2xl flex items-end overflow-hidden border border-white/5 relative shadow-inner">
+                                    {/* The filled bar */}
                                     <div 
-                                        className="w-full bg-gradient-to-t from-[var(--primary)] to-blue-400 rounded-t-lg transition-all duration-1000 group-hover:opacity-80"
+                                        className="w-full bg-gradient-to-t from-[var(--primary)] to-blue-400 transition-all duration-1000 group-hover:brightness-110 relative"
                                         style={{ height: `${val}%` }}
-                                    />
+                                    >
+                                        {/* Glass highlight effect */}
+                                        <div className="absolute top-0 left-0 right-0 h-2/3 bg-gradient-to-b from-white/30 to-transparent mix-blend-overlay" />
+                                    </div>
                                 </div>
-                                <span className="text-[10px] font-bold text-slate-500 mt-3 uppercase">{last7Days[i]}</span>
+
+                                {/* X-Axis Label */}
+                                <span className="text-[10px] sm:text-xs font-bold text-slate-500 mt-4 uppercase tracking-widest group-hover:text-white transition-colors">
+                                    {last7Days[i]}
+                                </span>
                             </div>
                         ))}
                     </div>
