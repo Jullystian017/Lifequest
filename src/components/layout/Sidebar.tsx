@@ -6,34 +6,79 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Swords,
-  Repeat,
-  Target,
-  Skull,
+  Bot,
+  FileText,
+  TreePine,
   Trophy,
-  Users,
   BarChart3,
-  Sparkles,
+  Users2,
+  Store,
+  Skull,
+  Ghost,
+  Medal,
   ChevronLeft,
   ChevronRight,
-  Store,
-  UserCircle
+  MoreHorizontal,
 } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
 import WorkspaceSwitcher from "./WorkspaceSwitcher";
+import { useState } from "react";
 
-const navItems = [
+const primaryNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Quest", href: "/dashboard/quests", icon: Swords },
-  { label: "Pertempuran Boss", href: "/dashboard/bosses", icon: Skull },
-  { label: "Komunitas", href: "/dashboard/social", icon: Users },
-  { label: "Karakter", href: "/dashboard/character", icon: UserCircle },
-  { label: "Toko", href: "/dashboard/shop", icon: Store },
+  { label: "Quest Board", href: "/dashboard/quests", icon: Swords },
+  { label: "Asisten AI", href: "/dashboard/ai", icon: Bot },
+  { label: "Catatan", href: "/dashboard/notes", icon: FileText },
+  { label: "Skill Tree", href: "/dashboard/skills", icon: TreePine },
+  { label: "Pencapaian", href: "/dashboard/achievements", icon: Trophy },
   { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
+  { label: "Tim", href: "/dashboard/team", icon: Users2 },
+  { label: "Toko", href: "/dashboard/shop", icon: Store },
+];
+
+const secondaryNav = [
+  { label: "Pertempuran Boss", href: "/dashboard/bosses", icon: Skull },
+  { label: "Shadow System", href: "/dashboard/shadow", icon: Ghost },
+  { label: "Papan Peringkat", href: "/dashboard/leaderboard", icon: Medal },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { isCollapsed, toggleSidebar } = useSidebarStore();
+  const [showSecondary, setShowSecondary] = useState(true);
+
+  const NavLink = ({ item }: { item: typeof primaryNav[0] }) => {
+    const isActive = pathname === item.href;
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        title={isCollapsed ? item.label : ""}
+        className={`
+          flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
+          ${isActive
+            ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
+            : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-white"
+          }
+          ${isCollapsed ? "justify-center px-0" : ""}
+        `}
+      >
+        <item.icon
+          size={18}
+          className={isActive ? "text-white" : "text-[var(--text-muted)] group-hover:text-white transition-colors"}
+        />
+        {!isCollapsed && (
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="text-sm font-semibold truncate"
+          >
+            {item.label}
+          </motion.span>
+        )}
+      </Link>
+    );
+  };
 
   return (
     <aside className={`fixed left-0 top-0 h-screen transition-all duration-300 bg-[var(--bg-sidebar)] border-r border-[var(--border-light)] flex flex-col z-50 ${isCollapsed ? 'w-20' : 'w-64'}`}>
@@ -56,46 +101,38 @@ export default function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1 scrollbar-hide">
         {/* Workspace Switcher */}
         {!isCollapsed && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <WorkspaceSwitcher />
           </motion.div>
         )}
 
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              title={isCollapsed ? item.label : ""}
-              className={`
-                flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
-                ${isActive
-                  ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
-                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-white"
-                }
-                ${isCollapsed ? "justify-center px-0" : ""}
-              `}
+        {/* Primary Navigation */}
+        {primaryNav.map((item) => (
+          <NavLink key={item.href} item={item} />
+        ))}
+
+        {/* Secondary Section Divider */}
+        {!isCollapsed && (
+          <div className="pt-4 pb-2 px-1">
+            <button
+              onClick={() => setShowSecondary(!showSecondary)}
+              className="flex items-center justify-between w-full text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors"
             >
-              <item.icon
-                size={18}
-                className={isActive ? "text-white" : "text-[var(--text-muted)] group-hover:text-white transition-colors"}
-              />
-              {!isCollapsed && (
-                <motion.span
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-sm font-semibold truncate"
-                >
-                  {item.label}
-                </motion.span>
-              )}
-            </Link>
-          );
-        })}
+              <span>Lainnya</span>
+              <MoreHorizontal size={14} className={`transition-transform ${showSecondary ? '' : 'rotate-90'}`} />
+            </button>
+          </div>
+        )}
+
+        {/* Secondary Navigation */}
+        {(showSecondary || isCollapsed) && (
+          <>
+            {isCollapsed && <div className="h-px bg-[var(--border-light)] my-2 mx-2" />}
+            {secondaryNav.map((item) => (
+              <NavLink key={item.href} item={item} />
+            ))}
+          </>
+        )}
       </nav>
 
       {/* Bottom Toggle Button */}
@@ -110,8 +147,8 @@ export default function Sidebar() {
           ) : (
             <>
               <ChevronLeft size={18} />
-              <span className="text-xs font-bold uppercase tracking-wider whitespace-nowrap">
-                Collapse View
+              <span className="text-xs font-semibold uppercase tracking-wider whitespace-nowrap">
+                Ciutkan
               </span>
             </>
           )}

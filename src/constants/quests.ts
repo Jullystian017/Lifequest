@@ -5,7 +5,7 @@
 import { Quest } from "@/types/quest";
 
 /** Daily quest templates */
-export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_value" | "is_completed">[] = [
+export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_value" | "is_completed" | "workspaceId" | "assigneeId" | "completed_at">[] = [
     {
         title: "Complete 3 Tasks",
         description: "Finish any 3 tasks from your task list",

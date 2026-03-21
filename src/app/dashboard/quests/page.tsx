@@ -1,299 +1,360 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { createClient } from "@/lib/supabase/client";
 import { useQuestStore } from "@/store/questStore";
 import { useUserStatsStore } from "@/store/userStatsStore";
-import {
-    Plus,
-    Trash2,
-    CheckCircle2,
-    Zap,
-    Coins,
-    Sword,
-    Calendar,
-    ChevronRight,
-    X,
-    Target,
-    Trophy,
-    History,
-    Book,
-    BookOpen,
-    Sparkles,
-    Heart
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useMemo } from "react";
-import Button from "@/components/ui/Button";
-import CreateQuestModal from "@/components/quest/CreateQuestModal";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import { Quest } from "@/types/quest";
+import {
+  Plus,
+  Loader2,
+  X,
+  Zap,
+  Coins,
+  Swords,
+  Clock,
+  CheckCircle2,
+  CircleDot,
+  Circle,
+  Sparkles,
+  ChevronDown,
+} from "lucide-react";
 
-export default function QuestsPage() {
-    const { quests, deleteQuest, completeQuest, toggleTask } = useQuestStore();
-    const { addXp, addCoins, updateStat } = useUserStatsStore();
-    const [filter, setFilter] = useState<"Today" | "Upcoming" | "Completed" | "All">("Today");
-    const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+type KanbanColumn = "todo" | "in_progress" | "done";
 
-    // Filter Logic
-    const filteredQuests = useMemo(() => {
-        return quests.filter((q) => {
-            if (filter === "Completed") return q.is_completed;
-            if (filter === "Today") return !q.is_completed; // Simplified for now
-            if (filter === "Upcoming") return !q.is_completed && q.type === 'weekly';
-            return true;
-        });
-    }, [quests, filter]);
+const columns: { id: KanbanColumn; label: string; icon: any; color: string }[] = [
+  { id: "todo", label: "Belum Dimulai", icon: Circle, color: "text-slate-400" },
+  { id: "in_progress", label: "Sedang Dikerjakan", icon: CircleDot, color: "text-blue-400" },
+  { id: "done", label: "Selesai", icon: CheckCircle2, color: "text-emerald-400" },
+];
 
-    const selectedQuest = useMemo(() =>
-        quests.find(q => q.id === selectedQuestId) || null,
-        [quests, selectedQuestId]);
+export default function QuestBoardPage() {
+  const { quests, setQuests, completeQuest, addQuest, updateQuest } = useQuestStore();
+  const { addXp, addCoins, updateStat } = useUserStatsStore();
+  const { activeWorkspaceId } = useWorkspaceStore();
+  const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
+  const supabase = createClient();
 
-    const completedToday = quests.filter(q => q.is_completed).length;
-    const totalToday = quests.length;
-    const progressPercentage = totalToday > 0 ? (completedToday / totalToday) * 100 : 0;
+  // Form state
+  const [newTitle, setNewTitle] = useState("");
+  const [newDesc, setNewDesc] = useState("");
+  const [newDifficulty, setNewDifficulty] = useState<Quest["difficulty"]>("medium");
+  const [newPriority, setNewPriority] = useState<Quest["priority"]>("medium");
+  const [newXp, setNewXp] = useState(50);
+  const [newGold, setNewGold] = useState(25);
 
-    const handleCompleteQuest = (quest: Quest) => {
-        if (quest.is_completed) return;
-        completeQuest(quest.id);
-        addXp(quest.xp_reward);
-        addCoins(quest.coin_reward);
-        if (quest.stat_rewards) {
-            Object.entries(quest.stat_rewards).forEach(([stat, amount]) => {
-                updateStat(stat as any, amount as number);
-            });
-        }
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.href = "/login"; return; }
+
+      const { data } = await supabase
+        .from("quests")
+        .select("*")
+        .eq("workspace_id", activeWorkspaceId || "personal-1")
+        .order("created_at", { ascending: false });
+      if (data) setQuests(data);
+      setLoading(false);
+    }
+    load();
+  }, [activeWorkspaceId, setQuests]);
+
+  const getColumnQuests = (col: KanbanColumn) => {
+    return quests.filter(q => {
+      if (col === "done") return q.is_completed;
+      if (col === "in_progress") return !q.is_completed && q.current_value > 0;
+      return !q.is_completed && q.current_value === 0;
+    });
+  };
+
+  const handleComplete = async (quest: Quest) => {
+    if (quest.is_completed) return;
+    completeQuest(quest.id);
+    if (quest.xp_reward) addXp(quest.xp_reward);
+    if (quest.coin_reward) addCoins(quest.coin_reward);
+    if (quest.stat_rewards) {
+      Object.entries(quest.stat_rewards).forEach(([stat, amount]) => updateStat(stat as any, amount));
+    }
+    await supabase.from("quests").update({ is_completed: true, completed_at: new Date().toISOString() }).eq("id", quest.id);
+    setSelectedQuest(null);
+  };
+
+  const handleStartQuest = async (quest: Quest) => {
+    updateQuest(quest.id, { current_value: 1 });
+    await supabase.from("quests").update({ current_value: 1 }).eq("id", quest.id);
+  };
+
+  const handleCreateQuest = async () => {
+    if (!newTitle.trim()) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const newQuest: any = {
+      workspace_id: activeWorkspaceId || "personal-1",
+      assignee_id: user.id,
+      title: newTitle,
+      description: newDesc,
+      type: "daily",
+      difficulty: newDifficulty,
+      priority: newPriority,
+      xp_reward: newXp,
+      coin_reward: newGold,
+      stat_rewards: {},
+      target_value: 1,
+      current_value: 0,
+      is_completed: false,
     };
 
+    const { data, error } = await supabase.from("quests").insert(newQuest).select().single();
+    if (data && !error) {
+      addQuest(data);
+      setShowCreateModal(false);
+      setNewTitle(""); setNewDesc(""); setNewDifficulty("medium"); setNewPriority("medium"); setNewXp(50); setNewGold(25);
+    }
+  };
+
+  const difficultyColors: Record<string, string> = {
+    easy: "text-emerald-400 bg-emerald-500/10",
+    medium: "text-blue-400 bg-blue-500/10",
+    hard: "text-orange-400 bg-orange-500/10",
+    epic: "text-purple-400 bg-purple-500/10",
+  };
+
+  if (loading) {
     return (
-        <div className="flex h-[calc(100vh-140px)] -mt-4 -mx-10 -mb-8 overflow-hidden bg-[#0a0b14]">
-            {/* 1. Center Column: Quest List */}
-            <div className="flex-1 flex flex-col min-w-0 border-r border-white/5">
-                <div className="p-8 pb-20 overflow-y-auto scrollbar-hide space-y-8 pt-6">
-                    {/* Actions Bar */}
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Sword className="text-[var(--primary)]" size={20} />
-                            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Mission Log</h2>
-                        </div>
-                        <Button
-                            className="rounded-xl flex items-center gap-2 px-6 py-2.5 shadow-lg shadow-[var(--primary)]/20"
-                            onClick={() => setIsModalOpen(true)}
-                        >
-                            <Plus size={18} /> New Quest
-                        </Button>
-                    </div>
-
-                    {/* Daily Progress Widget */}
-                    <div className="bg-[#151921] rounded-2xl p-6 border border-white/5 space-y-4">
-                        <div className="flex justify-between items-end">
-                            <h3 className="text-sm font-bold text-slate-200 uppercase tracking-wider">Daily Progress</h3>
-                            <span className="text-xs font-black text-[var(--primary)]">{Math.round(progressPercentage)}%</span>
-                        </div>
-                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${progressPercentage}%` }}
-                                className="h-full bg-gradient-to-r from-[var(--primary)] to-indigo-400 rounded-full"
-                            />
-                        </div>
-                        <p className="text-[10px] font-medium text-slate-500">{completedToday} / {totalToday} quests completed today</p>
-                    </div>
-
-                    {/* Tabs */}
-                    <div className="flex items-center gap-8 border-b border-white/5 pb-2">
-                        {(["Today", "Upcoming", "Completed", "All"] as const).map((t) => (
-                            <button
-                                key={t}
-                                onClick={() => setFilter(t)}
-                                className={`relative pb-2 text-sm font-bold transition-colors ${filter === t ? "text-white" : "text-slate-500 hover:text-slate-300"
-                                    }`}
-                            >
-                                {t}
-                                {filter === t && (
-                                    <motion.div
-                                        layoutId="activeTab"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--primary)]"
-                                    />
-                                )}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* List Items */}
-                    <div className="space-y-3 pb-10">
-                        <AnimatePresence mode="popLayout">
-                            {filteredQuests.map((quest) => (
-                                <motion.div
-                                    key={quest.id}
-                                    layout
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, scale: 0.98 }}
-                                    onClick={() => setSelectedQuestId(quest.id)}
-                                    className={`group relative bg-[#151921] rounded-xl p-4 border transition-all cursor-pointer ${selectedQuestId === quest.id
-                                        ? "border-[var(--primary)] bg-[#1b1e2a] shadow-lg shadow-[var(--primary)]/5"
-                                        : "border-white/5 hover:border-white/10"
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className={`w-5 h-5 rounded border-2 transition-colors flex items-center justify-center ${quest.is_completed
-                                            ? "bg-emerald-500 border-emerald-500"
-                                            : "border-slate-700 group-hover:border-[var(--primary)]"
-                                            }`}>
-                                            {quest.is_completed && <CheckCircle2 size={12} className="text-white" />}
-                                        </div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-3 mb-1">
-                                                <h4 className={`text-sm font-bold truncate ${quest.is_completed ? "text-slate-500 line-through font-medium" : "text-white"}`}>
-                                                    {quest.title}
-                                                </h4>
-                                                <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded border ${quest.difficulty === 'hard' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                                    quest.difficulty === 'medium' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                                                        'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                    }`}>
-                                                    {quest.difficulty}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
-                                                <span className="flex items-center gap-1"><Zap size={10} className="text-[var(--primary)]" /> {quest.xp_reward} XP</span>
-                                                <span className="flex items-center gap-1"><Book size={10} className="text-blue-400" /> +{Object.values(quest.stat_rewards)[0]} {Object.keys(quest.stat_rewards)[0]}</span>
-                                                <span className="flex items-center gap-1"><Calendar size={10} /> Today</span>
-                                            </div>
-                                        </div>
-
-                                        <ChevronRight size={16} className={`text-slate-700 transition-transform ${selectedQuestId === quest.id ? "rotate-90 text-[var(--primary)]" : "group-hover:translate-x-1"}`} />
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </AnimatePresence>
-
-                        {filteredQuests.length === 0 && (
-                            <div className="py-20 text-center opacity-30">
-                                <History size={48} className="mx-auto mb-4" />
-                                <p className="text-sm font-bold text-white">No quests found here</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* 2. Right Column: Quest Inspector */}
-            <aside className="w-[400px] flex flex-col bg-[#0d0e1a] border-l border-white/5 relative">
-                <AnimatePresence mode="wait">
-                    {selectedQuest ? (
-                        <motion.div
-                            key={selectedQuest.id}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            className="flex-1 flex flex-col p-8 overflow-y-auto scrollbar-hide"
-                        >
-                            <div className="flex items-center justify-between mb-8">
-                                <h3 className="text-lg font-bold text-white">Quest Details</h3>
-                                <button
-                                    onClick={() => setSelectedQuestId(null)}
-                                    className="p-2 hover:bg-white/5 rounded-lg text-slate-500 transition-colors"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            <span className={`inline-block w-fit text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md mb-3 border ${selectedQuest.difficulty === 'hard' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                selectedQuest.difficulty === 'medium' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
-                                    'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                }`}>
-                                {selectedQuest.difficulty} Difficulty
-                            </span>
-
-                            <h2 className="text-2xl font-bold text-white mb-4 leading-tight font-[family-name:var(--font-heading)]">
-                                {selectedQuest.title}
-                            </h2>
-
-                            <p className="text-sm text-slate-400 leading-relaxed mb-8">
-                                {selectedQuest.description}
-                            </p>
-
-                            <div className="space-y-8">
-                                {/* Completion Rewards */}
-                                <div>
-                                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[2px] mb-4">Completion Rewards</h4>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-[#151921] p-4 rounded-xl border border-white/5 text-center">
-                                            <div className="flex items-center justify-center gap-1.5 text-[var(--primary)] mb-1">
-                                                <Target size={16} className="fill-[var(--primary)]/20" />
-                                                <span className="text-base font-black italic">+{selectedQuest.xp_reward} XP</span>
-                                            </div>
-                                            <span className="text-[8px] font-bold text-slate-600 uppercase">Experience points</span>
-                                        </div>
-                                        <div className="bg-[#151921] p-4 rounded-xl border border-white/5 text-center">
-                                            <div className="flex items-center justify-center gap-1.5 text-blue-400 mb-1">
-                                                <BookOpen size={16} />
-                                                <span className="text-base font-black italic">+{Object.values(selectedQuest.stat_rewards)[0]} {Object.keys(selectedQuest.stat_rewards)[0]}</span>
-                                            </div>
-                                            <span className="text-[8px] font-bold text-slate-600 uppercase">Stat Boost</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Checklist */}
-                                {selectedQuest.tasks && selectedQuest.tasks.length > 0 && (
-                                    <div>
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[2px]">Quest Tasks ({selectedQuest.tasks.filter(t => t.is_completed).length}/{selectedQuest.tasks.length})</h4>
-                                            <button className="text-[10px] font-bold text-[var(--primary)] hover:underline">+ Add Task</button>
-                                        </div>
-                                        <div className="space-y-2">
-                                            {selectedQuest.tasks.map((task) => (
-                                                <div
-                                                    key={task.id}
-                                                    onClick={() => toggleTask(selectedQuest.id, task.id)}
-                                                    className="group flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-transparent hover:border-white/10 transition-all cursor-pointer"
-                                                >
-                                                    <div className={`w-4 h-4 rounded border transition-colors flex items-center justify-center ${task.is_completed ? "bg-[var(--primary)] border-[var(--primary)]" : "border-slate-700"
-                                                        }`}>
-                                                        {task.is_completed && <CheckCircle2 size={10} className="text-white" />}
-                                                    </div>
-                                                    <span className={`text-xs font-medium ${task.is_completed ? "text-slate-500 line-through" : "text-slate-200"}`}>
-                                                        {task.title}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Actions */}
-                            <div className="mt-auto pt-8 flex items-center gap-4">
-                                <Button
-                                    className="flex-1 py-4 text-sm font-black rounded-2xl shadow-xl shadow-[var(--primary)]/20"
-                                    disabled={selectedQuest.is_completed}
-                                    onClick={() => handleCompleteQuest(selectedQuest)}
-                                >
-                                    {selectedQuest.is_completed ? "Quest Completed" : "Complete Quest"}
-                                </Button>
-                                <button
-                                    onClick={() => deleteQuest(selectedQuest.id)}
-                                    className="p-4 bg-white/5 hover:bg-red-500/10 text-slate-600 hover:text-red-500 rounded-2xl border border-white/5 transition-all"
-                                >
-                                    <Trash2 size={20} />
-                                </button>
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center p-12 text-center opacity-20">
-                            <Trophy size={64} className="mb-6" />
-                            <h3 className="text-base font-bold text-white mb-2">Quest Inspector</h3>
-                            <p className="text-xs">Select a quest from your log to view details, rewards, and objectives.</p>
-                        </div>
-                    )}
-                </AnimatePresence>
-            </aside>
-
-            <CreateQuestModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-            />
-        </div>
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center text-slate-500 gap-4">
+        <Loader2 className="animate-spin text-[var(--primary)]" size={40} />
+        <p className="text-sm font-semibold uppercase tracking-widest">Memuat Quest Board...</p>
+      </div>
     );
+  }
+
+  return (
+    <div className="space-y-6 pb-20 w-full">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">{quests.length} Quest Total · {quests.filter(q => q.is_completed).length} Selesai</p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm hover:opacity-90 transition-all shadow-lg shadow-[var(--primary)]/20"
+        >
+          <Plus size={16} /> Quest Baru
+        </button>
+      </div>
+
+      {/* Kanban Board */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {columns.map((col) => {
+          const colQuests = getColumnQuests(col.id);
+          return (
+            <div key={col.id} className="space-y-4">
+              {/* Column Header */}
+              <div className="flex items-center gap-2.5 px-1">
+                <col.icon size={16} className={col.color} />
+                <span className="text-sm font-semibold text-white">{col.label}</span>
+                <span className="text-[10px] font-semibold text-slate-500 bg-[var(--bg-sidebar)] px-2 py-0.5 rounded-md">{colQuests.length}</span>
+              </div>
+
+              {/* Cards */}
+              <div className="space-y-3 min-h-[200px]">
+                {colQuests.length === 0 && (
+                  <div className="p-6 rounded-2xl border border-dashed border-white/10 text-center">
+                    <p className="text-xs text-slate-500 font-semibold">Kosong</p>
+                  </div>
+                )}
+                {colQuests.map((quest, idx) => (
+                  <motion.div
+                    key={quest.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    onClick={() => setSelectedQuest(quest)}
+                    className={`p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] cursor-pointer hover:border-[var(--primary)]/30 transition-all group ${quest.is_completed ? "opacity-60" : ""}`}
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${difficultyColors[quest.difficulty] || "text-slate-400 bg-slate-500/10"}`}>
+                        {quest.difficulty}
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-500 uppercase">{quest.priority}</span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-white mb-2 group-hover:text-indigo-300 transition-colors">{quest.title}</h4>
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
+                        <Zap size={10} className="text-indigo-400" />
+                        <span className="text-[10px] font-semibold text-indigo-400">+{quest.xp_reward} XP</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Coins size={10} className="text-yellow-500" />
+                        <span className="text-[10px] font-semibold text-yellow-500">+{quest.coin_reward} G</span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ===== Detail Modal ===== */}
+      <AnimatePresence>
+        {selectedQuest && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            onClick={() => setSelectedQuest(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-light)] rounded-3xl p-8 space-y-6 shadow-2xl"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${difficultyColors[selectedQuest.difficulty]}`}>{selectedQuest.difficulty}</span>
+                  <h3 className="text-xl font-semibold text-white mt-2">{selectedQuest.title}</h3>
+                  <p className="text-xs text-slate-400 mt-1">{selectedQuest.description || "Tidak ada deskripsi."}</p>
+                </div>
+                <button onClick={() => setSelectedQuest(null)} className="text-slate-500 hover:text-white transition-colors"><X size={20} /></button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-xl bg-black/20 border border-white/5">
+                  <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Hadiah XP</p>
+                  <p className="text-lg font-semibold text-indigo-400">+{selectedQuest.xp_reward}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-black/20 border border-white/5">
+                  <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Hadiah Gold</p>
+                  <p className="text-lg font-semibold text-yellow-500">+{selectedQuest.coin_reward}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-black/20 border border-white/5">
+                  <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Prioritas</p>
+                  <p className="text-sm font-semibold text-white capitalize">{selectedQuest.priority}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-black/20 border border-white/5">
+                  <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest">Tipe</p>
+                  <p className="text-sm font-semibold text-white capitalize">{selectedQuest.type}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                {!selectedQuest.is_completed && selectedQuest.current_value === 0 && (
+                  <button onClick={() => { handleStartQuest(selectedQuest); setSelectedQuest({ ...selectedQuest, current_value: 1 }); }} className="flex-1 py-3 rounded-xl bg-blue-600 text-white font-semibold text-sm hover:bg-blue-500 transition-colors">
+                    Mulai Kerjakan
+                  </button>
+                )}
+                {!selectedQuest.is_completed && (
+                  <button onClick={() => handleComplete(selectedQuest)} className="flex-1 py-3 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-500 transition-colors">
+                    Selesaikan Quest
+                  </button>
+                )}
+                {selectedQuest.is_completed && (
+                  <div className="flex-1 py-3 rounded-xl bg-[var(--bg-sidebar)] text-center text-sm font-semibold text-emerald-400">
+                    ✅ Quest Sudah Selesai
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ===== Create Quest Modal ===== */}
+      <AnimatePresence>
+        {showCreateModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            onClick={() => setShowCreateModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-light)] rounded-3xl p-8 space-y-5 shadow-2xl"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-white flex items-center gap-2"><Sparkles size={20} className="text-[var(--primary)]" /> Quest Baru</h3>
+                <button onClick={() => setShowCreateModal(false)} className="text-slate-500 hover:text-white transition-colors"><X size={20} /></button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Judul Quest</label>
+                  <input
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="Contoh: Belajar React Hooks"
+                    className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] transition-all placeholder:text-slate-600 text-sm font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Deskripsi</label>
+                  <textarea
+                    value={newDesc}
+                    onChange={(e) => setNewDesc(e.target.value)}
+                    placeholder="Opsional: jelaskan detail quest..."
+                    rows={2}
+                    className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] transition-all placeholder:text-slate-600 text-sm font-medium resize-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Kesulitan</label>
+                    <select value={newDifficulty} onChange={(e) => setNewDifficulty(e.target.value as any)} className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm">
+                      <option value="easy">Mudah</option>
+                      <option value="medium">Sedang</option>
+                      <option value="hard">Sulit</option>
+                      <option value="epic">Epik</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Prioritas</label>
+                    <select value={newPriority} onChange={(e) => setNewPriority(e.target.value as any)} className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm">
+                      <option value="low">Rendah</option>
+                      <option value="medium">Sedang</option>
+                      <option value="high">Tinggi</option>
+                      <option value="urgent">Mendesak</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Hadiah XP</label>
+                    <input type="number" value={newXp} onChange={(e) => setNewXp(Number(e.target.value))} className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-1.5">Hadiah Gold</label>
+                    <input type="number" value={newGold} onChange={(e) => setNewGold(Number(e.target.value))} className="w-full bg-black/30 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] text-sm" />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleCreateQuest}
+                disabled={!newTitle.trim()}
+                className="w-full py-3.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-[var(--primary)]/20"
+              >
+                Buat Quest
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }

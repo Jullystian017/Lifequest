@@ -6,7 +6,7 @@ import { Sparkles, X, Sword, ArrowRight, Loader2, MessageSquare, Send } from "lu
 import Button from "../ui/Button";
 import Input from "../ui/Input";
 import { useQuestStore } from "@/store/questStore";
-import { QuestPriority } from "@/types/quests";
+import { QuestPriority } from "@/types/quest";
 
 type Mode = "breakdown" | "chat";
 type ChatMessage = { role: "user" | "assistant", content: string };

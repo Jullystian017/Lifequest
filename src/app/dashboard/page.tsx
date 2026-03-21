@@ -1,20 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import AttributeCard from "@/components/dashboard/AttributeCard";
-import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
-import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
-import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
-import RecentActivityWidget from "@/components/dashboard/RecentActivityWidget";
-import AIInsightWidget from "@/components/dashboard/AIInsightWidget";
-import GoalPlannerWidget from "@/components/dashboard/GoalPlannerWidget";
-
+import { motion } from "framer-motion";
+import { createClient } from "@/lib/supabase/client";
 import { useUserStatsStore } from "@/store/userStatsStore";
 import { useQuestStore } from "@/store/questStore";
 import { useHabitStore } from "@/store/habitStore";
 import { useGoalStore } from "@/store/goalStore";
 import { useWorkspaceStore } from "@/store/workspaceStore";
-import { createClient } from "@/lib/supabase/client";
+
+import GoalPlannerWidget from "@/components/dashboard/GoalPlannerWidget";
+import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
+import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
+import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
+import RecentActivityWidget from "@/components/dashboard/RecentActivityWidget";
+import AIInsightWidget from "@/components/dashboard/AIInsightWidget";
 
 import {
   Heart,
@@ -22,12 +22,19 @@ import {
   Dumbbell,
   PiggyBank,
   Palette,
-  Loader2
+  Loader2,
+  Flame,
+  Zap,
+  Swords,
+  ArrowRight,
+  Trophy,
+  Star,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { activeWorkspaceId } = useWorkspaceStore();
-  const { stats, addXp, addCoins, updateStat, setUserProfile } = useUserStatsStore();
+  const { stats, addXp, addCoins, updateStat, setUserProfile, level, xp, xpToNextLevel, username, avatar_url, coins } = useUserStatsStore();
   const { quests, setQuests, completeQuest } = useQuestStore();
   const { habits, setHabits } = useHabitStore();
   const { goals, setGoals } = useGoalStore();
@@ -35,6 +42,9 @@ export default function DashboardPage() {
 
   const supabase = createClient();
   const activeQuests = quests.filter(q => q.workspaceId === (activeWorkspaceId || 'personal-1'));
+  const completedToday = activeQuests.filter(q => q.is_completed).length;
+  const pendingQuests = activeQuests.filter(q => !q.is_completed);
+  const todayXp = activeQuests.filter(q => q.is_completed).reduce((sum, q) => sum + (q.xp_reward || 0), 0);
 
   useEffect(() => {
     async function loadBackendData() {
@@ -45,32 +55,25 @@ export default function DashboardPage() {
           return;
       }
 
-      // 1. Fetch real Quests from Supabase
       const { data: fetchedQuests } = await supabase
         .from('quests')
         .select('*')
         .eq('workspace_id', activeWorkspaceId || 'personal-1')
         .order('created_at', { ascending: false });
-        
       if (fetchedQuests) setQuests(fetchedQuests);
 
-      // 2. Fetch real Habits from Supabase
       const { data: fetchedHabits } = await supabase
         .from('habits')
         .select('*')
         .eq('user_id', user.id);
-        
       if (fetchedHabits) setHabits(fetchedHabits);
 
-      // 3. Fetch real Goals & Milestones from Supabase
       const { data: fetchedGoals } = await supabase
         .from('goals')
         .select('*, milestones:goal_milestones(*)')
         .eq('user_id', user.id);
-        
       if (fetchedGoals) setGoals(fetchedGoals);
 
-      // 4. Fetch User Profile
       const { data: userData, error } = await supabase
         .from('users')
         .select('*')
@@ -86,7 +89,6 @@ export default function DashboardPage() {
               coins: userData.gold || 0
           });
       } else {
-          // Fallback if public.users row doesn't exist yet
           setUserProfile({
               username: user.user_metadata?.username || "Adventurer",
               avatar_url: user.user_metadata?.avatar_url || "/lifequest.png",
@@ -106,7 +108,6 @@ export default function DashboardPage() {
     const quest = quests.find(q => q.id === questId);
     if (!quest || quest.is_completed) return;
 
-    // Optimistic UI Update in Zustand
     completeQuest(questId);
     if (quest.xp_reward) addXp(quest.xp_reward);
     if (quest.coin_reward) addCoins(quest.coin_reward);
@@ -117,7 +118,6 @@ export default function DashboardPage() {
       });
     }
 
-    // Persist to Real Backend
     await supabase.from('quests').update({ 
          is_completed: true,
          completed_at: new Date().toISOString()
@@ -133,53 +133,124 @@ export default function DashboardPage() {
       );
   }
 
+  const xpPercent = xpToNextLevel > 0 ? Math.round((xp / xpToNextLevel) * 100) : 0;
+
   return (
     <div className="space-y-8 pb-20 animate-fade-in w-full">
-      {/* 1. Attributes Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-        <AttributeCard
-          label="Vitalitas"
-          shortLabel="HP"
-          value={stats.health}
-          icon={<Heart size={16} />}
-          color="var(--health)"
-          subtitle="Kesehatan fisikmu"
-        />
-        <AttributeCard
-          label="Kecerdasan"
-          shortLabel="INT"
-          value={stats.knowledge}
-          icon={<BookOpen size={16} />}
-          color="var(--knowledge)"
-          subtitle="Pengetahuan & belajar"
-        />
-        <AttributeCard
-          label="Disiplin"
-          shortLabel="DIS"
-          value={stats.discipline}
-          icon={<Dumbbell size={16} />}
-          color="var(--discipline)"
-          subtitle="Fokus & konsistensi"
-        />
-        <AttributeCard
-          label="Keuangan"
-          shortLabel="FIN"
-          value={stats.finance}
-          icon={<PiggyBank size={16} />}
-          color="var(--finance)"
-          subtitle="Tabungan & investasi"
-        />
-        <AttributeCard
-          label="Kreativitas"
-          shortLabel="CRT"
-          value={stats.creativity}
-          icon={<Palette size={16} />}
-          color="var(--creativity)"
-          subtitle="Inspirasi & seni"
-        />
+
+      {/* ===== Hero Section: Avatar + XP + Quick Stats ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Left: User Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="lg:col-span-5 p-6 rounded-3xl bg-gradient-to-br from-[var(--bg-card)] to-[#1a1b2e] border border-[var(--border-light)] relative overflow-hidden group"
+        >
+          <div className="absolute top-[-40px] right-[-40px] w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+          
+          <div className="flex items-center gap-5 relative z-10 mb-6">
+            <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.3)] shrink-0">
+              <img src={avatar_url || "/lifequest.png"} alt="Avatar" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-semibold text-white truncate">{username}</h2>
+              <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Level {level} Petualang</p>
+              
+              {/* XP Bar */}
+              <div className="mt-3">
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Pengalaman</span>
+                  <span className="text-[10px] font-semibold text-white">{xp} / {xpToNextLevel} XP</span>
+                </div>
+                <div className="h-2.5 w-full bg-[#2a2b3d] rounded-full overflow-hidden border border-white/5">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${xpPercent}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">{xpToNextLevel - xp} XP lagi menuju Level {level + 1}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Mini Stats Row */}
+          <div className="grid grid-cols-3 gap-3 relative z-10">
+            <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
+              <Flame size={16} className="text-orange-500 mx-auto mb-1" />
+              <p className="text-lg font-semibold text-white leading-none">{habits.filter(h => h.completed_today).length}</p>
+              <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Streak Hari Ini</p>
+            </div>
+            <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
+              <Zap size={16} className="text-indigo-400 mx-auto mb-1" />
+              <p className="text-lg font-semibold text-white leading-none">{todayXp}</p>
+              <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">XP Hari Ini</p>
+            </div>
+            <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
+              <Star size={16} className="text-yellow-500 mx-auto mb-1" />
+              <p className="text-lg font-semibold text-white leading-none">{coins.toLocaleString()}</p>
+              <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Gold</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Right: Quick Actions + Continue Task */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
+          {/* Stat Cards */}
+          {[
+            { label: "Vitalitas", short: "HP", value: stats.health, icon: Heart, color: "var(--health)", desc: "Kesehatan fisikmu" },
+            { label: "Kecerdasan", short: "INT", value: stats.knowledge, icon: BookOpen, color: "var(--knowledge)", desc: "Pengetahuan & belajar" },
+            { label: "Disiplin", short: "DIS", value: stats.discipline, icon: Dumbbell, color: "var(--discipline)", desc: "Fokus & konsistensi" },
+            { label: "Kreativitas", short: "CRT", value: stats.creativity, icon: Palette, color: "var(--creativity)", desc: "Inspirasi & seni" },
+          ].map((stat, idx) => (
+            <div key={stat.short} className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-4 group hover:border-white/10 transition-all">
+              <div className="p-2.5 rounded-xl border border-white/5" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
+                <stat.icon size={18} style={{ color: stat.color }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline mb-1">
+                  <span className="text-xs font-semibold text-slate-400">{stat.label} ({stat.short})</span>
+                  <span className="text-lg font-semibold text-white">{stat.value}</span>
+                </div>
+                <div className="h-1.5 w-full bg-[var(--bg-sidebar)] rounded-full overflow-hidden border border-white/5">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: stat.color }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${stat.value}%` }}
+                    transition={{ duration: 1, delay: idx * 0.1 }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {/* Continue Last Task */}
+          {pendingQuests.length > 0 && (
+            <Link href="/dashboard/quests" className="sm:col-span-2 p-4 rounded-2xl bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border border-indigo-500/20 flex items-center justify-between group hover:border-indigo-500/40 transition-all cursor-pointer">
+              <div className="flex items-center gap-4">
+                <div className="p-2.5 rounded-xl bg-indigo-500/20 border border-indigo-500/30">
+                  <Swords size={18} className="text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Lanjutkan Quest</p>
+                  <p className="text-sm font-semibold text-white truncate max-w-[300px]">{pendingQuests[0].title}</p>
+                </div>
+              </div>
+              <ArrowRight size={18} className="text-indigo-400 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          )}
+        </motion.div>
       </div>
 
-      {/* 2. Main content Grid */}
+      {/* ===== Main Content Grid ===== */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left Column (Wide) */}
         <div className="lg:col-span-8 space-y-10">
