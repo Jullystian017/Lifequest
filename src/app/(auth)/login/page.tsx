@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Mail, Lock } from "lucide-react";
@@ -10,12 +12,25 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const router = useRouter();
+    const supabase = createClient();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        // TODO: Implement Supabase login
-        console.log("Login:", { email, password });
+        setErrorMsg(null);
+        
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        
+        if (error) {
+            setErrorMsg(error.message);
+        } else {
+            router.push("/dashboard");
+        }
         setLoading(false);
     };
 
@@ -40,6 +55,11 @@ export default function LoginPage() {
                     onSubmit={handleSubmit}
                     className="bg-[var(--dark-secondary)] border border-[var(--dark-border)] rounded-2xl p-6 space-y-4"
                 >
+                    {errorMsg && (
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-xl mb-4 text-center">
+                            {errorMsg}
+                        </div>
+                    )}
                     <Input
                         label="Email"
                         type="email"

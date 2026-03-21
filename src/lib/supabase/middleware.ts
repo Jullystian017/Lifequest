@@ -34,7 +34,17 @@ export async function updateSession(request: NextRequest) {
         },
     });
 
-    await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Protect specific routes (dashboard and its subpages)
+    if (!user && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/quests'))) {
+        return NextResponse.redirect(new URL('/login', request.url));
+    }
+    
+    // Redirect authenticated users away from auth pages
+    if (user && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register'))) {
+         return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
 
     return supabaseResponse;
 }

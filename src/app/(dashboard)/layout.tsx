@@ -3,6 +3,8 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Navbar from "@/components/layout/Navbar";
 import { useSidebarStore } from "@/store/sidebarStore";
+import LevelUpModal from "@/components/ui/LevelUpModal";
+import AIAssistant from "@/components/ai/AIAssistant";
 
 export default function DashboardLayout({
     children,
@@ -18,6 +20,8 @@ export default function DashboardLayout({
                 <Navbar />
                 <main className="px-10 py-8">{children}</main>
             </div>
+            <LevelUpModal />
+            <AIAssistant />
         </div>
     );
 }

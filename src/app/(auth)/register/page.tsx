@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Mail, Lock, User } from "lucide-react";
@@ -11,12 +13,36 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const [successMsg, setSuccessMsg] = useState<string | null>(null);
+    const router = useRouter();
+    const supabase = createClient();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        // TODO: Implement Supabase registration
-        console.log("Register:", { username, email, password });
+        setErrorMsg(null);
+        setSuccessMsg(null);
+        
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    username,
+                    avatar_url: `https://api.dicebear.com/7.x/adventurer/svg?seed=${username}`,
+                }
+            }
+        });
+
+        if (error) {
+            setErrorMsg(error.message);
+        } else {
+            setSuccessMsg("Check your email to verify your account!");
+            setTimeout(() => {
+                router.push("/dashboard");
+            }, 2000);
+        }
         setLoading(false);
     };
 
@@ -41,6 +67,16 @@ export default function RegisterPage() {
                     onSubmit={handleSubmit}
                     className="bg-[var(--dark-secondary)] border border-[var(--dark-border)] rounded-2xl p-6 space-y-4"
                 >
+                    {errorMsg && (
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-sm p-3 rounded-xl mb-4 text-center">
+                            {errorMsg}
+                        </div>
+                    )}
+                    {successMsg && (
+                        <div className="bg-green-500/10 border border-green-500/20 text-green-500 text-sm p-3 rounded-xl mb-4 text-center">
+                            {successMsg}
+                        </div>
+                    )}
                     <Input
                         label="Username"
                         placeholder="Choose your adventurer name"

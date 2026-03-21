@@ -1,0 +1,70 @@
+import { NextResponse } from "next/server";
+
+const SYSTEM_PROMPT = `You are a Game Master and Productivity Coach for a gamified workspace called LifeQuest.
+The user will give you a broad goal or task. Your job is to break it down into 3-5 smaller, actionable quests (sub-tasks).
+Return ONLY a JSON array of objects with the following schema:
+[
+  {
+    "title": "Short actionable title",
+    "difficulty": "easy | medium | hard",
+    "xp_reward": number (20-100),
+    "coin_reward": number (5-30)
+  }
+]
+Do not include markdown blocks or any other text. Just the JSON array.`;
+
+export async function POST(req: Request) {
+    try {
+        const { prompt } = await req.json();
+
+        if (!prompt) {
+            return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+        }
+
+        const apiKey = process.env.GROQ_API_KEY;
+        if (!apiKey || apiKey === "your-groq-api-key") {
+            // Mock response if no API key is set
+            return NextResponse.json({
+                quests: [
+                    { title: "Research the basic concepts", difficulty: "easy", xp_reward: 30, coin_reward: 10 },
+                    { title: "Draft the initial outline", difficulty: "medium", xp_reward: 50, coin_reward: 15 },
+                    { title: "Execute the main implementation", difficulty: "hard", xp_reward: 100, coin_reward: 30 },
+                    { title: "Review and polish", difficulty: "easy", xp_reward: 20, coin_reward: 5 }
+                ]
+            });
+        }
+
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "llama3-8b-8192", // Groq fast model
+                messages: [
+                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.7
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.choices && data.choices[0]) {
+            const resultText = data.choices[0].message.content;
+            try {
+                const quests = JSON.parse(resultText);
+                return NextResponse.json({ quests });
+            } catch (err) {
+                console.error("Failed to parse AI response", resultText);
+                return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
+            }
+        } else {
+            return NextResponse.json({ error: "OpenAI API Error", details: data }, { status: 500 });
+        }
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}

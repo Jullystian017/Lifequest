@@ -14,6 +14,8 @@ interface UserStatsState {
     equipItem: (category: string, itemId: string) => void;
     updateStat: (stat: StatKey, amount: number) => void;
     setLevel: (level: number) => void;
+    showLevelUpModal: boolean;
+    setLevelUpModal: (show: boolean) => void;
 }
 
 export const useUserStatsStore = create<UserStatsState>((set) => ({
@@ -22,6 +24,7 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
     xpToNextLevel: 1000,
     coins: 2450,
     equippedItems: {},
+    showLevelUpModal: false,
     stats: {
         health: 75,
         knowledge: 60,
@@ -34,14 +37,21 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
             let newXp = state.xp + amount;
             let newLevel = state.level;
             let newXpToNextLevel = state.xpToNextLevel;
+            let leveledUp = false;
 
             if (newXp >= state.xpToNextLevel) {
                 newXp -= state.xpToNextLevel;
                 newLevel += 1;
                 newXpToNextLevel = Math.floor(newXpToNextLevel * 1.1); // 10% increase per level
+                leveledUp = true;
             }
 
-            return { xp: newXp, level: newLevel, xpToNextLevel: newXpToNextLevel };
+            return { 
+                xp: newXp, 
+                level: newLevel, 
+                xpToNextLevel: newXpToNextLevel,
+                ...(leveledUp ? { showLevelUpModal: true } : {})
+            };
         }),
     addCoins: (amount) => set((state) => ({ coins: state.coins + amount })),
     subtractCoins: (amount) => set((state) => ({ coins: Math.max(0, state.coins - amount) })),
@@ -65,4 +75,5 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
             stats: { ...state.stats, [stat]: Math.min(100, state.stats[stat] + amount) },
         })),
     setLevel: (level) => set({ level }),
+    setLevelUpModal: (show) => set({ showLevelUpModal: show }),
 }));
