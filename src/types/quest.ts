@@ -23,6 +23,7 @@ export interface Quest {
     is_completed: boolean;
     tasks?: QuestTask[];
     expires_at?: string;
+    completed_at?: string;
     created_at: string;
 }
 

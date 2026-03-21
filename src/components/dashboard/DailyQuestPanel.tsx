@@ -1,10 +1,9 @@
 "use client";
 
-import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { Quest } from "@/types/quest";
 import { motion } from "framer-motion";
-import { CheckCircle2, Zap, Coins } from "lucide-react";
+import { CheckCircle2, Zap, Coins, Scroll } from "lucide-react";
 
 interface DailyQuestPanelProps {
   quests: Quest[];
@@ -17,7 +16,6 @@ export default function DailyQuestPanel({
 }: DailyQuestPanelProps) {
   return (
     <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">
-      {/* Background Subtle Glow */}
       <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-indigo-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-indigo-500/10 transition-colors"></div>
 
       <div className="flex items-center justify-between mb-8 relative z-10">
@@ -27,65 +25,72 @@ export default function DailyQuestPanel({
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white font-[family-name:var(--font-heading)]">
-              Daily Quest Log
+              Log Quest Harian
             </h3>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">Conquer your daily objectives</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">Taklukkan objektif harianmu</p>
           </div>
         </div>
-        <button className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
-          All Quests
+        <button className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
+          Semua Quest
         </button>
       </div>
 
-      <div className="space-y-4">
-        {quests.map((quest, idx) => (
-          <motion.div
-            key={quest.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className={`
-              flex items-center justify-between p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-medium)] hover:border-[var(--primary)]/40 transition-all group
-              ${quest.is_completed ? "opacity-50" : "hover:shadow-2xl hover:shadow-[var(--primary)]/5"}
-            `}
-          >
-            <div className="flex items-center gap-6">
-              {/* Icon / Mini Tag */}
-              <div className="w-14 h-14 rounded-2xl bg-[var(--bg-sidebar)] border border-[var(--border-light)] flex items-center justify-center font-semibold text-[var(--text-secondary)] shadow-inner">
-                {quest.title.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-              </div>
+      {quests.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-14 text-center">
+          <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 mb-4">
+            <Scroll size={32} className="text-indigo-500/40" />
+          </div>
+          <p className="text-sm font-semibold text-slate-400 mb-1">Belum ada quest yang aktif</p>
+          <p className="text-xs text-slate-500">Buat quest pertamamu di halaman Quest untuk memulai petualangan!</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {quests.map((quest, idx) => (
+            <motion.div
+              key={quest.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className={`
+                flex items-center justify-between p-5 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-medium)] hover:border-[var(--primary)]/40 transition-all group
+                ${quest.is_completed ? "opacity-50" : "hover:shadow-2xl hover:shadow-[var(--primary)]/5"}
+              `}
+            >
+              <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-[var(--bg-sidebar)] border border-[var(--border-light)] flex items-center justify-center font-semibold text-[var(--text-secondary)] shadow-inner">
+                  {quest.title.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                </div>
 
-              {/* Info */}
-              <div className="flex flex-col gap-1">
-                <span className="text-lg font-semibold group-hover:text-white transition-colors">
-                  {quest.title}
-                </span>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <Zap size={10} className="text-indigo-400" />
-                    <span className="text-[10px] font-semibold text-indigo-400 uppercase">+{quest.xp_reward} XP</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Coins size={10} className="text-yellow-500" />
-                    <span className="text-[10px] font-semibold text-yellow-500 uppercase">+{quest.coin_reward} G</span>
+                <div className="flex flex-col gap-1">
+                  <span className="text-lg font-semibold group-hover:text-white transition-colors">
+                    {quest.title}
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <Zap size={10} className="text-indigo-400" />
+                      <span className="text-[10px] font-semibold text-indigo-400 uppercase">+{quest.xp_reward} XP</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Coins size={10} className="text-yellow-500" />
+                      <span className="text-[10px] font-semibold text-yellow-500 uppercase">+{quest.coin_reward} G</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Action */}
-            <Button
-              size="md"
-              variant={quest.is_completed ? "ghost" : "primary"}
-              className={`rounded-2xl px-8 font-semibold text-xs ${quest.is_completed ? "opacity-50 grayscale" : ""}`}
-              disabled={quest.is_completed}
-              onClick={() => onCompleteQuest?.(quest.id)}
-            >
-              {quest.is_completed ? "Finished" : "Complete"}
-            </Button>
-          </motion.div>
-        ))}
-      </div>
+              <Button
+                size="md"
+                variant={quest.is_completed ? "ghost" : "primary"}
+                className={`rounded-2xl px-8 font-semibold text-xs ${quest.is_completed ? "opacity-50 grayscale" : ""}`}
+                disabled={quest.is_completed}
+                onClick={() => onCompleteQuest?.(quest.id)}
+              >
+                {quest.is_completed ? "Selesai" : "Selesaikan"}
+              </Button>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

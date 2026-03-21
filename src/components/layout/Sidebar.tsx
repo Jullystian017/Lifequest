@@ -23,12 +23,12 @@ import WorkspaceSwitcher from "./WorkspaceSwitcher";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Quests", href: "/dashboard/quests", icon: Swords },
-  { label: "Boss Battles", href: "/dashboard/bosses", icon: Skull },
-  { label: "Party", href: "/dashboard/social", icon: Users },
-  { label: "Character", href: "/dashboard/character", icon: UserCircle },
-  { label: "Shop", href: "/dashboard/shop", icon: Store },
-  { label: "Insights", href: "/dashboard/analytics", icon: BarChart3 },
+  { label: "Quest", href: "/dashboard/quests", icon: Swords },
+  { label: "Pertempuran Boss", href: "/dashboard/bosses", icon: Skull },
+  { label: "Komunitas", href: "/dashboard/social", icon: Users },
+  { label: "Karakter", href: "/dashboard/character", icon: UserCircle },
+  { label: "Toko", href: "/dashboard/shop", icon: Store },
+  { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
 ];
 
 export default function Sidebar() {

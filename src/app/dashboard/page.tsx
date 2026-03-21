@@ -138,44 +138,44 @@ export default function DashboardPage() {
       {/* 1. Attributes Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         <AttributeCard
-          label="Vitality"
+          label="Vitalitas"
           shortLabel="HP"
           value={stats.health}
           icon={<Heart size={16} />}
           color="var(--health)"
-          subtitle="Rest recommended in 4h"
+          subtitle="Kesehatan fisikmu"
         />
         <AttributeCard
-          label="Intelligence"
+          label="Kecerdasan"
           shortLabel="INT"
           value={stats.knowledge}
           icon={<BookOpen size={16} />}
           color="var(--knowledge)"
-          subtitle="Next level in 140 XP"
+          subtitle="Pengetahuan & belajar"
         />
         <AttributeCard
-          label="Discipline"
+          label="Disiplin"
           shortLabel="DIS"
           value={stats.discipline}
           icon={<Dumbbell size={16} />}
           color="var(--discipline)"
-          subtitle="High Focus State"
+          subtitle="Fokus & konsistensi"
         />
         <AttributeCard
-          label="Finance"
+          label="Keuangan"
           shortLabel="FIN"
           value={stats.finance}
           icon={<PiggyBank size={16} />}
           color="var(--finance)"
-          subtitle="Savings goal: 24% met"
+          subtitle="Tabungan & investasi"
         />
         <AttributeCard
-          label="Creativity"
+          label="Kreativitas"
           shortLabel="CRT"
           value={stats.creativity}
           icon={<Palette size={16} />}
           color="var(--creativity)"
-          subtitle="Inspire phase active"
+          subtitle="Inspirasi & seni"
         />
       </div>
 

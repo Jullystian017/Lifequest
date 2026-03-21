@@ -42,26 +42,32 @@ export default function Navbar() {
     let greeting = "";
 
     if (hour >= 5 && hour < 12) {
-      greeting = "Rise and grind! Start your first quest to boost your Discipline.";
+      greeting = "Semangat pagi! Mulai quest pertamamu untuk meningkatkan Disiplin.";
     } else if (hour >= 12 && hour < 18) {
-      greeting = "Keep the momentum going! You're making great progress today.";
+      greeting = "Pertahankan momentumnya! Kamu membuat kemajuan hebat hari ini.";
     } else {
-      greeting = "Great work today. Check your daily summary before you rest.";
+      greeting = "Kerja bagus hari ini. Cek ringkasan harianmu sebelum istirahat.";
     }
 
     switch (pathname) {
       case "/dashboard":
-        return { title: "Command Center", subtitle: greeting };
+        return { title: "Pusat Komando", subtitle: greeting };
       case "/dashboard/quests":
-        return { title: "Active Quests", subtitle: "Manage your daily objectives" };
+        return { title: "Quest Aktif", subtitle: "Kelola objektif harianmu" };
       case "/dashboard/bosses":
-        return { title: "Boss Battles", subtitle: "Conquer epic projects and claim legendary loot" };
+        return { title: "Pertempuran Boss", subtitle: "Taklukkan proyek besar dan klaim jarahan legendaris" };
       case "/dashboard/habits":
-        return { title: "Growth", subtitle: "Track your life goals and build habits that move you forward" };
+        return { title: "Pertumbuhan", subtitle: "Lacak tujuan hidupmu dan bangun kebiasaan" };
       case "/dashboard/social":
-        return { title: "Social Hub", subtitle: "Connect with the community and climb the rankings" };
+        return { title: "Hub Sosial", subtitle: "Terhubung dengan komunitas dan naiki peringkat" };
+      case "/dashboard/character":
+        return { title: "Karakter", subtitle: "Lihat profil dan statistik karaktermu" };
+      case "/dashboard/shop":
+        return { title: "Toko", subtitle: "Belanja item keren dengan gold-mu" };
+      case "/dashboard/analytics":
+        return { title: "Analitik", subtitle: "Pantau perkembangan dan performa" };
       default:
-        return { title: "LifeQuest", subtitle: "Welcome back, Adventurer" };
+        return { title: "LifeQuest", subtitle: "Selamat datang kembali, Petualang" };
     }
   };
 
@@ -122,7 +128,7 @@ export default function Navbar() {
               >
                 {/* Header */}
                 <div className="p-4 border-b border-white/[0.05] bg-white/[0.01] flex items-center justify-between">
-                  <h4 className="text-white font-bold text-sm">Notifications</h4>
+                  <h4 className="text-white font-bold text-sm">Notifikasi</h4>
                   <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">2 NEW</span>
                 </div>
 
@@ -135,8 +141,8 @@ export default function Navbar() {
                       <CheckCircle2 size={16} className="text-indigo-400" />
                     </div>
                     <div>
-                      <h5 className="text-sm font-bold text-white leading-tight">Quest Completed</h5>
-                      <p className="text-xs text-slate-400 mt-1 leading-snug">You just finished "Morning Workout". +50 XP and 100 G earned.</p>
+                      <h5 className="text-sm font-bold text-white leading-tight">Quest Selesai</h5>
+                      <p className="text-xs text-slate-400 mt-1 leading-snug">Kamu baru saja menyelesaikan quest. +50 XP dan 100 G didapatkan.</p>
                       <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
                         <Clock size={10} /> 2m ago
                       </span>
@@ -150,8 +156,8 @@ export default function Navbar() {
                       <Flame size={16} className="text-orange-400" />
                     </div>
                     <div>
-                      <h5 className="text-sm font-bold text-white leading-tight">Streak Warning</h5>
-                      <p className="text-xs text-slate-400 mt-1 leading-snug">Don't lose your 42-day momentum! Complete a daily habit soon.</p>
+                      <h5 className="text-sm font-bold text-white leading-tight">Peringatan Streak</h5>
+                      <p className="text-xs text-slate-400 mt-1 leading-snug">Jangan putuskan momentum 42 harimu! Selesaikan kebiasaan harian segera.</p>
                       <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
                         <Clock size={10} /> 1h ago
                       </span>
@@ -161,7 +167,7 @@ export default function Navbar() {
 
                 {/* Footer Action */}
                 <button className="p-3 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/[0.02] transition-colors text-center w-full">
-                  Mark all as read
+                  Tandai semua sudah dibaca
                 </button>
               </motion.div>
             )}
@@ -230,11 +236,11 @@ export default function Navbar() {
                 <div className="grid grid-cols-2 gap-px bg-white/[0.05]">
                   <div className="bg-[#1b1c28] p-3 flex flex-col items-center justify-center gap-1 hover:bg-white/[0.02] transition-colors cursor-pointer">
                     <span className="text-orange-500 font-bold text-lg leading-none">42</span>
-                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Day Streak</span>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Hari Streak</span>
                   </div>
                   <div className="bg-[#1b1c28] p-3 flex flex-col items-center justify-center gap-1 hover:bg-white/[0.02] transition-colors cursor-pointer">
                     <span className="text-emerald-400 font-bold text-lg leading-none">128</span>
-                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Quests Done</span>
+                    <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Quest Selesai</span>
                   </div>
                 </div>
 
@@ -242,11 +248,11 @@ export default function Navbar() {
                 <div className="p-2 flex flex-col gap-1">
                   <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold">
                     <User size={16} className="text-slate-400" />
-                    View Full Profile
+                    Lihat Profil Lengkap
                   </button>
                   <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold">
                     <Settings size={16} className="text-slate-400" />
-                    Account Settings
+                    Pengaturan Akun
                   </button>
                   <div className="h-px bg-white/[0.05] my-1"></div>
                   <button 
@@ -254,7 +260,7 @@ export default function Navbar() {
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors text-sm font-semibold"
                   >
                     <LogOut size={16} />
-                    Log Out
+                    Keluar
                   </button>
                 </div>
               </motion.div>

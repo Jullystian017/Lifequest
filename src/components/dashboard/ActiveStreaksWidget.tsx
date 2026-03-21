@@ -1,4 +1,4 @@
-import { Flame, Plus, Check } from "lucide-react";
+import { Flame, Plus, Check, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useHabitStore } from "@/store/habitStore";
 import { useUserStatsStore } from "@/store/userStatsStore";
@@ -19,7 +19,6 @@ export default function ActiveStreaksWidget() {
 
   return (
     <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">
-      {/* Background Subtle Glow */}
       <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-orange-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-orange-500/10 transition-colors"></div>
 
       <div className="flex items-center justify-between mb-8 relative z-10">
@@ -29,9 +28,9 @@ export default function ActiveStreaksWidget() {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white font-[family-name:var(--font-heading)]">
-              Active Streaks
+              Streak Aktif
             </h3>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">Maintain your daily momentum</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">Jaga momentum harianmu</p>
           </div>
         </div>
         <button className="w-8 h-8 rounded-xl bg-[var(--bg-sidebar)] border border-[var(--border-light)] flex items-center justify-center text-[var(--text-muted)] hover:text-white hover:border-orange-500 transition-all">
@@ -39,63 +38,72 @@ export default function ActiveStreaksWidget() {
         </button>
       </div>
 
-      <div className="space-y-6">
-        {habits.map((habit) => (
-          <div key={habit.id} className="space-y-3 group cursor-pointer" onClick={() => handleToggle(habit)}>
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${habit.completed_today
-                    ? "bg-orange-500 border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-                    : "bg-[var(--bg-sidebar)] border-white/5 text-slate-600 hover:border-orange-500/50"
-                  }`}>
-                  {habit.completed_today ? <Check size={16} className="text-white" /> : <Flame size={16} />}
-                </div>
-                <div className="flex flex-col">
-                  <span className={`text-sm font-semibold transition-colors ${habit.completed_today ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
-                    {habit.title}
-                  </span>
-                  <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-widest">{habit.description}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={habit.current_streak}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="flex items-baseline gap-1"
-                  >
-                    <span className={`text-sm font-black italic ${habit.completed_today ? "text-orange-400" : "text-slate-500"}`}>
-                      {habit.current_streak}
-                    </span>
-                    <span className="text-[10px] font-black uppercase tracking-tighter text-[var(--text-muted)]">DAYS</span>
-                  </motion.div>
-                </AnimatePresence>
-                {habit.completed_today && (
-                  <motion.div
-                    initial={{ scale: 0, rotate: -20 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    className="text-orange-500"
-                  >
-                    <Flame size={12} fill="currentColor" />
-                  </motion.div>
-                )}
-              </div>
-            </div>
-
-            {/* Minimal Progress Bar */}
-            <div className="h-1 w-full bg-[var(--bg-sidebar)] rounded-full overflow-hidden border border-white/5">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-orange-600 to-orange-400"
-                style={{ boxShadow: `0 0 10px rgba(249,115,22,0.3)` }}
-                initial={{ width: 0 }}
-                animate={{ width: `${habit.completed_today ? 100 : 30}%` }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-              />
-            </div>
+      {habits.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-10 text-center">
+          <div className="p-4 rounded-2xl bg-orange-500/5 border border-orange-500/10 mb-4">
+            <Zap size={32} className="text-orange-500/40" />
           </div>
-        ))}
-      </div>
+          <p className="text-sm font-semibold text-slate-400 mb-1">Belum ada kebiasaan yang dilacak</p>
+          <p className="text-xs text-slate-500">Tambahkan kebiasaan pertamamu dan bangun streak!</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {habits.map((habit) => (
+            <div key={habit.id} className="space-y-3 group cursor-pointer" onClick={() => handleToggle(habit)}>
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${habit.completed_today
+                      ? "bg-orange-500 border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                      : "bg-[var(--bg-sidebar)] border-white/5 text-slate-600 hover:border-orange-500/50"
+                    }`}>
+                    {habit.completed_today ? <Check size={16} className="text-white" /> : <Flame size={16} />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className={`text-sm font-semibold transition-colors ${habit.completed_today ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
+                      {habit.title}
+                    </span>
+                    <span className="text-[9px] text-[var(--text-muted)] font-semibold uppercase tracking-widest">{habit.description}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={habit.current_streak}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="flex items-baseline gap-1"
+                    >
+                      <span className={`text-sm font-semibold italic ${habit.completed_today ? "text-orange-400" : "text-slate-500"}`}>
+                        {habit.current_streak}
+                      </span>
+                      <span className="text-[10px] font-semibold uppercase tracking-tighter text-[var(--text-muted)]">HARI</span>
+                    </motion.div>
+                  </AnimatePresence>
+                  {habit.completed_today && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -20 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      className="text-orange-500"
+                    >
+                      <Flame size={12} fill="currentColor" />
+                    </motion.div>
+                  )}
+                </div>
+              </div>
+
+              <div className="h-1 w-full bg-[var(--bg-sidebar)] rounded-full overflow-hidden border border-white/5">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-orange-600 to-orange-400"
+                  style={{ boxShadow: `0 0 10px rgba(249,115,22,0.3)` }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${habit.completed_today ? 100 : 30}%` }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
