@@ -131,72 +131,73 @@ export default function SkillTreePage() {
                   const maxed = skill.level >= skill.maxLevel;
 
                   return (
-                    <motion.div
-                      key={skill.id}
-                      whileHover={!locked ? { x: 4 } : {}}
-                      className={`p-4 rounded-2xl border transition-all flex items-center gap-4 ${
-                        locked
-                          ? "bg-black/10 border-white/5 opacity-50"
-                          : maxed
-                          ? `bg-black/20 ${BRANCH_BORDER[branch]} shadow-lg ${BRANCH_GLOW[branch]}`
-                          : `bg-black/20 border-white/5 hover:border-white/10`
-                      }`}
-                    >
-                      {/* Icon */}
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
-                        locked ? "bg-black/20 border-white/5 text-slate-600" :
-                        maxed ? `bg-black/30 border-white/10 ${config.color}` :
-                        `bg-black/20 border-white/5 ${config.color}`
-                      }`}>
-                        {locked ? <Lock size={16} /> : <IconComp size={18} />}
-                      </div>
+                    <div key={skill.id}>
+                      <motion.div
+                        whileHover={!locked ? { x: 4 } : {}}
+                        className={`p-4 rounded-2xl border transition-all flex items-center gap-4 ${
+                          locked
+                            ? "bg-black/10 border-white/5 opacity-50"
+                            : maxed
+                            ? `bg-black/20 ${BRANCH_BORDER[branch]} shadow-lg ${BRANCH_GLOW[branch]}`
+                            : `bg-black/20 border-white/5 hover:border-white/10`
+                        }`}
+                      >
+                        {/* Icon */}
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
+                          locked ? "bg-black/20 border-white/5 text-slate-600" :
+                          maxed ? `bg-black/30 border-white/10 ${config.color}` :
+                          `bg-black/20 border-white/5 ${config.color}`
+                        }`}>
+                          {locked ? <Lock size={16} /> : <IconComp size={18} />}
+                        </div>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className={`text-sm font-semibold ${locked ? "text-slate-600" : "text-white"}`}>{skill.name}</span>
-                          {skill.level > 0 && (
-                            <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${config.color} bg-black/20`}>
-                              Lv.{skill.level}/{skill.maxLevel}
-                            </span>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className={`text-sm font-semibold ${locked ? "text-slate-600" : "text-white"}`}>{skill.name}</span>
+                            {skill.level > 0 && (
+                              <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${config.color} bg-black/20`}>
+                                Lv.{skill.level}/{skill.maxLevel}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-slate-500 truncate">{skill.description}</p>
+                          {!maxed && !locked && (
+                            <p className="text-[9px] text-slate-600 mt-1 font-semibold">Biaya: {skill.xpCost} XP</p>
                           )}
                         </div>
-                        <p className="text-[10px] text-slate-500 truncate">{skill.description}</p>
-                        {!maxed && !locked && (
-                          <p className="text-[9px] text-slate-600 mt-1 font-semibold">Biaya: {skill.xpCost} XP</p>
-                        )}
-                      </div>
 
-                      {/* Action */}
-                      <div className="shrink-0">
-                        {maxed ? (
-                          <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg">MAX</span>
-                        ) : locked ? (
-                          <Lock size={14} className="text-slate-600" />
-                        ) : (
-                          <button
-                            onClick={() => handleUpgrade(skill)}
-                            disabled={!unlockable}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                              unlockable
-                                ? `bg-[var(--primary)] text-white hover:opacity-90 shadow-lg shadow-[var(--primary)]/20`
-                                : "bg-black/20 text-slate-600 cursor-not-allowed"
-                            }`}
-                          >
-                            {skill.level === 0 ? "Buka" : "Upgrade"}
-                          </button>
-                        )}
-                      </div>
-                    </motion.div>
+                        {/* Action */}
+                        <div className="shrink-0">
+                          {maxed ? (
+                            <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg">MAX</span>
+                          ) : locked ? (
+                            <Lock size={14} className="text-slate-600" />
+                          ) : (
+                            <button
+                              onClick={() => handleUpgrade(skill)}
+                              disabled={!unlockable}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                                unlockable
+                                  ? `bg-[var(--primary)] text-white hover:opacity-90 shadow-lg shadow-[var(--primary)]/20`
+                                  : "bg-black/20 text-slate-600 cursor-not-allowed"
+                              }`}
+                            >
+                              {skill.level === 0 ? "Buka" : "Upgrade"}
+                            </button>
+                          )}
+                        </div>
+                      </motion.div>
+
+                      {/* Connection Lines (visual) */}
+                      {idx < branchSkills.length - 1 && (
+                        <div className="flex justify-center py-1">
+                          <ChevronRight size={14} className="text-slate-700 rotate-90" />
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
-
-                {/* Connection Lines (visual) */}
-                {idx < branchSkills.length - 1 && (
-                  <div className="flex justify-center">
-                    <ChevronRight size={14} className="text-slate-700 rotate-90" />
-                  </div>
-                )}
               </div>
             </motion.div>
           );
