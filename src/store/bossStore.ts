@@ -92,27 +92,48 @@ const MOCK_BOSSES: Boss[] = [
 export const useBossStore = create<BossStore>((set) => ({
     bosses: MOCK_BOSSES,
     
-    dealDamage: (bossId, taskId) => set((state) => ({
-        bosses: state.bosses.map(boss => {
-            if (boss.id !== bossId) return boss;
-            
-            const task = boss.tasks.find(t => t.id === taskId);
-            if (!task || task.is_completed) return boss; // Can't deal damage twice
+    dealDamage: (bossId, taskId) => {
+        set((state) => {
+            let bossDefeatedNow = false;
+            let rewardsToGive: any = null;
 
-            // Calculate new HP
-            const newHp = Math.max(0, boss.current_hp - task.damage);
-            const isDefeated = newHp === 0;
+            const newBosses = state.bosses.map(boss => {
+                if (boss.id !== bossId) return boss;
+                
+                const task = boss.tasks.find(t => t.id === taskId);
+                // Can't deal damage twice or if task is invalid or if boss is already defeated
+                if (!task || task.is_completed || boss.current_hp <= 0) return boss; 
 
-            return {
-                ...boss,
-                current_hp: newHp,
-                status: isDefeated ? 'defeated' : boss.status,
-                tasks: boss.tasks.map(t => 
-                    t.id === taskId ? { ...t, is_completed: true } : t
-                )
-            };
-        })
-    })),
+                // Calculate new HP
+                const newHp = Math.max(0, boss.current_hp - task.damage);
+                const isDefeated = newHp === 0;
+
+                if (isDefeated) {
+                    bossDefeatedNow = true;
+                    rewardsToGive = boss.rewards;
+                }
+
+                return {
+                    ...boss,
+                    current_hp: newHp,
+                    status: isDefeated ? 'defeated' : boss.status,
+                    tasks: boss.tasks.map(t => 
+                        t.id === taskId ? { ...t, is_completed: true } : t
+                    )
+                };
+            });
+
+            // If a boss was defeated in this action, give the rewards
+            if (bossDefeatedNow && rewardsToGive) {
+                const { useUserStatsStore } = require('./userStatsStore');
+                const userStore = useUserStatsStore.getState();
+                if (rewardsToGive.xp) userStore.addXp(rewardsToGive.xp);
+                if (rewardsToGive.coins) userStore.addCoins(rewardsToGive.coins);
+            }
+
+            return { bosses: newBosses };
+        });
+    },
 
     addBoss: (boss) => set((state) => ({
         bosses: [...state.bosses, boss]
