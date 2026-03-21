@@ -10,7 +10,6 @@ export async function updateSession(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    // Skip Supabase middleware if env vars are not set (development mode)
     if (!supabaseUrl || !supabaseAnonKey) {
         return supabaseResponse;
     }
@@ -36,8 +35,10 @@ export async function updateSession(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Protect specific routes (dashboard and its subpages)
-    if (!user && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/quests'))) {
+    const protectedRoutes = ['/dashboard', '/quests', '/bosses', '/character', '/shop', '/social', '/leaderboard', '/analytics'];
+    const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
+
+    if (!user && isProtectedRoute) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
     

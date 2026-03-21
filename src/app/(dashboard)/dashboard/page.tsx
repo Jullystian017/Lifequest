@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import AttributeCard from "@/components/dashboard/AttributeCard";
 import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
 import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
@@ -13,189 +14,16 @@ import { useQuestStore } from "@/store/questStore";
 import { useHabitStore } from "@/store/habitStore";
 import { useGoalStore } from "@/store/goalStore";
 import { useWorkspaceStore } from "@/store/workspaceStore";
-import { Quest } from "@/types/quest";
-import { Habit } from "@/types/habit";
-import { Goal } from "@/types/goal";
-import { useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+
 import {
   Heart,
   BookOpen,
   Dumbbell,
   PiggyBank,
-  Palette
+  Palette,
+  Loader2
 } from "lucide-react";
-
-// Initial Mock Data
-const INITIAL_QUESTS: Quest[] = [
-  {
-    id: "q1",
-    workspaceId: "personal-1",
-    title: "Study React Basics",
-    description: "Dive deep into the core concepts of React.js to build a solid foundation.",
-    difficulty: "medium",
-    priority: "medium",
-    xp_reward: 120,
-    coin_reward: 30,
-    current_value: 0,
-    target_value: 1,
-    is_completed: false,
-    type: "daily",
-    stat_rewards: { knowledge: 10 },
-    tasks: [
-      { id: "t1", title: "Review JSX syntax", is_completed: true },
-      { id: "t2", title: "Install React DevTools", is_completed: true },
-      { id: "t3", title: "Understand props vs state", is_completed: false },
-      { id: "t4", title: "Build first functional component", is_completed: false },
-    ],
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "q2",
-    workspaceId: "personal-1",
-    title: "Workout 30 Minutes",
-    description: "Keep your physical stats high with a quick session.",
-    difficulty: "hard",
-    priority: "high",
-    xp_reward: 250,
-    coin_reward: 50,
-    current_value: 0,
-    target_value: 1,
-    is_completed: false,
-    type: "daily",
-    stat_rewards: { health: 15, discipline: 5 },
-    tasks: [
-      { id: "t5", title: "10 min Warm up", is_completed: false },
-      { id: "t6", title: "20 min Strength training", is_completed: false },
-    ],
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "q3",
-    workspaceId: "personal-1",
-    title: "Read 20 Pages",
-    description: "Expand your knowledge through consistent reading.",
-    difficulty: "easy",
-    priority: "low",
-    xp_reward: 90,
-    coin_reward: 15,
-    current_value: 0,
-    target_value: 1,
-    is_completed: false,
-    type: "daily",
-    stat_rewards: { knowledge: 5 },
-    tasks: [
-      { id: "t7", title: "Select a book", is_completed: true },
-      { id: "t8", title: "Read for 20 mins", is_completed: false },
-    ],
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "q4",
-    workspaceId: "team-1",
-    assigneeId: "u-1",
-    title: "Review PR #42",
-    description: "Review the authentication flow pull request.",
-    difficulty: "medium",
-    priority: "high",
-    xp_reward: 150,
-    coin_reward: 40,
-    current_value: 0,
-    target_value: 1,
-    is_completed: false,
-    type: "daily",
-    stat_rewards: { knowledge: 10, discipline: 5 },
-    tasks: [
-      { id: "t9", title: "Check login mutations", is_completed: false },
-      { id: "t10", title: "Verify JWT storage", is_completed: false },
-      { id: "t11", title: "Approve PR", is_completed: false },
-    ],
-    created_at: new Date().toISOString(),
-  },
-];
-
-const INITIAL_HABITS: Habit[] = [
-  {
-    id: "h1",
-    user_id: "u1",
-    title: "Morning Reading",
-    description: "15 mins daily",
-    icon: "📖",
-    frequency: "daily",
-    stat_reward: "knowledge",
-    xp_per_completion: 50,
-    current_streak: 12,
-    longest_streak: 20,
-    completed_today: true,
-    completions: [],
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "h3",
-    user_id: "u1",
-    title: "Morning Workout",
-    description: "30 min session",
-    icon: "💪",
-    frequency: "daily",
-    stat_reward: "health",
-    xp_per_completion: 80,
-    current_streak: 5,
-    longest_streak: 30,
-    completed_today: false,
-    completions: [],
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "h2",
-    user_id: "u1",
-    title: "Meditation",
-    description: "10 mins",
-    icon: "🧘",
-    frequency: "daily",
-    stat_reward: "discipline",
-    xp_per_completion: 40,
-    current_streak: 8,
-    longest_streak: 15,
-    completed_today: true,
-    completions: [],
-    created_at: new Date().toISOString()
-  },
-];
-
-const INITIAL_GOALS: Goal[] = [
-  {
-    id: "g1",
-    title: "Become Frontend Master",
-    description: "Learn React, Next.js, and TypeScript to build premium web apps.",
-    category: "career",
-    status: "in_progress",
-    priority: "high",
-    progress: 65,
-    milestones: [
-      { id: "m1", goal_id: "g1", title: "Master React Hooks", is_completed: true, order: 1 },
-      { id: "m2", goal_id: "g1", title: "Learn Next.js App Router", is_completed: true, order: 2 },
-      { id: "m3", goal_id: "g1", title: "Build 3 Large Projects", is_completed: false, order: 3 },
-    ],
-    stat_rewards: { knowledge: 20, creativity: 10 },
-    xp_reward: 1500,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "g2",
-    title: "Health Transformation",
-    description: "Reach 15% body fat and run a 5k.",
-    category: "fitness",
-    status: "in_progress",
-    priority: "medium",
-    progress: 30,
-    milestones: [
-      { id: "m4", goal_id: "g2", title: "Lose 5kg", is_completed: true, order: 1 },
-      { id: "m5", goal_id: "g2", title: "Run 3km without stopping", is_completed: false, order: 2 },
-    ],
-    stat_rewards: { health: 25, discipline: 15 },
-    xp_reward: 1200,
-    created_at: new Date().toISOString(),
-  }
-];
 
 export default function DashboardPage() {
   const { activeWorkspaceId } = useWorkspaceStore();
@@ -203,29 +31,81 @@ export default function DashboardPage() {
   const { quests, setQuests, completeQuest } = useQuestStore();
   const { habits, setHabits } = useHabitStore();
   const { goals, setGoals } = useGoalStore();
+  const [loading, setLoading] = useState(true);
 
-  const activeQuests = quests.filter(q => q.workspaceId === activeWorkspaceId);
+  const supabase = createClient();
+  const activeQuests = quests.filter(q => q.workspaceId === (activeWorkspaceId || 'personal-1'));
 
   useEffect(() => {
-    if (quests.length === 0) setQuests(INITIAL_QUESTS);
-    if (habits.length === 0) setHabits(INITIAL_HABITS);
-    if (goals.length === 0) setGoals(INITIAL_GOALS);
-  }, [quests.length, habits.length, goals.length, setQuests, setHabits, setGoals]);
+    async function loadBackendData() {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+          setLoading(false);
+          return;
+      }
 
-  const handleCompleteQuest = (questId: string) => {
+      // 1. Fetch real Quests from Supabase
+      const { data: fetchedQuests } = await supabase
+        .from('quests')
+        .select('*')
+        .eq('workspace_id', activeWorkspaceId || 'personal-1')
+        .order('created_at', { ascending: false });
+        
+      if (fetchedQuests) setQuests(fetchedQuests);
+
+      // 2. Fetch real Habits from Supabase
+      const { data: fetchedHabits } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('user_id', user.id);
+        
+      if (fetchedHabits) setHabits(fetchedHabits);
+
+      // 3. Fetch real Goals & Milestones from Supabase
+      const { data: fetchedGoals } = await supabase
+        .from('goals')
+        .select('*, milestones:goal_milestones(*)')
+        .eq('user_id', user.id);
+        
+      if (fetchedGoals) setGoals(fetchedGoals);
+
+      setLoading(false);
+    }
+    
+    loadBackendData();
+  }, [activeWorkspaceId, setQuests, setHabits, setGoals]);
+
+  const handleCompleteQuest = async (questId: string) => {
     const quest = quests.find(q => q.id === questId);
     if (!quest || quest.is_completed) return;
 
+    // Optimistic UI Update in Zustand
     completeQuest(questId);
-    addXp(quest.xp_reward);
-    addCoins(quest.coin_reward);
+    if (quest.xp_reward) addXp(quest.xp_reward);
+    if (quest.coin_reward) addCoins(quest.coin_reward);
 
     if (quest.stat_rewards) {
       Object.entries(quest.stat_rewards).forEach(([stat, amount]) => {
         updateStat(stat as any, amount);
       });
     }
+
+    // Persist to Real Backend
+    await supabase.from('quests').update({ 
+         is_completed: true,
+         completed_at: new Date().toISOString()
+    }).eq('id', questId);
   };
+
+  if (loading) {
+      return (
+          <div className="w-full h-[60vh] flex flex-col items-center justify-center text-slate-500 gap-4">
+              <Loader2 className="animate-spin text-[var(--primary)]" size={40} />
+              <p className="text-sm font-semibold uppercase tracking-widest">Memuat Data Server...</p>
+          </div>
+      );
+  }
 
   return (
     <div className="space-y-8 pb-20 animate-fade-in w-full">

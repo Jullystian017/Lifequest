@@ -7,6 +7,7 @@ interface BossStore {
     // Actions
     dealDamage: (bossId: string, taskId: string) => void;
     addBoss: (boss: Boss) => void;
+    setBosses: (bosses: Boss[]) => void;
 }
 
 const MOCK_BOSSES: Boss[] = [
@@ -90,7 +91,9 @@ const MOCK_BOSSES: Boss[] = [
 ];
 
 export const useBossStore = create<BossStore>((set) => ({
-    bosses: MOCK_BOSSES,
+    bosses: [],
+    
+    setBosses: (bosses) => set({ bosses }),
     
     dealDamage: (bossId, taskId) => {
         set((state) => {

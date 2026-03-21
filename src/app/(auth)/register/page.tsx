@@ -37,7 +37,7 @@ export default function RegisterPage() {
         if (error) {
             setErrorMsg(error.message);
         } else {
-            setSuccessMsg("Welcome! Check your messages to verify your identity.");
+            setSuccessMsg("Selamat datang! Cek emailmu untuk verifikasi identitas.");
             setTimeout(() => {
                 router.push("/dashboard");
             }, 2500);
@@ -72,11 +72,11 @@ export default function RegisterPage() {
                         <Shield size={40} className="text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
                     </motion.div>
                     
-                    <h1 className="text-4xl font-black font-[family-name:var(--font-heading)] text-white tracking-tight drop-shadow-lg mb-2">
-                        Forge Your Legacy
+                    <h1 className="text-4xl font-semibold font-[family-name:var(--font-heading)] text-white tracking-tight drop-shadow-lg mb-2">
+                        Tempa Legendamu
                     </h1>
                     <p className="text-sm font-medium text-emerald-200/60 uppercase tracking-widest">
-                        A new hero emerges
+                        Pahlawan baru muncul
                     </p>
                 </div>
 
@@ -90,7 +90,7 @@ export default function RegisterPage() {
                             <motion.div 
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
-                                className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-wider p-4 rounded-xl text-center flex items-center justify-center gap-2"
+                                className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold uppercase tracking-wider p-4 rounded-xl text-center flex items-center justify-center gap-2"
                             >
                                 {errorMsg}
                             </motion.div>
@@ -99,7 +99,7 @@ export default function RegisterPage() {
                             <motion.div 
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
-                                className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider p-4 rounded-xl text-center flex items-center justify-center gap-2"
+                                className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider p-4 rounded-xl text-center flex items-center justify-center gap-2"
                             >
                                 {successMsg}
                             </motion.div>
@@ -107,13 +107,13 @@ export default function RegisterPage() {
                         
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">Hero Title</label>
+                                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2 pl-1">Gelar Pahlawan</label>
                                 <div className="relative">
                                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input
                                         type="text"
                                         required
-                                        placeholder="Display Name"
+                                        placeholder="Nama Karakter"
                                         value={username}
                                         onChange={(e) => setUsername(e.target.value)}
                                         className="w-full bg-black/40 border border-white/10 text-white rounded-xl pl-12 pr-4 py-3.5 outline-none focus:border-emerald-500 focus:bg-emerald-500/5 transition-all shadow-inner placeholder:text-slate-600 font-medium"
@@ -122,7 +122,7 @@ export default function RegisterPage() {
                             </div>
                             
                             <div>
-                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">Adventurer Email</label>
+                                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2 pl-1">Email Petualang</label>
                                 <div className="relative">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input
@@ -137,13 +137,13 @@ export default function RegisterPage() {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">Secret Passphrase</label>
+                                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2 pl-1">Kata Sandi Rahasia</label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input
                                         type="password"
                                         required
-                                        placeholder="At least 8 characters"
+                                        placeholder="Minimal 8 karakter"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="w-full bg-black/40 border border-white/10 text-white rounded-xl pl-12 pr-4 py-3.5 outline-none focus:border-emerald-500 focus:bg-emerald-500/5 transition-all shadow-inner placeholder:text-slate-600 font-medium"
@@ -158,14 +158,14 @@ export default function RegisterPage() {
                             className="w-full relative group/btn disabled:opacity-50 disabled:cursor-not-allowed border-none mt-2"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl blur opacity-70 group-hover/btn:opacity-100 transition-opacity" />
-                            <div className="relative bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 py-4 rounded-xl border border-white/20 shadow-xl overflow-hidden">
+                            <div className="relative bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 py-4 rounded-xl border border-white/20 shadow-xl overflow-hidden">
                                 {loading ? (
                                     <>
-                                        <Loader2 size={18} className="animate-spin" /> Summoning...
+                                        <Loader2 size={18} className="animate-spin" /> Memanggil...
                                     </>
                                 ) : (
                                     <>
-                                        Create Character <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+                                        Buat Karakter <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
                                     </>
                                 )}
                             </div>
@@ -174,9 +174,9 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="mt-8 text-center text-sm font-medium text-slate-500">
-                    Already part of the guild?{" "}
-                    <Link href="/login" className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors uppercase tracking-wider text-xs ml-1">
-                        Login Here
+                    Sudah menjadi bagian dari guild?{" "}
+                    <Link href="/login" className="text-emerald-400 font-semibold hover:text-emerald-300 transition-colors uppercase tracking-wider text-xs ml-1">
+                        Masuk di Sini
                     </Link>
                 </div>
 

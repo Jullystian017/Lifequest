@@ -3,12 +3,14 @@
 import { useBossStore } from "@/store/bossStore";
 import { useWorkspaceStore } from "@/store/workspaceStore";
 import { useUserStatsStore } from "@/store/userStatsStore";
-import { Skull, Swords, Trophy, History, Zap, Shield, Plus, ChevronRight, Sparkles, CheckCircle2 } from "lucide-react";
+import { Skull, Swords, Trophy, History, Zap, Shield, Plus, ChevronRight, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function BossBattlesPage() {
-    const { bosses, dealDamage } = useBossStore();
+    const { bosses, dealDamage, setBosses } = useBossStore();
     const { activeWorkspaceId, workspaces = [], activeRole } = useWorkspaceStore();
     const activeWorkspace = workspaces.find(w => w.id === activeWorkspaceId);
     const { addXp, addCoins } = useUserStatsStore();
@@ -24,11 +26,45 @@ export default function BossBattlesPage() {
     // Default to the first active boss if any exist
     const primaryBoss = activeBosses[0];
 
-    const handleDealDamage = (bossId: string, taskId: string, damage: number) => {
-        dealDamage(bossId, taskId);
-        // Add small reward for dealing damage (not the full boss defeat reward)
+    const supabase = createClient();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchBosses() {
+            setLoading(true);
+            const { data } = await supabase
+                .from('bosses')
+                .select('*, tasks:boss_tasks(*)')
+                .eq('workspace_id', activeWorkspaceId || 'personal-1')
+                .order('created_at', { ascending: false });
+            
+            if (data) {
+                setBosses(data);
+            }
+            setLoading(false);
+        }
+        if (activeWorkspaceId) {
+            fetchBosses();
+        }
+    }, [activeWorkspaceId, setBosses, supabase]);
+
+    const handleDealDamage = async (bossId: string, taskId: string, damage: number) => {
+        dealDamage(bossId, taskId); // Optimistic UI update
         addXp(Math.floor(damage * 1.5));
         addCoins(Math.floor(damage * 0.1));
+
+        // Persist to backend
+        await supabase.from('boss_tasks').update({ is_completed: true }).eq('id', taskId);
+        
+        const currentBoss = bosses.find(b => b.id === bossId);
+        if (currentBoss) {
+            const newHp = Math.max(0, currentBoss.current_hp - damage);
+            const isDefeated = newHp === 0;
+            await supabase.from('bosses').update({
+                current_hp: newHp,
+                status: isDefeated ? 'defeated' : currentBoss.status
+            }).eq('id', bossId);
+        }
     };
 
     const canSummonBoss = activeRole !== 'member';
@@ -58,7 +94,14 @@ export default function BossBattlesPage() {
                 )}
             </header>
 
-            {/* 2. Active Boss Arena (The Main Event) */}
+            {loading ? (
+                <div className="w-full h-64 flex flex-col items-center justify-center text-slate-500 gap-4">
+                    <Loader2 className="animate-spin text-red-500" size={40} />
+                    <p className="text-sm font-semibold uppercase tracking-widest">Memindai Area Boss...</p>
+                </div>
+            ) : (
+                <>
+                    {/* 2. Active Boss Arena (The Main Event) */}
             {primaryBoss ? (
                 <section>
                     <div className="flex items-center gap-2 mb-6">
@@ -275,6 +318,8 @@ export default function BossBattlesPage() {
                         </div>
                     )}
                 </section>
+            )}
+            </>
             )}
 
         </div>

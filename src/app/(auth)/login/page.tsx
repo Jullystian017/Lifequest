@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
-import { Mail, Lock, Sparkles, Sword, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Sword, Loader2, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -60,11 +60,11 @@ export default function LoginPage() {
                         <Sword size={40} className="text-indigo-400 drop-shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
                     </motion.div>
                     
-                    <h1 className="text-4xl font-black font-[family-name:var(--font-heading)] text-white tracking-tight drop-shadow-lg mb-2">
-                        Enter the Realm
+                    <h1 className="text-4xl font-semibold font-[family-name:var(--font-heading)] text-white tracking-tight drop-shadow-lg mb-2">
+                        Masuk ke Dunia
                     </h1>
                     <p className="text-sm font-medium text-indigo-200/60 uppercase tracking-widest">
-                        Resume your Epic Quests
+                        Lanjutkan Quest Epikmu
                     </p>
                 </div>
 
@@ -78,7 +78,7 @@ export default function LoginPage() {
                             <motion.div 
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
-                                className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-wider p-4 rounded-xl text-center flex items-center justify-center gap-2"
+                                className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold uppercase tracking-wider p-4 rounded-xl text-center flex items-center justify-center gap-2"
                             >
                                 {errorMsg}
                             </motion.div>
@@ -86,7 +86,7 @@ export default function LoginPage() {
                         
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">Adventurer Email</label>
+                                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2 pl-1">Email Petualang</label>
                                 <div className="relative">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input
@@ -101,7 +101,7 @@ export default function LoginPage() {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 pl-1">Secret Passphrase</label>
+                                <label className="block text-[10px] font-semibold text-slate-500 uppercase tracking-widest mb-2 pl-1">Kata Sandi Rahasia</label>
                                 <div className="relative">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                                     <input
@@ -122,14 +122,14 @@ export default function LoginPage() {
                             className="w-full relative group/btn disabled:opacity-50 disabled:cursor-not-allowed border-none mt-2"
                         >
                             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl blur opacity-70 group-hover/btn:opacity-100 transition-opacity" />
-                            <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-2 py-4 rounded-xl border border-white/20 shadow-xl overflow-hidden">
+                            <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold uppercase tracking-widest text-sm flex items-center justify-center gap-2 py-4 rounded-xl border border-white/20 shadow-xl overflow-hidden">
                                 {loading ? (
                                     <>
-                                        <Loader2 size={18} className="animate-spin" /> Authenticating...
+                                        <Loader2 size={18} className="animate-spin" /> Mengautentikasi...
                                     </>
                                 ) : (
                                     <>
-                                        Start Journey <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
+                                        Mulai Perjalanan <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
                                     </>
                                 )}
                             </div>
@@ -138,9 +138,9 @@ export default function LoginPage() {
                 </div>
 
                 <div className="mt-8 text-center text-sm font-medium text-slate-500">
-                    A new traveler?{" "}
-                    <Link href="/register" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors uppercase tracking-wider text-xs ml-1">
-                        Create Character
+                    Petualang baru?{" "}
+                    <Link href="/register" className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors uppercase tracking-wider text-xs ml-1">
+                        Buat Karakter
                     </Link>
                 </div>
 
