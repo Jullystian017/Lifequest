@@ -55,7 +55,7 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="space-y-8 pb-20 w-full animate-fade-in max-w-4xl mx-auto">
+        <div className="space-y-8 pb-20 w-full animate-fade-in">
             <div className="flex flex-col md:flex-row gap-8">
                 {/* Sidebar Menus */}
                 <div className="w-full md:w-64 shrink-0 space-y-2">

@@ -28,7 +28,7 @@ export default function AnalyticsPage() {
     const completionRate = Math.round((activeHabits / totalHabits) * 100);
 
     return (
-        <div className="space-y-8 pb-20 w-full animate-fade-in max-w-6xl mx-auto">
+        <div className="space-y-8 pb-20 w-full animate-fade-in">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Micro Stats Cards */}
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
@@ -93,7 +93,7 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
 
-                    <div className="h-[250px] flex items-end justify-between gap-2 px-2 pb-6 border-b border-white/5 relative">
+                    <div className="h-[250px] flex items-end justify-between gap-2 pl-8 pr-2 pb-6 border-b border-white/5 relative">
                         {/* Background grid lines */}
                         <div className="absolute inset-x-0 bottom-6 top-0 flex flex-col justify-between pointer-events-none z-0">
                             {[100, 75, 50, 25, 0].map(val => (

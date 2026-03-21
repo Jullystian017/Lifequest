@@ -107,7 +107,7 @@ export default function NotificationsPage() {
     };
 
     return (
-        <div className="space-y-8 pb-20 w-full animate-fade-in max-w-4xl mx-auto">
+        <div className="space-y-8 pb-20 w-full animate-fade-in">
             {/* Actions */}
             <div className="flex justify-end pb-6 border-b border-white/5">
                 <div className="flex items-center gap-3 shrink-0">

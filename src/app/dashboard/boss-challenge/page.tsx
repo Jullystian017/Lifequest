@@ -164,7 +164,7 @@ export default function BossChallengePage() {
     }
 
     return (
-        <div className="flex flex-col gap-12 pb-20 animate-fade-in w-full max-w-5xl mx-auto">
+        <div className="flex flex-col gap-12 pb-20 animate-fade-in w-full">
             
             {/* Header */}
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">

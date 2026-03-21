@@ -65,7 +65,7 @@ export default function SimulationPage() {
     const mults = getMultipliers();
 
     return (
-        <div className="space-y-8 pb-20 w-full animate-fade-in max-w-6xl mx-auto">
+        <div className="space-y-8 pb-20 w-full animate-fade-in">
             {/* Main Content Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
