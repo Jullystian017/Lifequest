@@ -16,10 +16,10 @@ import {
   Save,
   Hash,
   FolderOpen,
+  FolderPlus,
   StickyNote,
 } from "lucide-react";
 
-const FOLDER_OPTIONS = ["Umum", "Ide", "Belajar", "Proyek", "Pribadi"];
 const TAG_COLORS: Record<string, string> = {
   penting: "text-red-400 bg-red-500/10",
   ide: "text-yellow-400 bg-yellow-500/10",
@@ -35,6 +35,25 @@ export default function NotesPage() {
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
   const [newTag, setNewTag] = useState("");
   const [saving, setSaving] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [customFolders, setCustomFolders] = useState<string[]>([]);
+
+  // Dynamic folders: "Umum" always first + all unique folders from notes + custom created ones
+  const allFolders = useMemo(() => {
+    const fromNotes = new Set(notes.map(n => n.folder));
+    const combined = new Set(["Umum", ...customFolders, ...fromNotes]);
+    return Array.from(combined);
+  }, [notes, customFolders]);
+
+  const handleCreateFolder = () => {
+    const name = newFolderName.trim();
+    if (!name || allFolders.includes(name)) { setNewFolderName(""); setShowNewFolder(false); return; }
+    setCustomFolders(prev => [...prev, name]);
+    setActiveFolder(name);
+    setNewFolderName("");
+    setShowNewFolder(false);
+  };
   const supabase = createClient();
 
   const activeNote = notes.find(n => n.id === activeNoteId) || null;
@@ -149,7 +168,7 @@ export default function NotesPage() {
               <span className="flex items-center gap-2"><FolderOpen size={14} /> Semua</span>
               <span className="text-[10px]">{notes.length}</span>
             </button>
-            {FOLDER_OPTIONS.map(f => (
+            {allFolders.map(f => (
               <button
                 key={f}
                 onClick={() => setActiveFolder(f)}
@@ -159,6 +178,28 @@ export default function NotesPage() {
                 <span className="text-[10px]">{folderCounts[f] || 0}</span>
               </button>
             ))}
+            {/* Create New Folder */}
+            {showNewFolder ? (
+              <div className="flex items-center gap-1 mt-1">
+                <input
+                  autoFocus
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleCreateFolder(); if (e.key === "Escape") { setShowNewFolder(false); setNewFolderName(""); } }}
+                  placeholder="Nama folder..."
+                  className="flex-1 bg-black/20 border border-white/10 text-white rounded-lg px-2.5 py-1.5 outline-none focus:border-[var(--primary)] text-xs placeholder:text-slate-600"
+                />
+                <button onClick={handleCreateFolder} className="p-1.5 rounded-lg bg-[var(--primary)] text-white hover:opacity-90"><Plus size={12} /></button>
+                <button onClick={() => { setShowNewFolder(false); setNewFolderName(""); }} className="p-1.5 rounded-lg text-slate-500 hover:text-white"><X size={12} /></button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowNewFolder(true)}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+              >
+                <FolderPlus size={14} /> Folder Baru
+              </button>
+            )}
           </div>
         </div>
 
@@ -213,7 +254,7 @@ export default function NotesPage() {
                     onChange={(e) => updateNote(activeNote.id, { folder: e.target.value })}
                     className="text-[10px] font-semibold bg-[var(--bg-sidebar)] border border-[var(--border-light)] text-slate-400 rounded-lg px-2 py-1 outline-none"
                   >
-                    {FOLDER_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}
+                    {allFolders.map(f => <option key={f} value={f}>{f}</option>)}
                   </select>
                   <div className="flex items-center gap-1 flex-wrap">
                     {activeNote.tags?.map(t => (
