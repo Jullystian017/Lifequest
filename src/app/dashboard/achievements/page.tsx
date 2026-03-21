@@ -73,8 +73,26 @@ export default function AchievementsPage() {
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in">
-            {/* Overall Progress */}
-            <div className="flex justify-end mb-6">
+            {/* Header & Controls */}
+            <div className="flex flex-col-reverse md:flex-row md:items-center justify-between gap-6 pb-6">
+                {/* Tabs */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                    {CATEGORY_TABS.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                                activeTab === tab.id 
+                                ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20" 
+                                : "bg-[var(--bg-card)] border border-[var(--border-light)] text-slate-400 hover:text-white"
+                            }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Overall Progress */}
                 <div className="w-full md:w-64 bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl p-4 shrink-0">
                     <div className="flex items-center justify-between text-xs font-bold mb-2">
                         <span className="text-slate-400 uppercase tracking-widest">Total Terkumpul</span>
@@ -88,23 +106,6 @@ export default function AchievementsPage() {
                         />
                     </div>
                 </div>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {CATEGORY_TABS.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                            activeTab === tab.id 
-                            ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20" 
-                            : "bg-[var(--bg-card)] border border-[var(--border-light)] text-slate-400 hover:text-white"
-                        }`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
             </div>
 
             {/* Grid */}
