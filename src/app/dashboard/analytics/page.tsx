@@ -1,270 +1,179 @@
 "use client";
 
-import { 
-    LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell 
-} from "recharts";
-import { 
-    BarChart3, 
-    TrendingUp, 
-    Zap, 
-    Target, 
-    Trophy, 
-    Calendar, 
+import { motion } from "react";
+import { useUserStatsStore } from "@/store/userStatsStore";
+import { useHabitStore } from "@/store/habitStore";
+import {
+    Activity,
+    LineChart,
+    BarChart3,
+    TrendingUp,
+    Zap,
+    Flame,
+    Target,
     BrainCircuit,
-    ArrowUpRight,
-    ArrowDownRight,
-    Search
+    Award
 } from "lucide-react";
-import ProductivityHeatmap from "@/components/dashboard/ProductivityHeatmap";
-import { motion } from "framer-motion";
-
-const trendData = [
-  { name: "Mon", quests: 12, gold: 240 },
-  { name: "Tue", quests: 18, gold: 380 },
-  { name: "Wed", quests: 15, gold: 310 },
-  { name: "Thu", quests: 25, gold: 520 },
-  { name: "Fri", quests: 22, gold: 460 },
-  { name: "Sat", quests: 35, gold: 780 },
-  { name: "Sun", quests: 28, gold: 620 },
-];
-
-const categoryData = [
-  { name: "Growth", value: 400, color: "#8B5CF6" },
-  { name: "Health", value: 300, color: "#EF4444" },
-  { name: "Focus", value: 300, color: "#10B981" },
-  { name: "Social", value: 200, color: "#3B82F6" },
-  { name: "Bosses", value: 150, color: "#F59E0B" },
-];
 
 export default function AnalyticsPage() {
-    return (
-        <div className="flex flex-col gap-10 pb-20 animate-fade-in w-full">
-            
-            {/* 1. Header & Controls */}
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-8">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 shadow-glow-sm">
-                            <BarChart3 size={20} />
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md">
-                            Intelligence Center
-                        </span>
-                    </div>
-                    <h2 className="text-3xl font-semibold text-white tracking-tight font-[family-name:var(--font-heading)]">Productivity Insights</h2>
-                    <p className="text-sm text-[var(--text-muted)] font-medium">Deep dive into your habits, gains, and performance metrics.</p>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-light)] text-sm font-bold text-white cursor-pointer hover:border-[var(--primary)] transition-all">
-                        <Calendar size={16} className="text-slate-500" />
-                        <span>Last 30 Days</span>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-light)] text-slate-500 hover:text-white cursor-pointer transition-all">
-                        <Search size={20} />
-                    </div>
-                </div>
-            </header>
+    const { level, xp, stats } = useUserStatsStore();
+    const { habits } = useHabitStore();
 
-            {/* 2. Key Metrics Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[
-                    { label: "Total Quests", value: "342", sub: "+12.5%", trend: "up", icon: Trophy, color: "var(--discipline)" },
-                    { label: "Time in Focus", value: "86h", sub: "+5.2%", trend: "up", icon: Zap, color: "var(--knowledge)" },
-                    { label: "Gold Earned", value: "4.2k", sub: "-2.1%", trend: "down", icon: Target, color: "#EAB308" },
-                    { label: "Completion Rate", value: "94%", sub: "+1.8%", trend: "up", icon: TrendingUp, color: "var(--health)" },
-                ].map((stat, i) => (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.1 }}
-                        key={stat.label} 
-                        className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group"
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="p-2.5 rounded-xl bg-[var(--bg-main)] text-white" style={{ color: stat.color }}>
-                                <stat.icon size={20} />
-                            </div>
-                            <div className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-md ${stat.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
-                                {stat.trend === 'up' ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
-                                {stat.sub}
-                            </div>
+    // Fake last 7 days data
+    const last7Days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    const fakeData = [40, 65, 50, 80, 95, 70, 100]; // percentages
+    
+    const activeHabits = habits.filter(h => h.completed_today).length;
+    const totalHabits = habits.length || 1;
+    const completionRate = Math.round((activeHabits / totalHabits) * 100);
+
+    return (
+        <div className="space-y-8 pb-20 w-full animate-fade-in max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
+                <div className="max-w-xl">
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl">
+                            <Activity size={24} />
                         </div>
-                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{stat.label}</p>
-                        <h4 className="text-3xl font-bold text-white font-[family-name:var(--font-heading)]">{stat.value}</h4>
-                        
-                        {/* Interactive Sparkline Mockup */}
-                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--border-light)]">
-                            <div className="h-full w-2/3 bg-current transition-all group-hover:w-full" style={{ color: stat.color, opacity: 0.3 }} />
-                        </div>
-                    </motion.div>
-                ))}
+                        <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-heading)]">
+                            Analitik & Performa
+                        </h1>
+                    </div>
+                    <p className="text-slate-400 text-sm leading-relaxed">
+                        Pantau metrik produktivitas harianmu dan dapatkan wawasan AI untuk mengoptimalkan rutinitasmu.
+                    </p>
+                </div>
             </div>
 
-            {/* 3. Main Analytics Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                
-                {/* Left Col: Main Chart (8 cols) */}
-                <div className="lg:col-span-8 space-y-10">
-                    
-                    {/* Activity Area Chart */}
-                    <div className="p-8 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] overflow-hidden">
-                        <div className="flex items-center justify-between mb-8">
-                            <div>
-                                <h3 className="text-xl font-bold text-white font-[family-name:var(--font-heading)] uppercase tracking-tight">Quest & Wealth Flow</h3>
-                                <p className="text-sm text-[var(--text-muted)] font-medium mt-1">Correlation between quests completed and gold earned</p>
-                            </div>
-                        </div>
-                        <div className="h-[350px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={trendData}>
-                                    <defs>
-                                        <linearGradient id="colorGold" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#EAB308" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="#EAB308" stopOpacity={0}/>
-                                        </linearGradient>
-                                        <linearGradient id="colorQuests" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
-                                            <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                                    <XAxis 
-                                        dataKey="name" 
-                                        axisLine={false} 
-                                        tickLine={false} 
-                                        tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }}
-                                        dy={10}
-                                    />
-                                    <YAxis 
-                                        axisLine={false} 
-                                        tickLine={false} 
-                                        tick={{ fill: "#64748b", fontSize: 12 }}
-                                    />
-                                    <Tooltip 
-                                        contentStyle={{ backgroundColor: "#1a1f2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", color: "white" }}
-                                        itemStyle={{ fontSize: "12px", fontWeight: "bold" }}
-                                    />
-                                    <Area 
-                                        type="monotone" 
-                                        dataKey="gold" 
-                                        stroke="#EAB308" 
-                                        fillOpacity={1} 
-                                        fill="url(#colorGold)" 
-                                        strokeWidth={3}
-                                    />
-                                    <Area 
-                                        type="monotone" 
-                                        dataKey="quests" 
-                                        stroke="var(--primary)" 
-                                        fillOpacity={1} 
-                                        fill="url(#colorQuests)" 
-                                        strokeWidth={3}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Micro Stats Cards */}
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><TrendingUp size={60} /></div>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><Target size={16} /></div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tingkat Penyelesaian</span>
                     </div>
-
-                    <ProductivityHeatmap />
+                    <div>
+                        <span className="text-3xl font-bold text-white tracking-tighter">{completionRate}%</span>
+                        <div className="text-xs font-bold text-emerald-400 mt-1 flex items-center gap-1">+12% dari minggu lalu</div>
+                    </div>
                 </div>
 
-                {/* Right Col: Secondary Metrics (4 cols) */}
-                <div className="lg:col-span-4 space-y-10">
-                    
-                    {/* AI Wisdom Widget - High Importance */}
-                    <div className="p-8 rounded-3xl bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] relative border border-white/20 overflow-hidden shadow-2xl shadow-[var(--primary)]/20">
-                        {/* Glassmorphism Overlay */}
-                        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
-                        
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2.5 rounded-xl bg-white/10 border border-white/20 text-white backdrop-blur-md">
-                                    <BrainCircuit size={24} />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-white tracking-tight uppercase">AI Wisdom</h3>
-                                    <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest">Performance Analysis</p>
-                                </div>
-                            </div>
-                            
-                            <div className="space-y-4">
-                                <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
-                                    <p className="text-sm font-medium text-white leading-relaxed">
-                                        "You've increased your productivity by <span className="text-yellow-300 font-bold">18%</span> compared to last month. Most of your gold is coming from <span className="font-bold underline decoration-white/30 text-emerald-300">Health quests</span>. Consider prioritizing high-XP Knowledge quests to unlock your next class level faster."
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-2 text-xs font-bold text-white/80 uppercase tracking-widest">
-                                    <Zap size={14} className="text-yellow-300" />
-                                    <span>AI Grade: S-Rank</span>
-                                </div>
-                            </div>
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Flame size={60} /></div>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400"><Flame size={16} /></div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Streak Terbaik</span>
+                    </div>
+                    <div>
+                        <span className="text-3xl font-bold text-white tracking-tighter">14 Hari</span>
+                        <div className="text-xs font-bold text-slate-500 mt-1">Rekor pribadi baru!</div>
+                    </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Zap size={60} /></div>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400"><Zap size={16} /></div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Waktu Puncak</span>
+                    </div>
+                    <div>
+                        <span className="text-2xl font-bold text-white tracking-tighter">09:00 - 11:30</span>
+                        <div className="text-xs font-bold text-slate-500 mt-1">Paling produktif (AI)</div>
+                    </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Award size={60} /></div>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-500"><Award size={16} /></div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">XP Mingguan</span>
+                    </div>
+                    <div>
+                        <span className="text-3xl font-bold text-white tracking-tighter">4,250</span>
+                        <div className="text-xs font-bold text-emerald-400 mt-1">+850 vs minggu lalu</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* Center: Fake Graph (CSS UI) */}
+                <div className="lg:col-span-2 p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)]">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                                <LineChart size={16} className="text-blue-400" /> Tren Produktivitas 7 Hari
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-1">Aktivitas quest dan habit harian</p>
                         </div>
-                        
-                        {/* Decorative Icons */}
-                        <Star className="absolute -bottom-4 -right-4 w-32 h-32 text-white/5 rotate-12" />
                     </div>
 
-                    {/* Donut Chart: Productivity Distribution */}
-                    <div className="p-8 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] overflow-hidden">
-                        <h3 className="text-lg font-bold text-white font-[family-name:var(--font-heading)] uppercase tracking-tight mb-8">Quest Distribution</h3>
-                        <div className="h-[250px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={categoryData}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={65}
-                                        outerRadius={85}
-                                        paddingAngle={8}
-                                        dataKey="value"
-                                        stroke="none"
-                                    >
-                                        {categoryData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip 
-                                        contentStyle={{ backgroundColor: "#1a1f2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }}
-                                    />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </div>
-                        <div className="space-y-4 mt-4">
-                            {categoryData.slice(0, 3).map(cat => (
-                                <div key={cat.name} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cat.color }} />
-                                        <span className="text-xs font-semibold text-slate-400">{cat.name}</span>
-                                    </div>
-                                    <span className="text-xs font-bold text-white">{(cat.value / 12).toFixed(1)}%</span>
+                    <div className="h-[250px] flex items-end justify-between gap-2 px-2 pb-6 border-b border-white/5 relative">
+                        {/* Background grid lines */}
+                        <div className="absolute inset-x-0 bottom-6 top-0 flex flex-col justify-between pointer-events-none z-0">
+                            {[100, 75, 50, 25, 0].map(val => (
+                                <div key={val} className="border-b border-white/5 w-full h-0 flex items-center">
+                                    <span className="absolute -left-6 text-[10px] text-slate-600 font-bold">{val}</span>
                                 </div>
                             ))}
                         </div>
+
+                        {/* Bars */}
+                        {fakeData.map((val, i) => (
+                            <div key={i} className="relative z-10 flex flex-col items-center w-full group">
+                                <div className="absolute -top-8 text-[10px] font-bold text-white bg-black/50 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {val}%
+                                </div>
+                                <div className="w-full max-w-[40px] bg-slate-800 rounded-t-lg overflow-hidden h-[200px] flex items-end">
+                                    <div 
+                                        className="w-full bg-gradient-to-t from-[var(--primary)] to-blue-400 rounded-t-lg transition-all duration-1000 group-hover:opacity-80"
+                                        style={{ height: `${val}%` }}
+                                    />
+                                </div>
+                                <span className="text-[10px] font-bold text-slate-500 mt-3 uppercase">{last7Days[i]}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Right: AI Insight */}
+                <div className="p-6 rounded-3xl bg-gradient-to-b from-[var(--bg-card)] to-indigo-900/10 border border-[var(--border-light)]">
+                    <div className="flex items-center gap-2 mb-6 text-indigo-400">
+                        <BrainCircuit size={18} />
+                        <h3 className="text-sm font-bold uppercase tracking-widest">Wawasan AI</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
+                            <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500" /> Waktu Emas
+                            </h4>
+                            <p className="text-xs text-slate-400 leading-relaxed">
+                                Kamu paling banyak menyelesaikan tugas pada pukul 09:00 - 11:30. Jadwalkan 'Deep Work' atau tugas tersulitmu di periode ini.
+                            </p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
+                            <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-yellow-500" /> Peringatan Disiplin
+                            </h4>
+                            <p className="text-xs text-slate-400 leading-relaxed">
+                                Atribut <span className="text-yellow-400 font-bold">Health</span> kamu menunjukkan pola menurun di akhir pekan. Pertimbangkan menambahkan rutinitas ringan pada hari Sabtu/Minggu.
+                            </p>
+                        </div>
+                        <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
+                            <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-blue-500" /> Momentum
+                            </h4>
+                            <p className="text-xs text-slate-400 leading-relaxed">
+                                Streak fantastis selama 5 hari terakhir di kategori 'Belajar'. Terus pertahankan untuk mendapat XP Bonus minggu ini!
+                            </p>
+                        </div>
                     </div>
                 </div>
 
             </div>
-
         </div>
     );
-}
-
-// Icon helper
-function Star({ className }: { className?: string }) {
-    return (
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            className={className}
-        >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-    )
 }

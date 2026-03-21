@@ -5,17 +5,19 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
-  Swords,
-  Bot,
-  FileText,
-  TreePine,
-  Trophy,
-  BarChart3,
-  Users2,
-  Store,
-  Skull,
-  Ghost,
-  Medal,
+  Target, // Quests
+  Bot, // AI Assistant
+  FileText, // Notes
+  TreePine, // Skill Tree
+  Ghost, // Shadow System
+  Trophy, // Achievements
+  Medal, // Leaderboard
+  Users2, // Team
+  BarChart3, // Analytics
+  Sparkles, // Simulation
+  Bell, // Notifications
+  Settings, // Settings
+  Store, // Shop
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
@@ -26,20 +28,22 @@ import { useState } from "react";
 
 const primaryNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Quest Board", href: "/dashboard/quests", icon: Swords },
+  { label: "Quest Board", href: "/dashboard/quests", icon: Target },
   { label: "Asisten AI", href: "/dashboard/ai", icon: Bot },
-  { label: "Catatan", href: "/dashboard/notes", icon: FileText },
+  { label: "Catatan Docs", href: "/dashboard/notes", icon: FileText },
   { label: "Skill Tree", href: "/dashboard/skills", icon: TreePine },
+  { label: "Shadow System", href: "/dashboard/shadow", icon: Ghost },
   { label: "Pencapaian", href: "/dashboard/achievements", icon: Trophy },
-  { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
-  { label: "Tim", href: "/dashboard/team", icon: Users2 },
-  { label: "Toko", href: "/dashboard/shop", icon: Store },
+  { label: "Papan Peringkat", href: "/dashboard/leaderboard", icon: Medal },
+  { label: "Guild & Chat", href: "/dashboard/team", icon: Users2 },
 ];
 
 const secondaryNav = [
-  { label: "Pertempuran Boss", href: "/dashboard/bosses", icon: Skull },
-  { label: "Shadow System", href: "/dashboard/shadow", icon: Ghost },
-  { label: "Papan Peringkat", href: "/dashboard/leaderboard", icon: Medal },
+  { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
+  { label: "Simulasi AI", href: "/dashboard/simulation", icon: Sparkles },
+  { label: "Notifikasi", href: "/dashboard/notifications", icon: Bell },
+  { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
+  { label: "Toko Gold", href: "/dashboard/shop", icon: Store },
 ];
 
 export default function Sidebar() {
