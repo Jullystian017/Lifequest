@@ -65,10 +65,10 @@ export default function LeaderboardPage() {
     };
 
     return (
-        <div className="space-y-8 pb-20 w-full animate-fade-in max-w-5xl mx-auto">
+        <div className="space-y-8 pb-20 w-full animate-fade-in">
             
             {/* Tabs */}
-            <div className="flex justify-end pb-6 border-b border-white/5">
+            <div className="flex justify-start pb-6">
                 <div className="flex items-center p-1 rounded-xl bg-[var(--bg-card)] border border-[var(--border-light)] shrink-0">
                     <button
                         onClick={() => setActiveTab('global')}
@@ -114,10 +114,10 @@ export default function LeaderboardPage() {
                 {topThree[0] && (
                     <motion.div 
                         initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col items-center"
+                        className="flex flex-col items-center relative"
                     >
-                        <div className="absolute top-0 text-yellow-500 mb-2 animate-bounce">
-                            <Medal size={40} className="drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]" />
+                        <div className="absolute -top-16 text-yellow-500 animate-bounce">
+                            <Medal size={40} className="drop-shadow-[0_0_15px_rgba(234,179,8,0.5)] text-yellow-500 fill-yellow-500/20" />
                         </div>
                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-yellow-400 border-4 border-yellow-500 flex items-center justify-center mb-4 shadow-[0_0_30px_rgba(234,179,8,0.4)] z-10 relative">
                             <span className="text-3xl font-bold text-yellow-700">1</span>
