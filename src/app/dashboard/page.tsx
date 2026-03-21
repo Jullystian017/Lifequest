@@ -27,7 +27,7 @@ import {
 
 export default function DashboardPage() {
   const { activeWorkspaceId } = useWorkspaceStore();
-  const { stats, addXp, addCoins, updateStat } = useUserStatsStore();
+  const { stats, addXp, addCoins, updateStat, setUserProfile } = useUserStatsStore();
   const { quests, setQuests, completeQuest } = useQuestStore();
   const { habits, setHabits } = useHabitStore();
   const { goals, setGoals } = useGoalStore();
@@ -41,7 +41,7 @@ export default function DashboardPage() {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-          setLoading(false);
+          window.location.href = "/login";
           return;
       }
 
@@ -69,6 +69,32 @@ export default function DashboardPage() {
         .eq('user_id', user.id);
         
       if (fetchedGoals) setGoals(fetchedGoals);
+
+      // 4. Fetch User Profile
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (userData && !error) {
+          setUserProfile({
+              username: userData.username || user.user_metadata?.username || "Adventurer",
+              avatar_url: userData.avatar_url || user.user_metadata?.avatar_url || "/lifequest.png",
+              level: userData.level || 1,
+              xp: userData.xp || 0,
+              coins: userData.gold || 0
+          });
+      } else {
+          // Fallback if public.users row doesn't exist yet
+          setUserProfile({
+              username: user.user_metadata?.username || "Adventurer",
+              avatar_url: user.user_metadata?.avatar_url || "/lifequest.png",
+              level: 1,
+              xp: 0,
+              coins: 0
+          });
+      }
 
       setLoading(false);
     }

@@ -1,17 +1,26 @@
 "use client";
 
 import { Bell, Flame, LogOut, Settings, User, MoreHorizontal, CheckCircle2, Clock } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStatsStore } from "@/store/userStatsStore";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/login';
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -43,19 +52,21 @@ export default function Navbar() {
     switch (pathname) {
       case "/dashboard":
         return { title: "Command Center", subtitle: greeting };
-      case "/quests":
+      case "/dashboard/quests":
         return { title: "Active Quests", subtitle: "Manage your daily objectives" };
-      case "/habits":
+      case "/dashboard/bosses":
+        return { title: "Boss Battles", subtitle: "Conquer epic projects and claim legendary loot" };
+      case "/dashboard/habits":
         return { title: "Growth", subtitle: "Track your life goals and build habits that move you forward" };
-      case "/social":
+      case "/dashboard/social":
         return { title: "Social Hub", subtitle: "Connect with the community and climb the rankings" };
       default:
-        return { title: "LifeQuest", subtitle: "Welcome back, Alex" };
+        return { title: "LifeQuest", subtitle: "Welcome back, Adventurer" };
     }
   };
 
   const { title, subtitle } = getPageInfo();
-  const { coins, level, xp, xpToNextLevel } = useUserStatsStore();
+  const { coins, level, xp, xpToNextLevel, username, avatar_url } = useUserStatsStore();
 
   return (
     <header className="h-24 flex items-center justify-between px-10 bg-[var(--bg-main)] sticky top-0 z-30 w-full border-b border-white/[0.02]">
@@ -164,10 +175,10 @@ export default function Navbar() {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
             <div className={`w-10 h-10 rounded-xl overflow-hidden border transition-all shadow-sm shrink-0 ${isProfileOpen ? 'border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'border-white/[0.05] group-hover:border-indigo-500 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.3)]'}`}>
-              <img src="https://i.pravatar.cc/150?u=alexmiller" alt="Profile" className="w-full h-full object-cover" />
+              <img src={avatar_url || "/lifequest.png"} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col items-start hidden md:flex min-w-[100px]">
-              <span className="text-sm font-bold text-white group-hover:text-white transition-colors truncate">Alex Miller</span>
+              <span className="text-sm font-bold text-white group-hover:text-white transition-colors truncate">{username}</span>
               <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase truncate">LVL {level} Adventurer</span>
             </div>
             <div className="hidden md:flex pl-1">
@@ -188,11 +199,11 @@ export default function Navbar() {
                 {/* Header / XP Info */}
                 <div className="p-5 border-b border-white/[0.05] bg-white/[0.01]">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-indigo-500/50">
-                      <img src="https://i.pravatar.cc/150?u=alexmiller" alt="Profile" className="w-full h-full object-cover" />
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-indigo-500/50 object-cover">
+                      <img src={avatar_url || "/lifequest.png"} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-base leading-tight">Alex Miller</h4>
+                      <h4 className="text-white font-bold text-base leading-tight">{username}</h4>
                       <p className="text-indigo-400 font-semibold text-xs tracking-wide">LVL {level} ADVENTURER</p>
                     </div>
                   </div>
@@ -238,7 +249,10 @@ export default function Navbar() {
                     Account Settings
                   </button>
                   <div className="h-px bg-white/[0.05] my-1"></div>
-                  <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors text-sm font-semibold">
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors text-sm font-semibold"
+                  >
                     <LogOut size={16} />
                     Log Out
                   </button>

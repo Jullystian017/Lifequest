@@ -2,12 +2,15 @@ import { create } from 'zustand';
 import { CharacterStats, StatKey } from '@/types/user';
 
 interface UserStatsState {
+    username: string;
+    avatar_url: string;
     level: number;
     xp: number;
     xpToNextLevel: number;
     coins: number;
     equippedItems: Record<string, string>; // category -> itemId
     stats: CharacterStats;
+    setUserProfile: (profile: Partial<UserStatsState>) => void;
     addXp: (amount: number) => void;
     addCoins: (amount: number) => void;
     subtractCoins: (amount: number) => void;
@@ -19,19 +22,22 @@ interface UserStatsState {
 }
 
 export const useUserStatsStore = create<UserStatsState>((set) => ({
-    level: 12,
-    xp: 740,
-    xpToNextLevel: 1000,
-    coins: 2450,
+    username: "Adventurer",
+    avatar_url: "/lifequest.png",
+    level: 1,
+    xp: 0,
+    xpToNextLevel: 100,
+    coins: 0,
     equippedItems: {},
     showLevelUpModal: false,
     stats: {
-        health: 75,
-        knowledge: 60,
-        discipline: 80,
-        finance: 45,
-        creativity: 50,
+        health: 0,
+        knowledge: 0,
+        discipline: 0,
+        finance: 0,
+        creativity: 0,
     },
+    setUserProfile: (profile) => set((state) => ({ ...state, ...profile })),
     addXp: (amount) =>
         set((state) => {
             let newXp = state.xp + amount;
