@@ -67,20 +67,8 @@ export default function LeaderboardPage() {
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in max-w-5xl mx-auto">
             
-            {/* Header & Tabs */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-yellow-500/10 text-yellow-500 rounded-xl">
-                            <Trophy size={24} />
-                        </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-heading)]">
-                            Papan Peringkat
-                        </h1>
-                    </div>
-                    <p className="text-slate-400 text-sm">Bandingkan level dan XP-mu dengan petualang LifeQuest lainnya.</p>
-                </div>
-                
+            {/* Tabs */}
+            <div className="flex justify-end pb-6 border-b border-white/5">
                 <div className="flex items-center p-1 rounded-xl bg-[var(--bg-card)] border border-[var(--border-light)] shrink-0">
                     <button
                         onClick={() => setActiveTab('global')}

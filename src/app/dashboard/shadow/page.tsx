@@ -133,21 +133,8 @@ export default function ShadowSystemPage() {
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="max-w-xl">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
-                            <Swords size={24} />
-                        </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-heading)]">
-                            Shadow System
-                        </h1>
-                    </div>
-                    <p className="text-slate-400 leading-relaxed text-sm">
-                        Lawan perwujudan kebiasaan burukmu. Kalahkan mereka untuk mendapatkan pengalaman ekstra (XP) dan Gold.
-                    </p>
-                </div>
+            {/* Stats */}
+            <div className="flex justify-end gap-4 mb-6">
                 <div className="flex gap-4">
                     <div className="px-4 py-2 rounded-xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-3">
                         <Trophy size={16} className="text-yellow-500" />

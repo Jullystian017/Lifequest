@@ -66,23 +66,6 @@ export default function SimulationPage() {
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in max-w-6xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
-                <div className="max-w-xl">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
-                            <BrainCircuit size={24} />
-                        </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-heading)]">
-                            Simulasi Masa Depan
-                        </h1>
-                    </div>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                        AI memproyeksikan lintasan hidupmu (Trajectory) berdasarkan konsistensi, kebiasaan, dan atribut karaktermu saat ini.
-                    </p>
-                </div>
-            </div>
-
             {/* Main Content Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 

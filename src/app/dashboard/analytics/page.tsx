@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "react";
+import { motion } from "framer-motion";
 import { useUserStatsStore } from "@/store/userStatsStore";
 import { useHabitStore } from "@/store/habitStore";
 import {
@@ -29,23 +29,6 @@ export default function AnalyticsPage() {
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in max-w-6xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
-                <div className="max-w-xl">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl">
-                            <Activity size={24} />
-                        </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-heading)]">
-                            Analitik & Performa
-                        </h1>
-                    </div>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                        Pantau metrik produktivitas harianmu dan dapatkan wawasan AI untuk mengoptimalkan rutinitasmu.
-                    </p>
-                </div>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Micro Stats Cards */}
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">

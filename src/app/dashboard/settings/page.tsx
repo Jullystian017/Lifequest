@@ -56,21 +56,6 @@ export default function SettingsPage() {
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-slate-800 text-slate-300 rounded-xl">
-                            <Settings size={24} />
-                        </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-heading)]">
-                            Pengaturan
-                        </h1>
-                    </div>
-                    <p className="text-slate-400 text-sm">Sesuaikan pengalaman LifeQuest sesuai preferensimu.</p>
-                </div>
-            </div>
-
             <div className="flex flex-col md:flex-row gap-8">
                 {/* Sidebar Menus */}
                 <div className="w-full md:w-64 shrink-0 space-y-2">

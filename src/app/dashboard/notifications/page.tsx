@@ -108,27 +108,8 @@ export default function NotificationsPage() {
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/5">
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="relative">
-                            <div className="p-2.5 bg-slate-800 rounded-xl text-slate-300">
-                                <Bell size={24} />
-                            </div>
-                            {unreadCount > 0 && (
-                                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 border-2 border-[var(--bg-app)] flex items-center justify-center text-[10px] font-bold text-white z-10">
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </div>
-                        <h1 className="text-3xl font-bold text-white tracking-tight font-[family-name:var(--font-heading)]">
-                            Notifikasi
-                        </h1>
-                    </div>
-                    <p className="text-slate-400 text-sm">Pusat informasi terbaru tentang pencapaian, wawasan AI, dan pembaruan guild.</p>
-                </div>
-                
+            {/* Actions */}
+            <div className="flex justify-end pb-6 border-b border-white/5">
                 <div className="flex items-center gap-3 shrink-0">
                     <button 
                         onClick={markAllRead}
