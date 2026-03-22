@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { useQuestStore } from "@/store/questStore";
-import { useWorkspaceStore } from "@/store/workspaceStore";
+import { useQuestMasterStore } from "@/store/questMasterStore";
 import {
   Wand2,
   Sparkles,
@@ -22,17 +22,6 @@ import {
   Trophy,
   Star,
 } from "lucide-react";
-
-interface GeneratedQuest {
-  title: string;
-  description: string;
-  difficulty: "easy" | "medium" | "hard" | "epic";
-  xp_reward: number;
-  coin_reward: number;
-  category: "research" | "practice" | "create" | "review" | "milestone";
-  order: number;
-  selected: boolean;
-}
 
 const CATEGORY_CONFIG: Record<string, { icon: any; color: string; label: string }> = {
   research: { icon: Search, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20", label: "Riset" },
@@ -58,15 +47,12 @@ const SAMPLE_GOALS = [
 ];
 
 export default function QuestMasterPage() {
-  const [goal, setGoal] = useState("");
-  const [quests, setQuests] = useState<GeneratedQuest[]>([]);
+  // Use Zustand store for persistent state
+  const { goal, setGoal, quests, setQuests, step, setStep, addedCount, setAddedCount, toggleQuest, resetAll } = useQuestMasterStore();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [addedCount, setAddedCount] = useState(0);
-  const [step, setStep] = useState<"input" | "loading" | "result">("input");
   
   const { addQuest } = useQuestStore();
-  const { activeWorkspaceId } = useWorkspaceStore();
   const supabase = createClient();
 
   const handleGenerate = async () => {
@@ -97,27 +83,25 @@ export default function QuestMasterPage() {
     setIsGenerating(false);
   };
 
-  const toggleQuest = (index: number) => {
-    setQuests((prev) =>
-      prev.map((q, i) => (i === index ? { ...q, selected: !q.selected } : q))
-    );
-  };
-
   const handleAddToBoard = async () => {
     setIsAdding(true);
     const selected = quests.filter((q) => q.selected);
     
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setIsAdding(false); return; }
+    if (!user) { 
+      alert("Kamu belum login. Silakan login dulu.");
+      setIsAdding(false); 
+      return; 
+    }
 
     let added = 0;
+    let lastError: any = null;
     for (const quest of selected) {
       const newQuest: any = {
-        workspace_id: activeWorkspaceId || "personal-1",
         assignee_id: user.id,
         title: quest.title,
         description: quest.description,
-        type: "ai_generated",
+        type: "daily",
         difficulty: quest.difficulty,
         priority: quest.category === "milestone" ? "high" : "medium",
         xp_reward: quest.xp_reward,
@@ -132,17 +116,18 @@ export default function QuestMasterPage() {
       if (data && !error) {
         addQuest(data);
         added++;
+      } else {
+        console.error("Gagal insert quest:", error);
+        lastError = error;
       }
     }
+    
+    if (added === 0 && lastError) {
+      alert(`Gagal menambahkan quest: ${lastError.message || "Unknown error"}`);
+    }
+    
     setAddedCount(added);
     setIsAdding(false);
-  };
-
-  const resetAll = () => {
-    setGoal("");
-    setQuests([]);
-    setStep("input");
-    setAddedCount(0);
   };
 
   return (
