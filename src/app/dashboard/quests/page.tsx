@@ -9,7 +9,7 @@ import { Quest } from "@/types/quest";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import {
   Plus, Loader2, X, Zap, Coins, Clock, CheckCircle2, CircleDot, Circle,
-  Search, Filter, Target, CalendarDays, BrainCircuit, Play, Camera, ShieldCheck, Upload
+  Search, Filter, Target, CalendarDays, BrainCircuit, Play, Camera, ShieldCheck, Upload, Trash2
 } from "lucide-react";
 
 type KanbanColumn = "todo" | "in_progress" | "done";
@@ -35,7 +35,7 @@ const TAGS = [
 ];
 
 export default function ProQuestBoard() {
-  const { quests, setQuests, addQuest, updateQuest, completeQuest } = useQuestStore();
+  const { quests, setQuests, addQuest, updateQuest, completeQuest, deleteQuest } = useQuestStore();
   const { addXp, addCoins, updateStat } = useUserStatsStore();
   const [loading, setLoading] = useState(true);
   const [isBrowser, setIsBrowser] = useState(false);
@@ -155,6 +155,19 @@ export default function ProQuestBoard() {
       setShowCreateModal(false);
       setNewTitle(""); setNewDesc(""); 
     }
+  };
+
+  const handleDeleteQuest = async () => {
+    if (!selectedQuest) return;
+    if (!confirm("Konfirmasi penghapusan: Quest ini akan dihapus selamanya dari quest board. Yakin?")) return;
+    
+    // Optimistic delete
+    deleteQuest(selectedQuest.id);
+    setSelectedQuest(null);
+    setShowProofFlow(false);
+
+    // Supabase delete
+    await supabase.from("quests").delete().eq("id", selectedQuest.id);
   };
 
   // Proof of action handlers
@@ -383,16 +396,16 @@ export default function ProQuestBoard() {
       {/* ===== Pro Quest Detail Modal ===== */}
       <AnimatePresence>
         {selectedQuest && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-12 md:pt-20 overflow-y-auto">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ type: "tween", duration: 0.2 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
               onClick={() => { setSelectedQuest(null); setShowProofFlow(false); }} 
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: "tween", duration: 0.2 }}
-              className="w-full max-w-2xl bg-[#11141c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative z-10 max-h-[85vh] flex flex-col my-auto"
+              className="w-full max-w-2xl bg-[#11141c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative z-10 flex flex-col mb-auto"
             >
               {/* Cover Header */}
               <div className="h-32 bg-gradient-to-br from-indigo-900/40 to-[#11141c] border-b border-white/5 relative p-6 flex flex-col justify-end">
@@ -551,7 +564,15 @@ export default function ProQuestBoard() {
 
               {/* Action Bar (Footer Modal) */}
               {!showProofFlow && (
-                  <div className="p-4 md:p-6 border-t border-white/5 bg-[#0D1017] flex justify-end gap-3 shrink-0">
+                  <div className="p-4 md:p-6 border-t border-white/5 bg-[#0D1017] flex items-center justify-between gap-3 shrink-0">
+                    <button 
+                        onClick={handleDeleteQuest}
+                        className="p-3.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20 shadow-lg shadow-red-500/10"
+                        title="Hapus Quest"
+                    >
+                        <Trash2 size={18} />
+                    </button>
+                    <div className="flex gap-3 w-full md:w-auto">
                     {!selectedQuest.is_completed && selectedQuest.current_value === 0 && (
                         <button 
                             onClick={() => {
@@ -574,10 +595,11 @@ export default function ProQuestBoard() {
                         </button>
                     )}
                     {selectedQuest.is_completed && (
-                        <div className="w-full py-3.5 rounded-xl border border-white/5 bg-white/5 text-center text-sm font-bold text-emerald-400 uppercase tracking-widest">
+                        <div className="w-full py-3.5 px-8 rounded-xl border border-white/5 bg-white/5 text-center text-sm font-bold text-emerald-400 uppercase tracking-widest">
                             QUEST TELAH DITAKLUKKAN
                         </div>
                     )}
+                    </div>
                   </div>
               )}
             </motion.div>
