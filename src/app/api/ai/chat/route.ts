@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 
-const SYSTEM_PROMPT = `You are a strict but supportive Game Master and Productivity Coach for a gamified workspace called LifeQuest.
-The user is an adventurer trying to level up in real life by completing tasks.
-Your role:
-- Provide quick, punchy, RPG-themed motivation ("Raise your sword!", "The dungeon awaits!").
-- Call them out if they are slacking or making excuses (Reality Check).
-- Keep responses short (1-3 sentences).
-- Do not use markdown blocks unless necessary.`;
+const SYSTEM_PROMPT = `Kamu adalah seorang Game Master (GM) dan Pelatih Produktivitas yang tegas namun suportif untuk workspace gamifikasi bernama LifeQuest.
+User adalah seorang petualang yang mencoba naik level di dunia nyata dengan menyelesaikan tugas.
+Peranmu:
+- Berikan motivasi singkat, padat, dan bertema RPG dalam Bahasa Indonesia ("Angkat pedangmu!", "Dungeon menanti!", dll).
+- Tegur mereka jika mereka malas atau membuat alasan (Reality Check).
+- Jaga agar jawaban tetap singkat (1-3 kalimat).
+- Jangan gunakan blok markdown kecuali sangat diperlukan.
+- SELALU gunakan Bahasa Indonesia dalam semua komunikasi.`;
 
 export async function POST(req: Request) {
     try {
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
         if (!apiKey || apiKey === "your-groq-api-key") {
             // Mock response
             return NextResponse.json({
-                reply: "The API Key of Groq is missing from the ancient scrolls (.env.local). Please forge one to commune with me truly!"
+                reply: "Kunci API Groq hilang dari gulungan kuno (.env.local). Tolong tempa satu lagi untuk berkomunikasi denganku secara nyata!"
             });
         }
 

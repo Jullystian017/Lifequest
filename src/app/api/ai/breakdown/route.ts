@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
 
-const SYSTEM_PROMPT = `You are a Game Master and Productivity Coach for a gamified workspace called LifeQuest.
-The user will give you a broad goal or task. Your job is to break it down into 3-5 smaller, actionable quests (sub-tasks).
-Return ONLY a JSON array of objects with the following schema:
+const SYSTEM_PROMPT = `Kamu adalah seorang Game Master dan Pelatih Produktivitas untuk workspace gamifikasi bernama LifeQuest.
+User akan memberimu tujuan besar atau tugas. Tugasmu adalah memecahnya menjadi 3-5 quest (sub-tugas) kecil yang bisa dikerjakan.
+Kembalikan HANYA array JSON objek dengan skema berikut:
 [
   {
-    "title": "Short actionable title",
+    "title": "Judul quest singkat dalam Bahasa Indonesia",
     "difficulty": "easy | medium | hard",
-    "xp_reward": number (20-100),
-    "coin_reward": number (5-30)
+    "xp_reward": angka (20-100),
+    "coin_reward": angka (5-30)
   }
 ]
-Do not include markdown blocks or any other text. Just the JSON array.`;
+Jangan sertakan blok markdown atau teks lainnya. Hanya array JSON. Semua teks harus dalam Bahasa Indonesia.`;
 
 export async function POST(req: Request) {
     try {
@@ -26,10 +26,10 @@ export async function POST(req: Request) {
             // Mock response if no API key is set
             return NextResponse.json({
                 quests: [
-                    { title: "Research the basic concepts", difficulty: "easy", xp_reward: 30, coin_reward: 10 },
-                    { title: "Draft the initial outline", difficulty: "medium", xp_reward: 50, coin_reward: 15 },
-                    { title: "Execute the main implementation", difficulty: "hard", xp_reward: 100, coin_reward: 30 },
-                    { title: "Review and polish", difficulty: "easy", xp_reward: 20, coin_reward: 5 }
+                    { title: "Riset konsep dasar", difficulty: "easy", xp_reward: 30, coin_reward: 10 },
+                    { title: "Buat kerangka awal", difficulty: "medium", xp_reward: 50, coin_reward: 15 },
+                    { title: "Eksekusi implementasi utama", difficulty: "hard", xp_reward: 100, coin_reward: 30 },
+                    { title: "Review dan pemolesan", difficulty: "easy", xp_reward: 20, coin_reward: 5 }
                 ]
             });
         }

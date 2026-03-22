@@ -157,10 +157,10 @@ export default function LeaderboardPage() {
 
             {/* List Row Header */}
             <div className="grid grid-cols-[60px_1fr_100px_100px] md:grid-cols-[80px_1fr_120px_120px_120px] gap-4 px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-white/5">
-                <div className="text-center">Rank</div>
-                <div>User</div>
+                <div className="text-center">Peringkat</div>
+                <div>Pengguna</div>
                 <div className="text-right">Level</div>
-                <div className="text-right hidden md:block">Streak</div>
+                <div className="text-right hidden md:block">Rangkaian</div>
                 <div className="text-right">Total XP</div>
             </div>
 
@@ -192,7 +192,7 @@ export default function LeaderboardPage() {
                                     {player.username.charAt(0).toUpperCase()}
                                 </div>
                                 <span className={`text-sm font-bold truncate ${isMe ? 'text-white' : 'text-slate-200'}`}>
-                                    {player.username} {isMe && <span className="text-[9px] bg-[var(--primary)] text-white px-1.5 py-0.5 rounded ml-2 uppercase">You</span>}
+                                    {player.username} {isMe && <span className="text-[9px] bg-[var(--primary)] text-white px-1.5 py-0.5 rounded ml-2 uppercase">Kamu</span>}
                                 </span>
                             </div>
 

@@ -15,9 +15,9 @@ import {
 type KanbanColumn = "todo" | "in_progress" | "done";
 
 const COLUMNS: { id: KanbanColumn; label: string; icon: any; color: string; border: string; bg: string }[] = [
-  { id: "todo", label: "To Do", icon: Circle, color: "text-slate-400", border: "border-slate-500/20", bg: "bg-slate-500/5" },
-  { id: "in_progress", label: "In Progress", icon: CircleDot, color: "text-blue-400", border: "border-blue-500/20", bg: "bg-blue-500/5" },
-  { id: "done", label: "Done", icon: CheckCircle2, color: "text-emerald-400", border: "border-emerald-500/20", bg: "bg-emerald-500/5" },
+  { id: "todo", label: "Daftar Tugas", icon: Circle, color: "text-slate-400", border: "border-slate-500/20", bg: "bg-slate-500/5" },
+  { id: "in_progress", label: "Sedang Dikerjakan", icon: CircleDot, color: "text-blue-400", border: "border-blue-500/20", bg: "bg-blue-500/5" },
+  { id: "done", label: "Selesai", icon: CheckCircle2, color: "text-emerald-400", border: "border-emerald-500/20", bg: "bg-emerald-500/5" },
 ];
 
 const DIFFICULTY_STYLES: Record<string, string> = {
@@ -28,10 +28,10 @@ const DIFFICULTY_STYLES: Record<string, string> = {
 };
 
 const TAGS = [
-  { id: "coding", label: "Code", color: "text-cyan-400 bg-cyan-500/10" },
-  { id: "study", label: "Study", color: "text-indigo-400 bg-indigo-500/10" },
-  { id: "fitness", label: "Fitness", color: "text-rose-400 bg-rose-500/10" },
-  { id: "daily", label: "Daily", color: "text-slate-400 bg-slate-500/10" }
+  { id: "coding", label: "Coding", color: "text-cyan-400 bg-cyan-500/10" },
+  { id: "study", label: "Belajar", color: "text-indigo-400 bg-indigo-500/10" },
+  { id: "fitness", label: "Kesehatan", color: "text-rose-400 bg-rose-500/10" },
+  { id: "daily", label: "Harian", color: "text-slate-400 bg-slate-500/10" }
 ];
 
 export default function ProQuestBoard() {
@@ -455,10 +455,10 @@ export default function ProQuestBoard() {
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gold</span>
                     <span className="text-xl font-black text-yellow-500">+{selectedQuest.coin_reward}</span>
                   </div>
-                  <div className="p-4 rounded-2xl bg-black/20 border border-white/5 flex flex-col gap-1 items-center justify-center text-center">
-                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</span>
-                     <span className="text-sm font-bold capitalize text-white">{selectedQuest.is_completed ? "Selesai" : selectedQuest.current_value > 0 ? "In Progress" : "Belum Dimulai"}</span>
-                  </div>
+                   <div className="p-4 rounded-2xl bg-black/20 border border-white/5 flex flex-col gap-1 items-center justify-center text-center">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</span>
+                      <span className="text-sm font-bold capitalize text-white">{selectedQuest.is_completed ? "Selesai" : selectedQuest.current_value > 0 ? "Diproses" : "Tugas"}</span>
+                   </div>
                   <div className="p-4 rounded-2xl bg-black/20 border border-white/5 flex flex-col gap-1 items-center justify-center text-center">
                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deadline</span>
                      <span className="text-sm font-bold text-white flex items-center justify-center gap-1"><CalendarDays size={14}/> 23:59</span>

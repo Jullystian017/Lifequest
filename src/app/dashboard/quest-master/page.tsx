@@ -38,6 +38,13 @@ const DIFFICULTY_COLORS: Record<string, string> = {
   extreme: "text-purple-400 bg-purple-500/10 border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]",
 };
 
+const DIFFICULTY_LABELS: Record<string, string> = {
+  easy: "Mudah",
+  medium: "Sedang",
+  hard: "Sulit",
+  extreme: "Ekstrem",
+};
+
 const SAMPLE_GOALS = [
   "Aku mau jago React.js dalam 1 bulan",
   "Aku ingin bisa public speaking dengan percaya diri",
@@ -310,7 +317,7 @@ export default function QuestMasterPage() {
                           {catConfig.label}
                         </span>
                         <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${DIFFICULTY_COLORS[quest.difficulty]}`}>
-                          {quest.difficulty}
+                          {DIFFICULTY_LABELS[quest.difficulty] || quest.difficulty}
                         </span>
                       </div>
                       <h4 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">{quest.title}</h4>
