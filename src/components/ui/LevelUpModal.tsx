@@ -36,7 +36,7 @@ export default function LevelUpModal() {
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1, rotate: [0, -10, 10, -10, 0] }}
-                                transition={{ delay: 0.2, type: "spring" }}
+                                transition={{ delay: 0.2, type: "tween" }}
                                 className="w-24 h-24 bg-gradient-to-br from-[var(--primary)] to-indigo-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[var(--primary)]/50"
                             >
                                 <Trophy size={48} className="text-white" />
