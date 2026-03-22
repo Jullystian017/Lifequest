@@ -10,12 +10,10 @@ import {
   Bot, // AI Assistant
   FileText, // Notes
   TreePine, // Skill Tree
-  Ghost, // Shadow System
   Trophy, // Achievements
   Medal, // Leaderboard
   Users2, // Team
   BarChart3, // Analytics
-  Sparkles, // Simulation
   Bell, // Notifications
   Settings, // Settings
   Store, // Shop
@@ -34,7 +32,6 @@ const primaryNav = [
   { label: "Asisten AI", href: "/dashboard/ai", icon: Bot },
   { label: "Catatan Docs", href: "/dashboard/notes", icon: FileText },
   { label: "Skill Tree", href: "/dashboard/skills", icon: TreePine },
-  { label: "Shadow System", href: "/dashboard/shadow", icon: Ghost },
   { label: "Pencapaian", href: "/dashboard/achievements", icon: Trophy },
   { label: "Papan Peringkat", href: "/dashboard/leaderboard", icon: Medal },
   { label: "Guild & Chat", href: "/dashboard/team", icon: Users2 },
@@ -42,7 +39,6 @@ const primaryNav = [
 
 const secondaryNav = [
   { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
-  { label: "Simulasi AI", href: "/dashboard/simulation", icon: Sparkles },
   { label: "Notifikasi", href: "/dashboard/notifications", icon: Bell },
   { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
   { label: "Toko Gold", href: "/dashboard/shop", icon: Store },
