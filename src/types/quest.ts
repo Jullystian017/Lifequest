@@ -28,5 +28,5 @@ export interface Quest {
 }
 
 export type QuestType = "daily" | "weekly" | "story" | "ai_generated";
-export type QuestDifficulty = "easy" | "medium" | "hard" | "epic";
+export type QuestDifficulty = "easy" | "medium" | "hard" | "extreme";
 export type QuestPriority = "low" | "medium" | "high" | "urgent";

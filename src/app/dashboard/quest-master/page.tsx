@@ -32,10 +32,10 @@ const CATEGORY_CONFIG: Record<string, { icon: any; color: string; label: string 
 };
 
 const DIFFICULTY_COLORS: Record<string, string> = {
-  easy: "text-emerald-400 bg-emerald-500/10",
-  medium: "text-blue-400 bg-blue-500/10",
-  hard: "text-orange-400 bg-orange-500/10",
-  epic: "text-red-400 bg-red-500/10 shadow-[0_0_10px_rgba(239,68,68,0.15)]",
+  easy: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+  medium: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
+  hard: "text-red-400 bg-red-500/10 border-red-500/20",
+  extreme: "text-purple-400 bg-purple-500/10 border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]",
 };
 
 const SAMPLE_GOALS = [

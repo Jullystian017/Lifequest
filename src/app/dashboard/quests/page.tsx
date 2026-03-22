@@ -24,7 +24,7 @@ const DIFFICULTY_STYLES: Record<string, string> = {
   easy: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
   medium: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20",
   hard: "text-red-400 bg-red-500/10 border-red-500/20",
-  epic: "text-purple-400 bg-purple-500/10 border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]",
+  extreme: "text-purple-400 bg-purple-500/10 border-purple-500/20 shadow-[0_0_10px_rgba(168,85,247,0.2)]",
 };
 
 const TAGS = [

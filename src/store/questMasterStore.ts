@@ -3,7 +3,7 @@ import { create } from 'zustand';
 interface GeneratedQuest {
     title: string;
     description: string;
-    difficulty: "easy" | "medium" | "hard" | "epic";
+    difficulty: "easy" | "medium" | "hard" | "extreme";
     xp_reward: number;
     coin_reward: number;
     category: "research" | "practice" | "create" | "review" | "milestone";

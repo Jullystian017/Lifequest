@@ -9,7 +9,7 @@ Return ONLY a valid JSON array with this schema:
   {
     "title": "Short actionable quest title in Indonesian",
     "description": "Brief description of what to do (1-2 sentences, Indonesian)",
-    "difficulty": "easy" | "medium" | "hard" | "epic",
+    "difficulty": "easy" | "medium" | "hard" | "extreme",
     "xp_reward": number (30-150),
     "coin_reward": number (10-50),
     "category": "research" | "practice" | "create" | "review" | "milestone",
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
                     { title: "Latihan praktik pertama", description: "Mulai praktik hands-on dengan contoh sederhana.", difficulty: "medium", xp_reward: 60, coin_reward: 20, category: "practice", order: 3 },
                     { title: "Buat proyek mini", description: "Aplikasikan ilmu dalam proyek kecil yang nyata.", difficulty: "hard", xp_reward: 100, coin_reward: 35, category: "create", order: 4 },
                     { title: "Review dan perbaiki", description: "Evaluasi hasil kerja dan perbaiki kekurangan.", difficulty: "medium", xp_reward: 50, coin_reward: 15, category: "review", order: 5 },
-                    { title: "🏆 Final Boss: Proyek Utama", description: "Selesaikan proyek capstone sebagai bukti penguasaan.", difficulty: "epic", xp_reward: 150, coin_reward: 50, category: "milestone", order: 6 },
+                    { title: "🏆 Final Boss: Proyek Utama", description: "Selesaikan proyek capstone sebagai bukti penguasaan.", difficulty: "extreme", xp_reward: 150, coin_reward: 50, category: "milestone", order: 6 },
                 ]
             });
         }
