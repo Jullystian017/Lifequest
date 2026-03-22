@@ -98,7 +98,7 @@ export default function QuestMasterPage() {
     let lastError: any = null;
     for (const quest of selected) {
       const newQuest: any = {
-        assignee_id: user.id,
+        user_id: user.id,
         title: quest.title,
         description: quest.description,
         type: "daily",

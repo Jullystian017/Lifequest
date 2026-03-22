@@ -143,7 +143,7 @@ export default function Navbar() {
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
+                transition={{ type: "tween", duration: 0.2 }}
                 className="absolute right-0 top-full mt-4 w-80 bg-[#1b1c28] border border-white/[0.05] rounded-3xl shadow-2xl overflow-hidden z-50 flex flex-col"
               >
                 {/* Header */}
@@ -219,7 +219,7 @@ export default function Navbar() {
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
+                transition={{ type: "tween", duration: 0.2 }}
                 className="absolute right-0 top-full mt-4 w-72 bg-[#1b1c28] border border-white/[0.05] rounded-3xl shadow-2xl overflow-hidden z-50 flex flex-col"
               >
                 {/* Header / XP Info */}

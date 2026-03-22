@@ -66,13 +66,13 @@ export default function QuestBoardPage() {
       const { data } = await supabase
         .from("quests")
         .select("*")
-        .eq("workspace_id", activeWorkspaceId || "personal-1")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (data) setQuests(data);
       setLoading(false);
     }
     load();
-  }, [activeWorkspaceId, setQuests]);
+  }, [setQuests]);
 
   const getColumnQuests = (col: KanbanColumn) => {
     return quests.filter(q => {
@@ -106,8 +106,7 @@ export default function QuestBoardPage() {
     if (!user) return;
 
     const newQuest: any = {
-      workspace_id: activeWorkspaceId || "personal-1",
-      assignee_id: user.id,
+      user_id: user.id,
       title: newTitle,
       description: newDesc,
       type: "daily",
@@ -126,6 +125,8 @@ export default function QuestBoardPage() {
       addQuest(data);
       setShowCreateModal(false);
       setNewTitle(""); setNewDesc(""); setNewDifficulty("medium"); setNewPriority("medium"); setNewXp(50); setNewGold(25);
+    } else {
+      console.error("Gagal buat quest:", error);
     }
   };
 
@@ -280,6 +281,7 @@ export default function QuestBoardPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "tween", duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-light)] rounded-3xl p-8 space-y-6 shadow-2xl scrollbar-hide"
             >
@@ -439,6 +441,7 @@ export default function QuestBoardPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "tween", duration: 0.2 }}
               onClick={(e) => e.stopPropagation()}
               className="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-light)] rounded-3xl p-8 space-y-5 shadow-2xl"
             >

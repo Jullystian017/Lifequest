@@ -58,7 +58,7 @@ export default function WorkspaceSwitcher() {
                         initial={{ opacity: 0, y: -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
+                        transition={{ type: "tween", duration: 0.2 }}
                         className="absolute left-0 right-0 top-full mt-2 bg-[#1b1c28] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col p-2 space-y-4"
                     >
                         {/* Personal Workspaces */}
