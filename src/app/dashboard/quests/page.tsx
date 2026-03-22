@@ -253,13 +253,13 @@ export default function ProQuestBoard() {
           <div className="w-px h-6 bg-white/10 shrink-0 mx-1"></div>
           
           <div className="flex gap-2 shrink-0">
-            {["easy", "medium", "hard"].map((diff) => (
+            {["all", "easy", "medium", "hard"].map((diff) => (
               <button 
                 key={diff}
-                onClick={() => setActiveFilter(activeFilter === diff ? null : diff)}
+                onClick={() => setActiveFilter(diff === "all" ? null : (activeFilter === diff ? null : diff))}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold uppercase transition-all border ${
-                  activeFilter === diff 
-                    ? DIFFICULTY_STYLES[diff] 
+                  (diff === "all" && !activeFilter) || activeFilter === diff 
+                    ? DIFFICULTY_STYLES[diff] || "text-white bg-white/20 border-white/30"
                     : "text-slate-400 border-white/5 bg-white/5 hover:bg-white/10"
                 }`}
               >
@@ -319,9 +319,9 @@ export default function ProQuestBoard() {
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                                 onClick={() => setSelectedQuest(quest)}
-                                className={`mb-3 p-4 rounded-2xl bg-[var(--bg-card)] border transition-all cursor-pointer group select-none relative overflow-hidden
-                                  ${snapshot.isDragging ? "shadow-2xl shadow-[var(--primary)]/20 border-[var(--primary)] scale-105 z-50 cursor-grabbing" 
-                                                        : "border-white/5 hover:border-white/10 hover:-translate-y-1 shadow-sm hover:shadow-lg"}
+                                className={`mb-3 p-4 rounded-2xl bg-[var(--bg-card)] cursor-pointer group select-none relative overflow-hidden transition-shadow duration-200
+                                  ${snapshot.isDragging ? "shadow-2xl shadow-[var(--primary)]/30 border-2 border-[var(--primary)] z-50 cursor-grabbing" 
+                                                        : "border border-white/5 hover:border-white/10 shadow-sm hover:shadow-lg"}
                                   ${quest.is_completed ? "opacity-60" : ""}
                                 `}
                               >
@@ -383,16 +383,16 @@ export default function ProQuestBoard() {
       {/* ===== Pro Quest Detail Modal ===== */}
       <AnimatePresence>
         {selectedQuest && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ type: "tween", duration: 0.2 }}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer" 
               onClick={() => { setSelectedQuest(null); setShowProofFlow(false); }} 
             />
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: "tween", duration: 0.2 }}
-              className="w-full max-w-2xl bg-[#11141c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative z-10 max-h-[90vh] flex flex-col"
+              className="w-full max-w-2xl bg-[#11141c] border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative z-10 max-h-[85vh] flex flex-col my-auto"
             >
               {/* Cover Header */}
               <div className="h-32 bg-gradient-to-br from-indigo-900/40 to-[#11141c] border-b border-white/5 relative p-6 flex flex-col justify-end">
@@ -557,7 +557,8 @@ export default function ProQuestBoard() {
                             onClick={() => {
                                 updateQuest(selectedQuest.id, { current_value: 1 });
                                 supabase.from("quests").update({ current_value: 1 }).eq("id", selectedQuest.id);
-                                setSelectedQuest({ ...selectedQuest, current_value: 1 });
+                                setSelectedQuest(null);
+                                setShowProofFlow(false);
                             }} 
                             className="w-full md:w-auto px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
                         >
