@@ -12,8 +12,10 @@ import {
     Flame,
     Target,
     BrainCircuit,
-    Award
+    Award,
+    ArrowRight
 } from "lucide-react";
+import Link from "next/link";
 
 export default function AnalyticsPage() {
     const { level, xp, stats } = useUserStatsStore();
@@ -122,39 +124,18 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
-                {/* Right: AI Insight */}
-                <div className="p-6 rounded-3xl bg-gradient-to-b from-[var(--bg-card)] to-indigo-900/10 border border-[var(--border-light)]">
-                    <div className="flex items-center gap-2 mb-6 text-indigo-400">
-                        <BrainCircuit size={18} />
-                        <h3 className="text-sm font-bold uppercase tracking-widest">Wawasan AI</h3>
+                {/* Right: Quick Stats or Placeholder */}
+                <div className="p-6 rounded-3xl bg-gradient-to-b from-[var(--bg-card)] to-indigo-900/10 border border-[var(--border-light)] flex flex-col items-center justify-center text-center gap-4">
+                    <div className="p-4 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                        <Award size={32} className="text-indigo-400" />
                     </div>
-
-                    <div className="space-y-4">
-                        <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                            <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-emerald-500" /> Waktu Emas
-                            </h4>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                                Kamu paling banyak menyelesaikan tugas pada pukul 09:00 - 11:30. Jadwalkan 'Deep Work' atau tugas tersulitmu di periode ini.
-                            </p>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                            <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-yellow-500" /> Peringatan Disiplin
-                            </h4>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                                Atribut <span className="text-yellow-400 font-bold">Health</span> kamu menunjukkan pola menurun di akhir pekan. Pertimbangkan menambahkan rutinitas ringan pada hari Sabtu/Minggu.
-                            </p>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                            <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-blue-500" /> Momentum
-                            </h4>
-                            <p className="text-xs text-slate-400 leading-relaxed">
-                                Streak fantastis selama 5 hari terakhir di kategori 'Belajar'. Terus pertahankan untuk mendapat XP Bonus minggu ini!
-                            </p>
-                        </div>
+                    <div>
+                        <h4 className="text-sm font-bold text-white">Analitik Mendalam</h4>
+                        <p className="text-xs text-slate-500 mt-1">Wawasan cerdas kini dikelola sepenuhnya oleh <span className="text-indigo-400 font-bold">Life Engine</span> di Dashboard.</p>
                     </div>
+                    <Link href="/dashboard" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+                        Buka Life Engine <ArrowRight size={12} />
+                    </Link>
                 </div>
 
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { useQuestStore } from "@/store/questStore";
@@ -56,8 +57,17 @@ const SAMPLE_GOALS = [
 export default function QuestMasterPage() {
   // Use Zustand store for persistent state
   const { goal, setGoal, quests, setQuests, step, setStep, addedCount, setAddedCount, toggleQuest, resetAll } = useQuestMasterStore();
+  const searchParams = useSearchParams();
+  const action = searchParams.get("action");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [aiMessage, setAiMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (action === "reschedule" || action === "fix") {
+      setAiMessage("Life Engine menyarankan untuk merombak rencana quest-mu agar lebih efektif.");
+    }
+  }, [action]);
   
   const { addQuest } = useQuestStore();
   const supabase = createClient();
@@ -149,6 +159,19 @@ export default function QuestMasterPage() {
             exit={{ opacity: 0, y: -20 }}
             className="flex flex-col items-center justify-center min-h-[60vh] gap-8"
           >
+            {/* AI Action Message */}
+            {aiMessage && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-2xl p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium flex items-center gap-3"
+              >
+                <Sparkles size={18} />
+                {aiMessage}
+                <button onClick={() => setAiMessage(null)} className="ml-auto text-xs opacity-50 hover:opacity-100">Tutup</button>
+              </motion.div>
+            )}
+
             {/* Hero */}
             <div className="text-center space-y-4">
               <div className="inline-flex p-5 rounded-3xl bg-gradient-to-br from-[var(--primary)]/20 to-purple-500/10 border border-[var(--primary)]/20 mb-4">
