@@ -70,7 +70,7 @@ export default function QuestMasterPage() {
       const data = await res.json();
 
       if (data.quests && Array.isArray(data.quests)) {
-        setQuests(data.quests.map((q: any) => ({ ...q, selected: true })));
+        setQuests(data.quests.map((q: any) => ({ ...q, selected: false })));
         setStep("result");
       } else {
         alert("Gagal generate quest plan. Coba lagi.");
@@ -287,7 +287,7 @@ export default function QuestMasterPage() {
                     }`}
                   >
                     {/* Timeline Dot */}
-                    <div className={`absolute -left-8 top-6 w-4 h-4 rounded-full border-2 transition-all ${
+                    <div className={`absolute -left-6 top-6 w-4 h-4 rounded-full border-2 transition-all ${
                       quest.selected
                         ? "bg-[var(--primary)] border-[var(--primary)] shadow-[0_0_10px_rgba(139,92,246,0.4)]"
                         : "bg-slate-800 border-slate-600"
