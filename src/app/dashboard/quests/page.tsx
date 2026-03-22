@@ -20,6 +20,10 @@ import {
   Circle,
   Sparkles,
   ChevronDown,
+  Camera,
+  ShieldCheck,
+  Upload,
+  ImageIcon,
 } from "lucide-react";
 
 type KanbanColumn = "todo" | "in_progress" | "done";
@@ -38,6 +42,12 @@ export default function QuestBoardPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
   const supabase = createClient();
+
+  // Proof of Action state
+  const [proofImage, setProofImage] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<{ verified: boolean; confidence: number; reason: string } | null>(null);
+  const [showProof, setShowProof] = useState(false);
 
   // Form state
   const [newTitle, setNewTitle] = useState("");
@@ -82,6 +92,7 @@ export default function QuestBoardPage() {
     }
     await supabase.from("quests").update({ is_completed: true, completed_at: new Date().toISOString() }).eq("id", quest.id);
     setSelectedQuest(null);
+    resetProof();
   };
 
   const handleStartQuest = async (quest: Quest) => {
@@ -123,6 +134,58 @@ export default function QuestBoardPage() {
     medium: "text-blue-400 bg-blue-500/10",
     hard: "text-orange-400 bg-orange-500/10",
     epic: "text-purple-400 bg-purple-500/10",
+  };
+
+  // Proof of Action handlers
+  const handleProofUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProofImage(reader.result as string);
+      setVerifyResult(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleVerifyProof = async () => {
+    if (!proofImage || !selectedQuest) return;
+    setIsVerifying(true);
+    try {
+      const res = await fetch("/api/ai/verify-proof", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questTitle: selectedQuest.title,
+          questDescription: selectedQuest.description,
+          imageBase64: proofImage,
+        }),
+      });
+      const data = await res.json();
+      setVerifyResult(data);
+
+      // Auto-complete with bonus if verified
+      if (data.verified && !selectedQuest.is_completed) {
+        const bonusXp = Math.round(selectedQuest.xp_reward * 0.2);
+        completeQuest(selectedQuest.id);
+        addXp(selectedQuest.xp_reward + bonusXp);
+        if (selectedQuest.coin_reward) addCoins(selectedQuest.coin_reward);
+        if (selectedQuest.stat_rewards) {
+          Object.entries(selectedQuest.stat_rewards).forEach(([stat, amount]) => updateStat(stat as any, amount));
+        }
+        await supabase.from("quests").update({ is_completed: true, completed_at: new Date().toISOString() }).eq("id", selectedQuest.id);
+        setSelectedQuest({ ...selectedQuest, is_completed: true });
+      }
+    } catch {
+      setVerifyResult({ verified: false, confidence: 0, reason: "Gagal terhubung ke AI Vision." });
+    }
+    setIsVerifying(false);
+  };
+
+  const resetProof = () => {
+    setProofImage(null);
+    setVerifyResult(null);
+    setShowProof(false);
   };
 
   if (loading) {
@@ -218,7 +281,7 @@ export default function QuestBoardPage() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg bg-[var(--bg-card)] border border-[var(--border-light)] rounded-3xl p-8 space-y-6 shadow-2xl"
+              className="w-full max-w-lg max-h-[85vh] overflow-y-auto bg-[var(--bg-card)] border border-[var(--border-light)] rounded-3xl p-8 space-y-6 shadow-2xl scrollbar-hide"
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -247,6 +310,98 @@ export default function QuestBoardPage() {
                   <p className="text-sm font-semibold text-white capitalize">{selectedQuest.type}</p>
                 </div>
               </div>
+
+              {/* Proof of Action Section */}
+              {!selectedQuest.is_completed && (
+                <div className="space-y-3">
+                  {!showProof ? (
+                    <button
+                      onClick={() => setShowProof(true)}
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/30 text-amber-400 font-semibold text-sm hover:border-amber-500/50 transition-all flex items-center justify-center gap-2"
+                    >
+                      <Camera size={16} /> 📸 Verifikasi dengan Bukti Foto (+20% Bonus XP)
+                    </button>
+                  ) : (
+                    <div className="p-4 rounded-2xl bg-black/20 border border-white/5 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                          <Camera size={14} /> Proof of Action
+                        </span>
+                        <button onClick={resetProof} className="text-slate-500 hover:text-white transition-colors">
+                          <X size={14} />
+                        </button>
+                      </div>
+
+                      {!proofImage ? (
+                        <label className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 border-dashed border-white/10 hover:border-amber-500/30 transition-all cursor-pointer group">
+                          <div className="p-3 rounded-xl bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors">
+                            <Upload size={24} className="text-amber-400" />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs font-semibold text-white">Upload Bukti Foto</p>
+                            <p className="text-[10px] text-slate-500 mt-1">Klik atau drop foto di sini</p>
+                          </div>
+                          <input type="file" accept="image/*" capture="environment" onChange={handleProofUpload} className="hidden" />
+                        </label>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="relative rounded-xl overflow-hidden border border-white/10">
+                            <img src={proofImage} alt="Proof" className="w-full h-40 object-cover" />
+                            <button
+                              onClick={() => { setProofImage(null); setVerifyResult(null); }}
+                              className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-white hover:bg-red-600 transition-colors"
+                            >
+                              <X size={12} />
+                            </button>
+                          </div>
+
+                          {!verifyResult && (
+                            <button
+                              onClick={handleVerifyProof}
+                              disabled={isVerifying}
+                              className="w-full py-3 rounded-xl bg-amber-600 text-white font-semibold text-sm hover:bg-amber-500 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            >
+                              {isVerifying ? (
+                                <><Loader2 size={16} className="animate-spin" /> AI sedang memverifikasi...</>
+                              ) : (
+                                <><ShieldCheck size={16} /> Verifikasi Sekarang</>
+                              )}
+                            </button>
+                          )}
+
+                          {verifyResult && (
+                            <div className={`p-4 rounded-xl border ${
+                              verifyResult.verified
+                                ? "bg-emerald-500/10 border-emerald-500/30"
+                                : "bg-red-500/10 border-red-500/30"
+                            }`}>
+                              <div className="flex items-center gap-2 mb-2">
+                                {verifyResult.verified ? (
+                                  <ShieldCheck size={18} className="text-emerald-400" />
+                                ) : (
+                                  <X size={18} className="text-red-400" />
+                                )}
+                                <span className={`text-sm font-bold ${
+                                  verifyResult.verified ? "text-emerald-400" : "text-red-400"
+                                }`}>
+                                  {verifyResult.verified ? "✅ Terverifikasi!" : "❌ Tidak Terverifikasi"}
+                                </span>
+                                <span className="text-[10px] font-bold text-slate-500 ml-auto">
+                                  Confidence: {verifyResult.confidence}%
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-400">{verifyResult.reason}</p>
+                              {verifyResult.verified && (
+                                <p className="text-xs font-bold text-emerald-400 mt-2">🎉 Quest selesai + Bonus 20% XP!</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="flex gap-3">
                 {!selectedQuest.is_completed && selectedQuest.current_value === 0 && (

@@ -54,6 +54,8 @@ export default function Navbar() {
         return { title: "Pusat Komando", subtitle: greeting };
       case "/dashboard/quests":
         return { title: "Quest Board", subtitle: "Kelola dan taklukkan semua misimu" };
+      case "/dashboard/quest-master":
+        return { title: "Quest Master", subtitle: "Biarkan AI merancang petualanganmu" };
       case "/dashboard/bosses":
         return { title: "Pertempuran Boss", subtitle: "Taklukkan proyek besar dan klaim jarahan legendaris" };
       case "/dashboard/habits":

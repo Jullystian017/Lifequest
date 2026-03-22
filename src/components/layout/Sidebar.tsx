@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import {
   LayoutDashboard,
   Target, // Quests
+  Wand2, // Quest Master
   Bot, // AI Assistant
   FileText, // Notes
   TreePine, // Skill Tree
@@ -29,6 +30,7 @@ import { useState } from "react";
 const primaryNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Quest Board", href: "/dashboard/quests", icon: Target },
+  { label: "Quest Master", href: "/dashboard/quest-master", icon: Wand2 },
   { label: "Asisten AI", href: "/dashboard/ai", icon: Bot },
   { label: "Catatan Docs", href: "/dashboard/notes", icon: FileText },
   { label: "Skill Tree", href: "/dashboard/skills", icon: TreePine },
