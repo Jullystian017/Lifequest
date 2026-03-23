@@ -2,7 +2,9 @@
 
 import { useUserStatsStore } from "@/store/userStatsStore";
 import { useShopStore, ShopItem } from "@/store/shopStore";
-import { Coins, Snowflake, FlaskConical, Zap, Shield, Sparkles, Tv, Pizza, Plus, Check } from "lucide-react";
+import { Coins, Snowflake, FlaskConical, Zap, Shield, Sparkles, Tv, Pizza, Plus, Check, ShoppingBag, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 
 const iconMap: Record<string, React.ReactNode> = {
     Snowflake: <Snowflake size={24} />,
@@ -15,20 +17,21 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export default function ShopPage() {
-    const { coins } = useUserStatsStore();
+    const { coins, addCoins } = useUserStatsStore();
     const { items, buyItem } = useShopStore();
+    const [buyNotif, setBuyNotif] = useState<string | null>(null);
 
     const consumables = items.filter(i => i.category === 'consumable');
     const cosmetics = items.filter(i => i.category === 'cosmetic');
     const customRewards = items.filter(i => i.category === 'custom');
 
     const handleBuy = (id: string, name: string, price: number) => {
+        if (coins < price) return;
         const success = buyItem(id);
         if (success) {
-            // Can add toast here
-            console.log(`Successfully purchased ${name} for ${price}G`);
-        } else {
-            console.log(`Failed to purchase ${name}. Insufficient funds or already owned.`);
+            addCoins(-price);
+            setBuyNotif(name);
+            setTimeout(() => setBuyNotif(null), 2000);
         }
     };
 
@@ -37,8 +40,11 @@ export default function ShopPage() {
         const owned = item.isOwned;
 
         return (
-            <div key={item.id} className="group relative bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl p-6 overflow-hidden transition-all hover:border-[var(--border-active)] hover:-translate-y-1 hover:shadow-2xl">
-                {/* Background Glow */}
+            <motion.div
+                key={item.id}
+                whileHover={{ y: -4 }}
+                className="group relative bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl p-6 overflow-hidden transition-all hover:border-[var(--border-active)] hover:shadow-2xl"
+            >
                 <div 
                     className="absolute top-0 right-0 w-32 h-32 rounded-full blur-[80px] pointer-events-none opacity-20 group-hover:opacity-40 transition-opacity"
                     style={{ backgroundColor: item.color }}
@@ -74,27 +80,42 @@ export default function ShopPage() {
                     >
                         {owned ? (
                             <>
-                                <Check size={16} /> <span>Owned</span>
+                                <Check size={16} /> <span>Sudah Dimiliki</span>
                             </>
                         ) : affordable ? (
                             <>
-                                <span>Buy Item</span>
+                                <ShoppingBag size={16} /> <span>Beli Item</span>
                             </>
                         ) : (
                             <>
-                                <span>Not Enough Gold</span>
+                                <AlertCircle size={16} /> <span>Gold Tidak Cukup</span>
                             </>
                         )}
                     </button>
                 </div>
-            </div>
+            </motion.div>
         );
     };
 
     return (
         <div className="flex flex-col gap-12 pb-20 animate-fade-in w-full">
             
-            {/* 1. Header & Context */}
+            {/* Notifikasi Beli */}
+            <AnimatePresence>
+                {buyNotif && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="fixed top-28 right-10 z-50 flex items-center gap-3 px-5 py-3 rounded-2xl bg-emerald-600 text-white shadow-2xl shadow-emerald-500/30"
+                    >
+                        <Check size={18} />
+                        <span className="font-bold text-sm">Berhasil membeli {buyNotif}!</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Header */}
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-6">
                 <div className="space-y-2">
                     <div className="flex items-center gap-3 mb-2">
@@ -102,16 +123,16 @@ export default function ShopPage() {
                             <Coins size={20} />
                         </div>
                         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md">
-                            Marketplace
+                            Pasar
                         </span>
                     </div>
-                    <h2 className="text-3xl font-semibold text-white tracking-tight font-[family-name:var(--font-heading)]">Item Shop</h2>
-                    <p className="text-sm text-[var(--text-muted)] font-medium">Exchange your hard-earned gold for boosts, cosmetics, and rewards.</p>
+                    <h2 className="text-3xl font-semibold text-white tracking-tight font-[family-name:var(--font-heading)]">Toko Item</h2>
+                    <p className="text-sm text-[var(--text-muted)] font-medium">Tukarkan gold hasil kerja kerasmu dengan boost, kosmetik, dan hadiah nyata.</p>
                 </div>
                 
                 <div className="flex items-center gap-4 bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl px-6 py-4 shadow-lg">
                     <div className="flex flex-col">
-                        <span className="text-xs uppercase tracking-widest text-slate-500 font-bold">Your Wealth</span>
+                        <span className="text-xs uppercase tracking-widest text-slate-500 font-bold">Kekayaanmu</span>
                         <div className="flex items-center gap-2 mt-1">
                             <Coins size={20} className="text-yellow-500" />
                             <span className="text-2xl font-bold text-white font-[family-name:var(--font-heading)]">{coins.toLocaleString()}</span>
@@ -121,13 +142,13 @@ export default function ShopPage() {
                 </div>
             </header>
 
-            {/* 2. Shop Categories */}
+            {/* Kategori Toko */}
             <div className="space-y-12">
                 
-                {/* Consumables Section */}
+                {/* Konsumabel */}
                 <section>
                     <div className="flex items-center gap-3 mb-6">
-                        <h3 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Consumables</h3>
+                        <h3 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Konsumabel</h3>
                         <div className="h-px bg-[var(--border-light)] flex-grow mt-1" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -135,10 +156,10 @@ export default function ShopPage() {
                     </div>
                 </section>
 
-                {/* Cosmetics Section */}
+                {/* Kosmetik */}
                 <section>
                     <div className="flex items-center gap-3 mb-6">
-                        <h3 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Profile Cosmetics</h3>
+                        <h3 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Kosmetik Profil</h3>
                         <div className="h-px bg-[var(--border-light)] flex-grow mt-1" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -146,23 +167,19 @@ export default function ShopPage() {
                     </div>
                 </section>
 
-                {/* Custom Rewards Section */}
+                {/* Hadiah Kustom */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <h3 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Real-Life Rewards</h3>
+                            <h3 className="text-xl font-bold text-white font-[family-name:var(--font-heading)]">Hadiah Dunia Nyata</h3>
                             <div className="h-px w-12 bg-[var(--border-light)] mt-1 hidden md:block" />
                         </div>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-main)] hover:bg-white/5 text-white text-xs font-bold uppercase tracking-widest rounded-xl border border-[var(--border-light)] transition-colors">
-                            <Plus size={14} /> Add Reward
-                        </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {customRewards.map(renderItemCard)}
                     </div>
                 </section>
             </div>
-
         </div>
     );
 }

@@ -59,12 +59,6 @@ export default function Navbar() {
         return { title: "Quest Board", subtitle: "Kelola dan taklukkan semua misimu" };
       case "/dashboard/quest-master":
         return { title: "Quest Master", subtitle: "Biarkan AI merancang petualanganmu" };
-      case "/dashboard/bosses":
-        return { title: "Pertempuran Boss", subtitle: "Taklukkan proyek besar dan klaim jarahan legendaris" };
-      case "/dashboard/habits":
-        return { title: "Pertumbuhan", subtitle: "Lacak tujuan hidupmu dan bangun kebiasaan" };
-      case "/dashboard/social":
-        return { title: "Hub Sosial", subtitle: "Terhubung dengan komunitas" };
       case "/dashboard/character":
         return { title: "Karakter", subtitle: "Lihat profil dan statistik karaktermu" };
       case "/dashboard/shop":
@@ -75,14 +69,8 @@ export default function Navbar() {
         return { title: "Asisten AI", subtitle: "Game Master pribadimu" };
       case "/dashboard/notes":
         return { title: "Catatan", subtitle: "Basis pengetahuan dan ide-idemu" };
-      case "/dashboard/skills":
-        return { title: "Skill Tree", subtitle: "Kembangkan kemampuan karaktermu" };
       case "/dashboard/achievements":
         return { title: "Pencapaian", subtitle: "Badge dan milestone pencapaianmu" };
-      case "/dashboard/team":
-        return { title: "Tim", subtitle: "Kolaborasi dan kerja bersama" };
-      case "/dashboard/shadow":
-        return { title: "Shadow System", subtitle: "Kalahkan kebiasaan burukmu" };
       case "/dashboard/leaderboard":
         return { title: "Papan Peringkat", subtitle: "Kompetisi dan ranking" };
       case "/dashboard/notifications":

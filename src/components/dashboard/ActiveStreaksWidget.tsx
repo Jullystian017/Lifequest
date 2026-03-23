@@ -91,7 +91,7 @@ export default function ActiveStreaksWidget() {
           >
             {showForm ? <X size={14} /> : <Plus size={16} />}
           </button>
-          <Link href="/dashboard/habits" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors hidden sm:block">
+          <Link href="/dashboard/quests" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors hidden sm:block">
             Semua
           </Link>
         </div>

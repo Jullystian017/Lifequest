@@ -5,21 +5,20 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
-  Target, // Quests
-  Wand2, // Quest Master
-  Bot, // AI Assistant
-  FileText, // Notes
-  TreePine, // Skill Tree
-  Trophy, // Achievements
-  Medal, // Leaderboard
-  Users2, // Team
-  BarChart3, // Analytics
-  Bell, // Notifications
-  Settings, // Settings
-  Store, // Shop
+  Target,
+  Wand2,
+  Bot,
+  FileText,
+  Trophy,
+  Medal,
+  BarChart3,
+  Bell,
+  Settings,
+  Store,
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
+  User,
 } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
 import WorkspaceSwitcher from "./WorkspaceSwitcher";
@@ -29,19 +28,18 @@ const primaryNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Quest Board", href: "/dashboard/quests", icon: Target },
   { label: "Quest Master", href: "/dashboard/quest-master", icon: Wand2 },
-  { label: "Asisten AI (Chat)", href: "/dashboard/ai", icon: Bot },
-  { label: "Catatan Docs", href: "/dashboard/notes", icon: FileText },
-  { label: "Skill Tree", href: "/dashboard/skills", icon: TreePine },
+  { label: "Asisten AI", href: "/dashboard/ai", icon: Bot },
+  { label: "Catatan", href: "/dashboard/notes", icon: FileText },
   { label: "Pencapaian", href: "/dashboard/achievements", icon: Trophy },
   { label: "Papan Peringkat", href: "/dashboard/leaderboard", icon: Medal },
-  { label: "Guild & Chat", href: "/dashboard/team", icon: Users2 },
 ];
 
 const secondaryNav = [
+  { label: "Karakter", href: "/dashboard/character", icon: User },
   { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
   { label: "Notifikasi", href: "/dashboard/notifications", icon: Bell },
-  { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
   { label: "Toko Gold", href: "/dashboard/shop", icon: Store },
+  { label: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function Sidebar() {

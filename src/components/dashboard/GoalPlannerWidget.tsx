@@ -24,7 +24,7 @@ export default function GoalPlannerWidget() {
                         <p className="text-xs text-[var(--text-muted)] mt-0.5">Fokus pada tujuan jangka panjangmu</p>
                     </div>
                 </div>
-                <Link href="/dashboard/habits" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link href="/dashboard/quests" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
                     Lihat Semua
                 </Link>
             </div>
