@@ -2,6 +2,7 @@
 
 import { History, Ghost } from "lucide-react";
 import { useQuestStore } from "@/store/questStore";
+import Link from "next/link";
 
 export default function RecentActivityWidget() {
   const { quests } = useQuestStore();
@@ -28,16 +29,21 @@ export default function RecentActivityWidget() {
     <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">
       <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-colors"></div>
 
-      <div className="flex items-center gap-3 mb-6 relative z-10">
-        <div className="p-2.5 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-blue-400">
-          <History size={20} />
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-blue-400">
+            <History size={20} />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white font-[family-name:var(--font-heading)] leading-none pt-1">
+              Aktivitas Terbaru
+            </h3>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Pencapaian terbarumu</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-semibold text-white font-[family-name:var(--font-heading)] leading-none pt-1">
-            Aktivitas Terbaru
-          </h3>
-          <p className="text-xs text-[var(--text-muted)] mt-1">Pencapaian terbarumu</p>
-        </div>
+        <Link href="/dashboard/quests" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
+          Riwayat
+        </Link>
       </div>
 
       {completedQuests.length === 0 ? (

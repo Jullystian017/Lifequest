@@ -3,6 +3,7 @@
 import { Target, ChevronRight, Compass } from "lucide-react";
 import { motion } from "framer-motion";
 import { useGoalStore } from "@/store/goalStore";
+import Link from "next/link";
 
 export default function GoalPlannerWidget() {
     const { goals } = useGoalStore();
@@ -23,9 +24,9 @@ export default function GoalPlannerWidget() {
                         <p className="text-xs text-[var(--text-muted)] mt-0.5">Fokus pada tujuan jangka panjangmu</p>
                     </div>
                 </div>
-                <button className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
+                <Link href="/dashboard/habits" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
                     Lihat Semua
-                </button>
+                </Link>
             </div>
 
             {goals.length === 0 ? (

@@ -2,9 +2,12 @@
 
 import { Bell, Flame, LogOut, Settings, User, MoreHorizontal, CheckCircle2, Clock } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStatsStore } from "@/store/userStatsStore";
+import { useQuestStore } from "@/store/questStore";
+import { useHabitStore } from "@/store/habitStore";
 import { createClient } from "@/lib/supabase/client";
 
 export default function Navbar() {
@@ -93,6 +96,11 @@ export default function Navbar() {
 
   const { title, subtitle } = getPageInfo();
   const { coins, level, xp, xpToNextLevel, username, avatar_url } = useUserStatsStore();
+  const { quests } = useQuestStore();
+  const { habits } = useHabitStore();
+
+  const totalCompletedQuests = useMemo(() => quests.filter(q => q.is_completed).length, [quests]);
+  const maxStreak = useMemo(() => habits.length > 0 ? Math.max(...habits.map(h => h.current_streak), 0) : 0, [habits]);
 
   return (
     <header className="h-24 flex items-center justify-between px-10 bg-[var(--bg-main)] sticky top-0 z-30 w-full border-b border-white/[0.02]">
@@ -255,25 +263,33 @@ export default function Navbar() {
                 {/* Quick Stats Grid */}
                 <div className="grid grid-cols-2 gap-px bg-white/[0.05]">
                   <div className="bg-[#1b1c28] p-3 flex flex-col items-center justify-center gap-1 hover:bg-white/[0.02] transition-colors cursor-pointer">
-                    <span className="text-orange-500 font-bold text-lg leading-none">42</span>
+                    <span className="text-orange-500 font-bold text-lg leading-none">{maxStreak}</span>
                     <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Hari Streak</span>
                   </div>
                   <div className="bg-[#1b1c28] p-3 flex flex-col items-center justify-center gap-1 hover:bg-white/[0.02] transition-colors cursor-pointer">
-                    <span className="text-emerald-400 font-bold text-lg leading-none">128</span>
+                    <span className="text-emerald-400 font-bold text-lg leading-none">{totalCompletedQuests}</span>
                     <span className="text-[9px] text-slate-400 uppercase tracking-widest font-semibold text-center">Quest Selesai</span>
                   </div>
                 </div>
 
                 {/* Actions */}
                 <div className="p-2 flex flex-col gap-1">
-                  <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold">
+                  <Link 
+                    href="/dashboard/character" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold"
+                  >
                     <User size={16} className="text-slate-400" />
                     Lihat Profil Lengkap
-                  </button>
-                  <button className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold">
+                  </Link>
+                  <Link 
+                    href="/dashboard/settings" 
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors text-sm font-semibold"
+                  >
                     <Settings size={16} className="text-slate-400" />
                     Pengaturan Akun
-                  </button>
+                  </Link>
                   <div className="h-px bg-white/[0.05] my-1"></div>
                   <button 
                     onClick={handleLogout}
