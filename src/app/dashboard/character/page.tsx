@@ -5,7 +5,6 @@ import { useUserStatsStore } from "@/store/userStatsStore";
 import { useQuestStore } from "@/store/questStore";
 import { useHabitStore } from "@/store/habitStore";
 import { useShopStore } from "@/store/shopStore";
-import { useSkillTreeStore } from "@/store/skillTreeStore";
 import {
     User,
     Shield,
@@ -36,14 +35,13 @@ export default function CharacterPage() {
     const { items, inventory } = useShopStore();
     const { quests } = useQuestStore();
     const { habits } = useHabitStore();
-    const { skills } = useSkillTreeStore();
     const [activeTab, setActiveTab] = useState<Tab>("stats");
 
     const ownedCosmetics = items.filter(i => i.category === 'cosmetic' && inventory.includes(i.id));
     const xpPercentage = xpToNextLevel > 0 ? (xp / xpToNextLevel) * 100 : 0;
     const completedQuests = quests.filter(q => q.is_completed);
     const streakCount = habits.filter(h => h.completed_today).length;
-    const unlockedSkills = skills.filter(s => s.level > 0).length;
+    const totalXpEarned = completedQuests.reduce((sum, q) => sum + (q.xp_reward || 0), 0);
 
     const statsLabels: Record<string, string> = {
         health: "Vitalitas",
@@ -141,10 +139,10 @@ export default function CharacterPage() {
                     </div>
                 </div>
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-4">
-                    <div className="p-3 bg-cyan-500/10 text-cyan-500 rounded-xl"><TreePine size={20} /></div>
+                    <div className="p-3 bg-cyan-500/10 text-cyan-500 rounded-xl"><Zap size={20} /></div>
                     <div>
-                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Skill Terbuka</p>
-                        <p className="text-xl font-semibold text-white">{unlockedSkills}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Total XP</p>
+                        <p className="text-xl font-semibold text-white">{totalXpEarned.toLocaleString()}</p>
                     </div>
                 </div>
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-4">

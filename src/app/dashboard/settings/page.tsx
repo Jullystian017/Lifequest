@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStatsStore } from "@/store/userStatsStore";
 import {
-    Settings,
     User,
     Bot,
     Palette,
@@ -15,26 +14,72 @@ import {
     Smartphone,
     Monitor,
     Moon,
-    Volume2
+    Volume2,
+    Save,
+    Loader2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 type SettingsTab = 'account' | 'ai' | 'appearance' | 'notifications';
 
+const STORAGE_KEY = "lifequest_settings";
+
+interface AppSettings {
+    theme: 'dark' | 'system';
+    aiPersonality: 'mentor' | 'drill_sergeant' | 'cheerleader';
+    soundEnabled: boolean;
+    pushEnabled: boolean;
+    displayName: string;
+}
+
+const DEFAULT_SETTINGS: AppSettings = {
+    theme: 'dark',
+    aiPersonality: 'mentor',
+    soundEnabled: true,
+    pushEnabled: true,
+    displayName: '',
+};
+
 export default function SettingsPage() {
-    const { username } = useUserStatsStore();
+    const { username, setUsername } = useUserStatsStore();
     const router = useRouter();
     const supabase = createClient();
-    
+
     const [activeTab, setActiveTab] = useState<SettingsTab>('ai');
-    
-    // Form States
-    const [theme, setTheme] = useState<'dark' | 'system'>('dark');
-    const [aiPersonality, setAiPersonality] = useState<'mentor' | 'drill_sergeant' | 'cheerleader'>('mentor');
-    const [soundEnabled, setSoundEnabled] = useState(true);
-    const [pushEnabled, setPushEnabled] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState("");
+
+    // Load settings from localStorage
+    const [settings, setSettings] = useState<AppSettings>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+        }
+        return { ...DEFAULT_SETTINGS, displayName: username };
+    });
+
+    // Fetch email on mount
+    useEffect(() => {
+        const fetchEmail = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.email) setEmail(user.email);
+        };
+        fetchEmail();
+    }, []);
+
+    useEffect(() => {
+        if (!settings.displayName && username) {
+            setSettings(prev => ({ ...prev, displayName: username }));
+        }
+    }, [username]);
+
+    const updateSetting = <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+        setSettings(prev => ({ ...prev, [key]: value }));
+        setSaved(false);
+    };
 
     const handleLogout = async () => {
         setLoading(true);
@@ -42,22 +87,42 @@ export default function SettingsPage() {
         router.push("/auth");
     };
 
-    const TABS = [
-        { id: 'account', label: 'Akun', icon: User },
-        { id: 'ai', label: 'AI Assistant', icon: Bot },
-        { id: 'appearance', label: 'Tampilan', icon: Palette },
-        { id: 'notifications', label: 'Notifikasi', icon: Bell },
-    ] as const;
+    const saveSettings = async () => {
+        setSaving(true);
+        // Persist to localStorage
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 
-    const saveSettings = () => {
-        // Dummy save action
-        alert("Pengaturan berhasil disimpan!");
+        // Update username in store and Supabase
+        if (settings.displayName !== username) {
+            setUsername(settings.displayName);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                await supabase.from("profiles").upsert({
+                    id: user.id,
+                    username: settings.displayName,
+                    updated_at: new Date().toISOString(),
+                }, { onConflict: "id" });
+            }
+        }
+
+        // Small delay for UX
+        await new Promise(r => setTimeout(r, 500));
+        setSaving(false);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
     };
+
+    const TABS = [
+        { id: 'account' as const, label: 'Akun', icon: User },
+        { id: 'ai' as const, label: 'Asisten AI', icon: Bot },
+        { id: 'appearance' as const, label: 'Tampilan', icon: Palette },
+        { id: 'notifications' as const, label: 'Notifikasi', icon: Bell },
+    ];
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in">
             <div className="flex flex-col md:flex-row gap-8">
-                {/* Sidebar Menus */}
+                {/* Sidebar Menu */}
                 <div className="w-full md:w-64 shrink-0 space-y-2">
                     {TABS.map((tab) => {
                         const Icon = tab.icon;
@@ -67,8 +132,8 @@ export default function SettingsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all ${
-                                    isActive 
-                                    ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20" 
+                                    isActive
+                                    ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20"
                                     : "bg-transparent text-slate-400 hover:text-white hover:bg-white/5"
                                 }`}
                             >
@@ -80,7 +145,7 @@ export default function SettingsPage() {
                     })}
 
                     <div className="pt-8 mt-8 border-t border-white/5">
-                        <button 
+                        <button
                             onClick={handleLogout}
                             disabled={loading}
                             className="w-full flex items-center gap-3 p-3 rounded-2xl text-red-400 hover:text-white hover:bg-red-500/20 transition-all font-bold text-sm"
@@ -108,7 +173,7 @@ export default function SettingsPage() {
                                         <h2 className="text-xl font-bold text-white font-[family-name:var(--font-heading)] flex items-center gap-2 mb-2">
                                             <Bot size={20} className="text-[var(--primary)]" /> Kepribadian AI
                                         </h2>
-                                        <p className="text-slate-400 text-sm">Pilih gaya komunikasi AI Assistant saat memberikan misi atau motivasi.</p>
+                                        <p className="text-slate-400 text-sm">Pilih gaya komunikasi Asisten AI saat memberikan misi atau motivasi.</p>
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -119,18 +184,18 @@ export default function SettingsPage() {
                                         ].map((p) => {
                                             const AccIcon = p.icon;
                                             return (
-                                                <div 
+                                                <div
                                                     key={p.id}
-                                                    onClick={() => setAiPersonality(p.id as any)}
+                                                    onClick={() => updateSetting('aiPersonality', p.id as any)}
                                                     className={`p-5 rounded-2xl border-2 cursor-pointer transition-all ${
-                                                        aiPersonality === p.id 
-                                                        ? "bg-[var(--primary)]/10 border-[var(--primary)] shadow-[0_0_20px_rgba(139,92,246,0.15)]" 
+                                                        settings.aiPersonality === p.id
+                                                        ? "bg-[var(--primary)]/10 border-[var(--primary)] shadow-[0_0_20px_rgba(139,92,246,0.15)]"
                                                         : "bg-black/20 border-white/5 hover:border-white/20"
                                                     }`}
                                                 >
                                                     <div className="flex justify-between items-start mb-3">
                                                         <div className={`p-2 rounded-lg bg-black/40 ${p.color}`}><AccIcon size={20} /></div>
-                                                        {aiPersonality === p.id && <div className="p-1 rounded-full bg-[var(--primary)] text-white"><Check size={12} /></div>}
+                                                        {settings.aiPersonality === p.id && <div className="p-1 rounded-full bg-[var(--primary)] text-white"><Check size={12} /></div>}
                                                     </div>
                                                     <h3 className="font-bold text-white mb-1">{p.title}</h3>
                                                     <p className="text-xs text-slate-400 leading-relaxed">{p.desc}</p>
@@ -148,26 +213,26 @@ export default function SettingsPage() {
                                         <h2 className="text-xl font-bold text-white font-[family-name:var(--font-heading)] flex items-center gap-2 mb-2">
                                             <Palette size={20} className="text-[var(--primary)]" /> Tampilan & Suara
                                         </h2>
-                                        <p className="text-slate-400 text-sm">Kustomisasi interface dan efek suara aplikasi.</p>
+                                        <p className="text-slate-400 text-sm">Kustomisasi antarmuka dan efek suara aplikasi.</p>
                                     </div>
 
                                     <div className="space-y-6">
                                         <div>
                                             <h3 className="text-sm font-bold text-white mb-4">Tema Antarmuka</h3>
                                             <div className="flex gap-4">
-                                                <button 
-                                                    onClick={() => setTheme('dark')}
-                                                    className={`flex-1 p-4 flex flex-col items-center gap-3 rounded-2xl border-2 transition-all ${theme === 'dark' ? 'bg-[var(--primary)]/10 border-[var(--primary)]' : 'bg-black/20 border-white/5 hover:border-white/20'}`}
+                                                <button
+                                                    onClick={() => updateSetting('theme', 'dark')}
+                                                    className={`flex-1 p-4 flex flex-col items-center gap-3 rounded-2xl border-2 transition-all ${settings.theme === 'dark' ? 'bg-[var(--primary)]/10 border-[var(--primary)]' : 'bg-black/20 border-white/5 hover:border-white/20'}`}
                                                 >
-                                                    <Moon size={24} className={theme === 'dark' ? 'text-[var(--primary)]' : 'text-slate-400'} />
-                                                    <span className={`text-sm font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>Dark Mode (Bawaan)</span>
+                                                    <Moon size={24} className={settings.theme === 'dark' ? 'text-[var(--primary)]' : 'text-slate-400'} />
+                                                    <span className={`text-sm font-bold ${settings.theme === 'dark' ? 'text-white' : 'text-slate-400'}`}>Mode Gelap (Bawaan)</span>
                                                 </button>
-                                                <button 
-                                                    onClick={() => setTheme('system')}
-                                                    className={`flex-1 p-4 flex flex-col items-center gap-3 rounded-2xl border-2 transition-all ${theme === 'system' ? 'bg-[var(--primary)]/10 border-[var(--primary)]' : 'bg-black/20 border-white/5 hover:border-white/20'}`}
+                                                <button
+                                                    onClick={() => updateSetting('theme', 'system')}
+                                                    className={`flex-1 p-4 flex flex-col items-center gap-3 rounded-2xl border-2 transition-all ${settings.theme === 'system' ? 'bg-[var(--primary)]/10 border-[var(--primary)]' : 'bg-black/20 border-white/5 hover:border-white/20'}`}
                                                 >
-                                                    <Monitor size={24} className={theme === 'system' ? 'text-[var(--primary)]' : 'text-slate-400'} />
-                                                    <span className={`text-sm font-bold ${theme === 'system' ? 'text-white' : 'text-slate-400'}`}>Ikuti Sistem</span>
+                                                    <Monitor size={24} className={settings.theme === 'system' ? 'text-[var(--primary)]' : 'text-slate-400'} />
+                                                    <span className={`text-sm font-bold ${settings.theme === 'system' ? 'text-white' : 'text-slate-400'}`}>Ikuti Sistem</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -180,11 +245,11 @@ export default function SettingsPage() {
                                                     <p className="text-xs text-slate-400 mt-0.5">Putar suara saat quest selesai atau naik level</p>
                                                 </div>
                                             </div>
-                                            <button 
-                                                onClick={() => setSoundEnabled(!soundEnabled)}
-                                                className={`w-12 h-6 rounded-full transition-colors relative ${soundEnabled ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                                            <button
+                                                onClick={() => updateSetting('soundEnabled', !settings.soundEnabled)}
+                                                className={`w-12 h-6 rounded-full transition-colors relative ${settings.soundEnabled ? 'bg-emerald-500' : 'bg-slate-700'}`}
                                             >
-                                                <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${soundEnabled ? 'left-7' : 'left-1'}`} />
+                                                <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${settings.soundEnabled ? 'left-7' : 'left-1'}`} />
                                             </button>
                                         </div>
                                     </div>
@@ -203,26 +268,24 @@ export default function SettingsPage() {
 
                                     <div className="space-y-4 max-w-md">
                                         <div>
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Username (In-game Name)</label>
-                                            <input 
-                                                type="text" 
-                                                defaultValue={username}
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Nama Pengguna</label>
+                                            <input
+                                                type="text"
+                                                value={settings.displayName}
+                                                onChange={(e) => updateSetting('displayName', e.target.value)}
                                                 className="w-full bg-black/20 border border-white/10 text-white rounded-xl px-4 py-3 outline-none focus:border-[var(--primary)] transition-all font-bold"
                                             />
                                         </div>
                                         <div>
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Email</label>
-                                            <input 
-                                                type="email" 
+                                            <input
+                                                type="email"
                                                 disabled
-                                                defaultValue="user@example.com"
+                                                value={email || "memuat..."}
                                                 className="w-full bg-black/40 border border-white/5 text-slate-500 rounded-xl px-4 py-3 outline-none cursor-not-allowed font-mono text-sm"
                                             />
                                             <p className="text-xs text-slate-500 mt-2">Email tidak dapat diubah saat ini.</p>
                                         </div>
-                                        <button className="text-sm text-red-400 hover:text-red-300 font-bold mt-4 pt-4 border-t border-white/5 w-full text-left">
-                                            Hapus Akun Permanen
-                                        </button>
                                     </div>
                                 </>
                             )}
@@ -242,15 +305,15 @@ export default function SettingsPage() {
                                             <div className="flex items-center gap-4">
                                                 <div className="p-2 bg-blue-500/10 text-blue-400 rounded-lg"><Smartphone size={20} /></div>
                                                 <div>
-                                                    <h3 className="text-sm font-bold text-white">Push Notifications</h3>
+                                                    <h3 className="text-sm font-bold text-white">Notifikasi Push</h3>
                                                     <p className="text-xs text-slate-400 mt-0.5">Peringatan browser saat quest harian tertunda</p>
                                                 </div>
                                             </div>
-                                            <button 
-                                                onClick={() => setPushEnabled(!pushEnabled)}
-                                                className={`w-12 h-6 rounded-full transition-colors relative ${pushEnabled ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                                            <button
+                                                onClick={() => updateSetting('pushEnabled', !settings.pushEnabled)}
+                                                className={`w-12 h-6 rounded-full transition-colors relative ${settings.pushEnabled ? 'bg-emerald-500' : 'bg-slate-700'}`}
                                             >
-                                                <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${pushEnabled ? 'left-7' : 'left-1'}`} />
+                                                <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all ${settings.pushEnabled ? 'left-7' : 'left-1'}`} />
                                             </button>
                                         </div>
                                     </div>
@@ -259,13 +322,24 @@ export default function SettingsPage() {
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* Global Save Button for the forms */}
+                    {/* Save Button */}
                     <div className="mt-12 pt-6 border-t border-white/5 flex justify-end">
-                        <button 
+                        <button
                             onClick={saveSettings}
-                            className="bg-[var(--primary)] text-white px-8 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity hover:-translate-y-0.5"
+                            disabled={saving}
+                            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all hover:-translate-y-0.5 ${
+                                saved
+                                ? "bg-emerald-600 text-white"
+                                : "bg-[var(--primary)] text-white hover:opacity-90"
+                            }`}
                         >
-                            Simpan Perubahan
+                            {saving ? (
+                                <><Loader2 size={16} className="animate-spin" /> Menyimpan...</>
+                            ) : saved ? (
+                                <><Check size={16} /> Tersimpan!</>
+                            ) : (
+                                <><Save size={16} /> Simpan Perubahan</>
+                            )}
                         </button>
                     </div>
                 </div>

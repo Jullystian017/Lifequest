@@ -117,7 +117,7 @@ export default function Navbar() {
             <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none"></div>
           </button>
           <div className="flex flex-col items-start leading-none group cursor-pointer mr-2">
-            <span className="text-[9px] font-bold text-orange-400/80 uppercase tracking-widest hidden sm:block">Wealth</span>
+            <span className="text-[9px] font-bold text-orange-400/80 uppercase tracking-widest hidden sm:block">Kekayaan</span>
             <span className="text-sm font-black text-white group-hover:text-white transition-colors mt-[1px] whitespace-nowrap">{coins.toLocaleString()} <span className="text-amber-500/80 text-xs font-bold">G</span></span>
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function Navbar() {
                 {/* Header */}
                 <div className="p-4 border-b border-white/[0.05] bg-white/[0.01] flex items-center justify-between">
                   <h4 className="text-white font-bold text-sm">Notifikasi</h4>
-                  <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">2 NEW</span>
+                  <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">2 BARU</span>
                 </div>
 
                 {/* Notification List */}
@@ -160,7 +160,7 @@ export default function Navbar() {
                       <h5 className="text-sm font-bold text-white leading-tight">Quest Selesai</h5>
                       <p className="text-xs text-slate-400 mt-1 leading-snug">Kamu baru saja menyelesaikan quest. +50 XP dan 100 G didapatkan.</p>
                       <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
-                        <Clock size={10} /> 2m ago
+                        <Clock size={10} /> 2 menit lalu
                       </span>
                     </div>
                   </div>
@@ -175,7 +175,7 @@ export default function Navbar() {
                       <h5 className="text-sm font-bold text-white leading-tight">Peringatan Streak</h5>
                       <p className="text-xs text-slate-400 mt-1 leading-snug">Jangan putuskan momentum 42 harimu! Selesaikan kebiasaan harian segera.</p>
                       <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
-                        <Clock size={10} /> 1h ago
+                        <Clock size={10} /> 1 jam lalu
                       </span>
                     </div>
                   </div>
@@ -201,7 +201,7 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col items-start hidden md:flex min-w-[100px]">
               <span className="text-sm font-bold text-white group-hover:text-white transition-colors truncate">{username}</span>
-              <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase truncate">LVL {level} Adventurer</span>
+              <span className="text-[10px] font-semibold text-slate-500 tracking-wide uppercase truncate">LVL {level} Petualang</span>
             </div>
             <div className="hidden md:flex pl-1">
               <MoreHorizontal size={16} className="text-slate-500 group-hover:text-white transition-colors" />
@@ -226,14 +226,14 @@ export default function Navbar() {
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-base leading-tight">{username}</h4>
-                      <p className="text-indigo-400 font-semibold text-xs tracking-wide">LVL {level} ADVENTURER</p>
+                      <p className="text-indigo-400 font-semibold text-xs tracking-wide">LVL {level} PETUALANG</p>
                     </div>
                   </div>
 
                   {/* XP Bar inside modal */}
                   <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Experience</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pengalaman</span>
                       <span className="text-[10px] font-bold text-white">{xp} / {xpToNextLevel} XP</span>
                     </div>
                     <div className="h-2 w-full bg-[#2a2b3d] rounded-full overflow-hidden border border-white/5">
@@ -244,7 +244,7 @@ export default function Navbar() {
                         transition={{ duration: 0.5, ease: "easeOut" }}
                       />
                     </div>
-                    <p className="text-[10px] text-slate-500 text-center mt-1">{xpToNextLevel - xp} XP to next level</p>
+                    <p className="text-[10px] text-slate-500 text-center mt-1">{xpToNextLevel - xp} XP menuju level berikutnya</p>
                   </div>
                 </div>
 

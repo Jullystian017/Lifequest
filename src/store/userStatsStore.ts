@@ -11,6 +11,7 @@ interface UserStatsState {
     equippedItems: Record<string, string>; // category -> itemId
     stats: CharacterStats;
     setUserProfile: (profile: Partial<UserStatsState>) => void;
+    setUsername: (username: string) => void;
     addXp: (amount: number) => void;
     addCoins: (amount: number) => void;
     subtractCoins: (amount: number) => void;
@@ -38,6 +39,7 @@ export const useUserStatsStore = create<UserStatsState>((set) => ({
         creativity: 0,
     },
     setUserProfile: (profile) => set((state) => ({ ...state, ...profile })),
+    setUsername: (username) => set({ username }),
     addXp: (amount) =>
         set((state) => {
             let newXp = state.xp + amount;
