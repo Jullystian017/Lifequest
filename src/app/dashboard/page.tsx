@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import { syncUserStatsToSupabase } from "@/lib/syncUserStats";
 import { useUserStatsStore } from "@/store/userStatsStore";
 import { useQuestStore } from "@/store/questStore";
 import { useHabitStore } from "@/store/habitStore";
@@ -122,6 +123,9 @@ export default function DashboardPage() {
          is_completed: true,
          completed_at: new Date().toISOString()
     }).eq('id', questId);
+
+    // Sync updated XP/gold/level to Supabase so it persists
+    await syncUserStatsToSupabase();
   };
 
   if (loading) {

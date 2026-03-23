@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import { syncUserStatsToSupabase } from "@/lib/syncUserStats";
 import { useQuestStore } from "@/store/questStore";
 import { useUserStatsStore } from "@/store/userStatsStore";
 import { Quest } from "@/types/quest";
@@ -182,6 +183,7 @@ export default function ProQuestBoard() {
     addXp(penaltyXp);
     addCoins(penaltyGold);
     await supabase.from("quests").update({ is_completed: true, completed_at: new Date().toISOString() }).eq("id", selectedQuest.id);
+    await syncUserStatsToSupabase();
     
     setSelectedQuest(null);
     setShowProofFlow(false);
@@ -222,6 +224,7 @@ export default function ProQuestBoard() {
         addCoins(selectedQuest.coin_reward);
         
         await supabase.from("quests").update({ is_completed: true, completed_at: new Date().toISOString() }).eq("id", selectedQuest.id);
+        await syncUserStatsToSupabase();
         setSelectedQuest({ ...selectedQuest, is_completed: true });
         
         setTimeout(() => {
