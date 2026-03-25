@@ -12,7 +12,7 @@ Return ONLY a valid JSON array with this schema:
     "difficulty": "easy" | "medium" | "hard" | "extreme",
     "xp_reward": number (30-150),
     "coin_reward": number (10-50),
-    "category": "research" | "practice" | "create" | "review" | "milestone",
+    "category": "general" | "feature" | "bugfix" | "refactor" | "devops" | "documentation" | "review" | "testing" | "planning",
     "order": number (1-based sequential order)
   }
 ]
@@ -20,7 +20,7 @@ Return ONLY a valid JSON array with this schema:
 Rules:
 - Write all text in Indonesian language
 - Start with easier quests and progressively increase difficulty
-- The last quest should always be a "milestone" category (a capstone/final boss)
+- The last quest should always be a "feature" or "planning" category representing the completed goal
 - Make quests specific, measurable, and actionable
 - XP rewards should scale with difficulty
 - Do NOT include markdown, code blocks, or any text outside the JSON array`;
@@ -38,12 +38,11 @@ export async function POST(req: Request) {
             // Mock response for demo
             return NextResponse.json({
                 quests: [
-                    { title: "Riset dasar konsep utama", description: "Pelajari fundamental dan catat poin-poin penting.", difficulty: "easy", xp_reward: 30, coin_reward: 10, category: "research", order: 1 },
-                    { title: "Buat catatan ringkasan teori", description: "Tulis ringkasan dari yang sudah dipelajari.", difficulty: "easy", xp_reward: 40, coin_reward: 15, category: "research", order: 2 },
-                    { title: "Latihan praktik pertama", description: "Mulai praktik hands-on dengan contoh sederhana.", difficulty: "medium", xp_reward: 60, coin_reward: 20, category: "practice", order: 3 },
-                    { title: "Buat proyek mini", description: "Aplikasikan ilmu dalam proyek kecil yang nyata.", difficulty: "hard", xp_reward: 100, coin_reward: 35, category: "create", order: 4 },
-                    { title: "Review dan perbaiki", description: "Evaluasi hasil kerja dan perbaiki kekurangan.", difficulty: "medium", xp_reward: 50, coin_reward: 15, category: "review", order: 5 },
-                    { title: "🏆 Final Boss: Proyek Utama", description: "Selesaikan proyek capstone sebagai bukti penguasaan.", difficulty: "extreme", xp_reward: 150, coin_reward: 50, category: "milestone", order: 6 },
+                    { title: "Riset fundamental konsep", description: "Pelajari fundamental dan dokumentasikan.", difficulty: "easy", xp_reward: 30, coin_reward: 10, category: "documentation", order: 1 },
+                    { title: "Setup arsitektur dasar", description: "Buat kerangka proyek awal.", difficulty: "medium", xp_reward: 60, coin_reward: 20, category: "devops", order: 2 },
+                    { title: "Implementasi fitur inti", description: "Coding logika utama aplikasi.", difficulty: "hard", xp_reward: 100, coin_reward: 35, category: "feature", order: 3 },
+                    { title: "Review dan perbaiki bug", description: "Evaluasi hasil kerja dan perbaiki bug yang muncul.", difficulty: "medium", xp_reward: 50, coin_reward: 15, category: "bugfix", order: 4 },
+                    { title: "🏆 Final Boss: Rilis Proyek", description: "Deploy dan rilis proyek sebagai bukti penguasaan.", difficulty: "extreme", xp_reward: 150, coin_reward: 50, category: "feature", order: 5 },
                 ]
             });
         }

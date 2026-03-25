@@ -29,10 +29,15 @@ const DIFFICULTY_STYLES: Record<string, string> = {
 };
 
 const TAGS = [
-  { id: "coding", label: "Coding", color: "text-cyan-400 bg-cyan-500/10" },
-  { id: "study", label: "Belajar", color: "text-indigo-400 bg-indigo-500/10" },
-  { id: "fitness", label: "Kesehatan", color: "text-rose-400 bg-rose-500/10" },
-  { id: "daily", label: "Harian", color: "text-slate-400 bg-slate-500/10" }
+  { id: "general", label: "General", color: "text-slate-400 bg-slate-500/10" },
+  { id: "feature", label: "Feature", color: "text-cyan-400 bg-cyan-500/10" },
+  { id: "bugfix", label: "Bugfix", color: "text-red-400 bg-red-500/10" },
+  { id: "refactor", label: "Refactor", color: "text-yellow-400 bg-yellow-500/10" },
+  { id: "devops", label: "DevOps", color: "text-purple-400 bg-purple-500/10" },
+  { id: "documentation", label: "Docs", color: "text-indigo-400 bg-indigo-500/10" },
+  { id: "review", label: "Review", color: "text-amber-400 bg-amber-500/10" },
+  { id: "testing", label: "Testing", color: "text-emerald-400 bg-emerald-500/10" },
+  { id: "planning", label: "Planning", color: "text-pink-400 bg-pink-500/10" }
 ];
 
 export default function ProQuestBoard() {
@@ -91,8 +96,8 @@ export default function ProQuestBoard() {
       return isVisible && matchesSearch && matchesFilter;
     });
     filtered.forEach((q: Quest) => {
-      if (q.is_completed) map.done.push(q);
-      else if (q.current_value > 0) map.in_progress.push(q);
+      if (q.status === 'done' || q.is_completed) map.done.push(q);
+      else if (q.status === 'in_progress' || q.status === 'in_review' || q.current_value > 0) map.in_progress.push(q);
       else map.todo.push(q);
     });
     return map;
@@ -105,17 +110,14 @@ export default function ProQuestBoard() {
     const quest = quests.find((q: Quest) => q.id === draggableId);
     if (!quest) return;
     const destCol = destination.droppableId as KanbanColumn;
-    const sourceCol = source.droppableId as KanbanColumn;
-    if (destCol === "in_progress" && sourceCol === "todo") {
-      await updateQuestStatus(quest.id, "in_progress");
-      await supabase.from("quests").update({ current_value: 1 }).eq("id", quest.id);
-      refetchQuests();
-    } else if (destCol === "todo" && sourceCol === "in_progress") {
-      await updateQuestStatus(quest.id, "todo");
-      await supabase.from("quests").update({ current_value: 0 }).eq("id", quest.id);
-      refetchQuests();
-    } else if (destCol === "done" && sourceCol !== "done") {
+
+    if (destCol === "done" && quest.status !== "done" && !quest.is_completed) {
       setSelectedQuest(quest);
+    } else {
+      await updateQuestStatus(quest.id, destCol);
+      const val = (destCol === "todo") ? 0 : 1;
+      await supabase.from("quests").update({ current_value: val }).eq("id", quest.id);
+      refetchQuests();
     }
   };
 
@@ -134,15 +136,21 @@ export default function ProQuestBoard() {
     await createQuest(userId, {
       title: newTitle,
       description: newDesc,
-      type: newType,
+      type: "daily",
+      category: newType as any,
       difficulty: newDifficulty,
+      status: "todo",
       xp_reward: rewards.xp,
       coin_reward: rewards.coin,
-      stat_rewards: { [newType === "fitness" ? "health" : newType === "study" ? "knowledge" : "discipline"]: rewards.stat }
+      stat_rewards: { ["discipline"]: rewards.stat }
     });
     refetchQuests();
     setShowCreateModal(false);
     setNewTitle(""); setNewDesc("");
+  };
+
+  const handleGenerateQuests = () => {
+    window.location.href = "/dashboard/quest-master";
   };
 
   const handleDeleteQuest = async () => {
@@ -164,6 +172,7 @@ export default function ProQuestBoard() {
   const handleCompleteWithoutProof = async () => {
     if (!selectedQuest || !currentUser) return;
     await completeQuestPenalty(userId!, selectedQuest, currentUser);
+    await updateQuestStatus(selectedQuest.id, "done");
     invalidate();
     setSelectedQuest(null);
     setShowProofFlow(false);
@@ -198,8 +207,9 @@ export default function ProQuestBoard() {
 
       if (data.verified && !selectedQuest.is_completed && currentUser) {
         await completeQuestBonus(userId!, selectedQuest, currentUser);
+        await updateQuestStatus(selectedQuest.id, "done");
         invalidate();
-        setSelectedQuest({ ...selectedQuest, is_completed: true });
+        setSelectedQuest({ ...selectedQuest, is_completed: true, status: "done" });
         
         setTimeout(() => {
             setShowProofFlow(false);
@@ -260,12 +270,20 @@ export default function ProQuestBoard() {
         </div>
 
         {/* Action Button */}
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="w-full lg:w-auto shrink-0 flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm hover:opacity-90 transition-all shadow-lg shadow-[var(--primary)]/20"
-        >
-          <Plus size={16} /> Buat Quest
-        </button>
+        <div className="flex gap-2 w-full lg:w-auto shrink-0 flex-col sm:flex-row">
+          <button
+            onClick={handleGenerateQuests}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-semibold text-sm hover:bg-indigo-500 hover:text-white transition-all shadow-lg shadow-indigo-500/10"
+          >
+            <BrainCircuit size={16} /> AI Quest Master
+          </button>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm hover:opacity-90 transition-all shadow-lg shadow-[var(--primary)]/20"
+          >
+            <Plus size={16} /> Buat Quest
+          </button>
+        </div>
       </div>
 
       {/* ===== Kanban Board DND ===== */}
@@ -299,7 +317,7 @@ export default function ProQuestBoard() {
                     >
                       {questsInCol.map((quest, index) => {
                         const styleClass = DIFFICULTY_STYLES[quest.difficulty] || DIFFICULTY_STYLES.medium;
-                        const Tag = TAGS.find(t => t.id === quest.type) || TAGS[3];
+                        const Tag = TAGS.find(t => t.id === quest.category) || TAGS.find(t => t.id === quest.type) || TAGS[0];
 
                         return (
                           <Draggable key={quest.id} draggableId={quest.id} index={index} isDragDisabled={quest.is_completed}>
@@ -353,9 +371,11 @@ export default function ProQuestBoard() {
                                   </div>
                                   
                                   {/* Status indicator on card */}
-                                  {quest.is_completed ? (
+                                  {quest.status === "done" || quest.is_completed ? (
                                     <CheckCircle2 size={16} className="text-emerald-500" />
-                                  ) : quest.current_value > 0 ? (
+                                  ) : quest.status === "in_review" ? (
+                                    <Search size={16} className="text-amber-500" />
+                                  ) : quest.status === "in_progress" || quest.current_value > 0 ? (
                                     <CircleDot size={16} className="text-blue-500" />
                                   ) : (
                                     <Circle size={16} className="text-slate-600" />
@@ -402,8 +422,8 @@ export default function ProQuestBoard() {
                   <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-md border ${DIFFICULTY_STYLES[selectedQuest.difficulty]}`}>
                     {selectedQuest.difficulty}
                   </span>
-                  <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-md ${TAGS.find(t=>t.id === selectedQuest.type)?.color || TAGS[3].color}`}>
-                    {selectedQuest.type}
+                  <span className={`text-[10px] font-bold uppercase px-2.5 py-1 rounded-md ${TAGS.find(t=>t.id === (selectedQuest.category || selectedQuest.type))?.color || TAGS[0].color}`}>
+                    {selectedQuest.category || selectedQuest.type}
                   </span>
                 </div>
               </div>

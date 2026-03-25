@@ -18,21 +18,21 @@ import {
 const ONBOARDING_STEPS = [
     {
         id: "intro",
-        title: "Selamat Datang di LifeQuest",
-        subtitle: "Ubah hidupmu menjadi RPG épik.",
+        title: "Selamat Datang di LifeQuest for Developers",
+        subtitle: "Ubah rutinitas ngodingmu menjadi RPG epik.",
         icon: Star,
-        content: "Setiap tugas yang kamu selesaikan di dunia nyata akan memberimu Experience Points (XP) dan Gold. Naikkan level karaktermu, bangun kebiasaan baik, dan kalahkan monster kemalasan."
+        content: "Setiap coding task, PR, dan course yang kamu selesaikan akan memberimu XP dan Gold. Naikkan level stack-mu, bangun kebiasaan baik, dan kalahkan monster burnout."
     },
     {
         id: "class",
-        title: "Pilih Fokus Utamamu",
-        subtitle: "Apa tujuan terbesarmu saat ini?",
+        title: "Pilih Developer Class",
+        subtitle: "Pilih gaya bertarungmu di dunia coding.",
         icon: Target,
         options: [
-            { id: "career", label: "Karir & Pendidikan", desc: "Meningkatkan skill dan nilai." },
-            { id: "health", label: "Kesehatan Fisik", desc: "Membangun tubuh yang bugar." },
-            { id: "creativity", label: "Kreativitas", desc: "Membangun karya dan portofolio." },
-            { id: "balance", label: "Keseimbangan", desc: "Memperbaiki rutinitas harian." }
+            { id: "frontend", label: "🛡️ Frontend Warrior", desc: "Ahli tata letak, warna, dan interaksi UI." },
+            { id: "backend", label: "🔮 Backend Mage", desc: "Penyihir data, API, dan logika server." },
+            { id: "devops", label: "🏰 DevOps Tank", desc: "Pelindung infrastruktur dan master CI/CD." },
+            { id: "fullstack", label: "⚔️ Fullstack Ronin", desc: "Pengembara mandiri di seluruh lapisan." }
         ]
     },
     {
@@ -49,9 +49,9 @@ const ONBOARDING_STEPS = [
     {
         id: "ready",
         title: "Karakter Dibuat!",
-        subtitle: "Petualanganmu dimulai sekarang.",
+        subtitle: "Perjalanan karirmu dimulai sekarang.",
         icon: Swords,
-        content: "Selesaikan Daily Quests pertamamu di Dashboard untuk mendapatkan bonus XP awal. Semoga berhasil, Petualang!"
+        content: "Selesaikan Quests pertamamu di Dashboard untuk mendapatkan bonus XP awal. Semoga berhasil, Developer!"
     }
 ];
 
@@ -79,11 +79,16 @@ export default function OnboardingPage() {
     const currentStep = ONBOARDING_STEPS[step];
     const Icon = currentStep.icon;
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (step < ONBOARDING_STEPS.length - 1) {
             setStep(prev => prev + 1);
         } else {
             // Finish onboarding
+            if (userId && selections["class"]) {
+                await supabase.from("users").update({
+                    class: selections["class"],
+                }).eq("id", userId);
+            }
             router.push("/dashboard");
         }
     };

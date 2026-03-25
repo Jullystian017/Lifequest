@@ -1,5 +1,8 @@
 import { StatKey } from "./user";
 
+export type QuestCategory = "general" | "feature" | "bugfix" | "refactor" | "devops" | "documentation" | "review" | "testing" | "planning";
+export type QuestStatus = "todo" | "in_progress" | "in_review" | "done";
+
 export interface QuestTask {
     id: string;
     title: string;
@@ -12,7 +15,9 @@ export interface Quest {
     assigneeId?: string;
     title: string;
     description: string;
+    status: QuestStatus;
     type: QuestType;
+    category?: QuestCategory;
     difficulty: QuestDifficulty;
     priority: QuestPriority;
     xp_reward: number;

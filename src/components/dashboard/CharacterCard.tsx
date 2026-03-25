@@ -5,7 +5,7 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import Badge from "@/components/ui/Badge";
 import { getLevelTitle, getLevelColor } from "@/lib/gamification/levels";
 import { CharacterStats } from "@/types/user";
-import { Shield, Brain, Swords, Wallet, Palette } from "lucide-react";
+import { Activity, Brain, Swords, Palette } from "lucide-react";
 
 interface CharacterCardProps {
   username: string;
@@ -23,11 +23,10 @@ const statConfig: {
   icon: any;
   sublabel: string;
 }[] = [
-  { key: "health", label: "Health", color: "var(--health)", icon: Shield, sublabel: "Vitality" },
-  { key: "knowledge", label: "Knowledge", color: "var(--knowledge)", icon: Brain, sublabel: "Lvl 5 Intel" },
-  { key: "discipline", label: "Discipline", color: "var(--discipline)", icon: Swords, sublabel: "Combat Ready" },
-  { key: "finance", label: "Finance", color: "var(--finance)", icon: Wallet, sublabel: "Wealthy" },
-  { key: "creativity", label: "Creativity", color: "var(--creativity)", icon: Palette, sublabel: "Inspired" },
+  { key: "vitality", label: "Vitality", color: "var(--health)", icon: Activity, sublabel: "Energy & Focus" },
+  { key: "knowledge", label: "Knowledge", color: "var(--knowledge)", icon: Brain, sublabel: "Learning" },
+  { key: "discipline", label: "Discipline", color: "var(--discipline)", icon: Swords, sublabel: "Consistency" },
+  { key: "creativity", label: "Creativity", color: "var(--creativity)", icon: Palette, sublabel: "Innovation" },
 ];
 
 export default function CharacterCard({

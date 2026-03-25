@@ -18,7 +18,7 @@ import AIInsightWidget from "@/components/dashboard/AIInsightWidget";
 import SummaryStatCards from "@/components/dashboard/SummaryStatCards";
 
 import {
-    Heart, BookOpen, Dumbbell, PiggyBank, Palette,
+    Heart, BookOpen, Dumbbell, Palette,
     Loader2, Flame, Zap, Swords, ArrowRight, Star,
 } from "lucide-react";
 import Link from "next/link";
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         );
     }
 
-    const stats = user?.stats ?? { health: 0, knowledge: 0, discipline: 0, creativity: 0 };
+    const stats = user?.stats ?? { vitality: 0, knowledge: 0, discipline: 0, creativity: 0 };
     const xp = user?.xp ?? 0;
     const xpToNextLevel = user?.xp_to_next_level ?? 100;
     const level = user?.level ?? 1;

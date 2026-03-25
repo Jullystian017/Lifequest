@@ -8,10 +8,10 @@ import { TaskCategory } from "@/types/task";
 /** Map task categories to primary stat rewards */
 export const CATEGORY_STAT_MAP: Record<TaskCategory, StatKey> = {
     study: "knowledge",
-    health: "health",
+    health: "vitality",
     work: "discipline",
     creative: "creativity",
-    finance: "finance",
+    finance: "discipline",
     personal: "discipline",
 };
 

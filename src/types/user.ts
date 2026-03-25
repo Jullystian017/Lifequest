@@ -1,8 +1,11 @@
+export type DevClass = "frontend" | "backend" | "devops" | "fullstack";
+
 export interface UserProfile {
     id: string;
     username: string;
     email: string;
     avatar_url?: string;
+    class?: DevClass;
     level: number;
     xp: number;
     xp_to_next_level: number;
@@ -13,7 +16,7 @@ export interface UserProfile {
 }
 
 export interface CharacterStats {
-    health: number;
+    vitality: number;
     knowledge: number;
     discipline: number;
     creativity: number;

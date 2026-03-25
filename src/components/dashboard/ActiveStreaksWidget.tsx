@@ -7,11 +7,18 @@ import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
 const STAT_OPTIONS = [
-  { value: "health", label: "Vitalitas", color: "text-red-400" },
+  { value: "vitality", label: "Vitalitas", color: "text-red-400" },
   { value: "knowledge", label: "Kecerdasan", color: "text-blue-400" },
   { value: "discipline", label: "Disiplin", color: "text-orange-400" },
   { value: "creativity", label: "Kreativitas", color: "text-purple-400" },
-  { value: "finance", label: "Keuangan", color: "text-emerald-400" },
+];
+
+const DEV_PRESETS = [
+  { title: "Push Commits", stat: "discipline", category: "coding", icon: "💻" },
+  { title: "Code Review", stat: "knowledge", category: "communication", icon: "👀" },
+  { title: "Write Tests", stat: "discipline", category: "coding", icon: "🧪" },
+  { title: "Read Docs", stat: "knowledge", category: "learning", icon: "📚" },
+  { title: "Stretch & Water", stat: "vitality", category: "health", icon: "💧" },
 ];
 
 interface Habit {
@@ -19,6 +26,7 @@ interface Habit {
   title: string;
   description?: string;
   stat_reward?: string;
+  category?: string;
   xp_per_completion?: number;
   current_streak?: number;
   longest_streak?: number;
@@ -41,6 +49,7 @@ export default function ActiveStreaksWidget({
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [stat, setStat] = useState("discipline");
+  const [category, setCategory] = useState("coding");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const supabase = createClient();
@@ -74,6 +83,7 @@ export default function ActiveStreaksWidget({
       description: STAT_OPTIONS.find(s => s.value === stat)?.label || "",
       frequency: "daily",
       stat_reward: stat,
+      category: category,
       xp_per_completion: 15,
       current_streak: 0,
       longest_streak: 0,
@@ -122,6 +132,21 @@ export default function ActiveStreaksWidget({
             className="overflow-hidden mb-6 relative z-10"
           >
             <div className="p-4 rounded-2xl bg-orange-500/5 border border-orange-500/10 space-y-3">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                 {DEV_PRESETS.map((p, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => {
+                            setTitle(p.title);
+                            setStat(p.stat);
+                            setCategory(p.category);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--bg-sidebar)] border border-white/5 text-[10px] whitespace-nowrap text-slate-400 hover:text-white hover:border-orange-500/50 transition-all font-semibold"
+                    >
+                        <span>{p.icon}</span> {p.title}
+                    </button>
+                 ))}
+              </div>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -130,11 +155,22 @@ export default function ActiveStreaksWidget({
                 className="w-full bg-[var(--bg-main)] border border-[var(--border-light)] text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-orange-500/50 placeholder:text-slate-600"
                 autoFocus
               />
-              <div className="flex items-center justify-between">
-                <div className="flex gap-1.5 flex-wrap">
+              <div className="flex items-center justify-between gap-2 overflow-x-auto">
+                <div className="flex gap-1.5 flex-wrap shrink-0">
+                  <select 
+                     value={category} 
+                     onChange={(e) => setCategory(e.target.value)}
+                     className="px-2 py-1 rounded-lg text-[9px] font-bold border border-white/5 bg-transparent text-slate-400 focus:outline-none focus:border-orange-500 appearance-none cursor-pointer"
+                  >
+                     <option value="coding">Coding</option>
+                     <option value="learning">Learning</option>
+                     <option value="health">Health</option>
+                     <option value="communication">Comm</option>
+                     <option value="devops">DevOps</option>
+                  </select>
                   {STAT_OPTIONS.map((s) => (
                     <button key={s.value} onClick={() => setStat(s.value)}
-                      className={`px-2.5 py-1 rounded-lg text-[9px] font-bold border transition-all ${stat === s.value ? `${s.color} bg-white/5 border-white/20` : "text-slate-500 border-white/5 hover:border-white/20"}`}
+                      className={`px-2 py-1 rounded-lg text-[9px] font-bold border transition-all ${stat === s.value ? `${s.color} bg-white/5 border-white/20` : "text-slate-500 border-white/5 hover:border-white/20"}`}
                     >
                       {s.label}
                     </button>

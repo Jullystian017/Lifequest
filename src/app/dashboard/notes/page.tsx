@@ -29,11 +29,14 @@ const TAG_COLORS: Record<string, string> = {
   catatan: "text-emerald-400 bg-emerald-500/10",
 };
 
+import { NoteType } from "@/types/note";
+
 export default function NotesPage() {
   const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<NoteType | "all">("all");
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
   const [newTag, setNewTag] = useState("");
   const [saving, setSaving] = useState(false);
@@ -92,20 +95,32 @@ export default function NotesPage() {
 
   const filteredNotes = useMemo(() => {
     let result = notes;
+    if (activeTab !== "all") result = result.filter(n => (n.type || "note") === activeTab);
     if (activeFolder) result = result.filter(n => n.folder === activeFolder);
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q));
     }
     return result;
-  }, [notes, activeFolder, searchQuery]);
+  }, [notes, activeFolder, searchQuery, activeTab]);
 
-  const handleCreate = async () => {
+  const handleCreate = async (type: NoteType = "note") => {
     if (!userId) return;
+    
+    let content = "";
+    let title = "Catatan Baru";
+    
+    if (type === "til") title = "TIL: ";
+    if (type === "standup") {
+      title = `Standup - ${new Date().toLocaleDateString()}`;
+      content = "**Yesterday**:\n- \n\n**Today**:\n- \n\n**Blockers**:\n- None";
+    }
+
     const newNote = {
       user_id: userId,
-      title: "Catatan Baru",
-      content: "",
+      title,
+      content,
+      type,
       folder: activeFolder || "Umum",
       tags: [],
     };
@@ -122,6 +137,7 @@ export default function NotesPage() {
     await supabase.from("notes").update({
       title: activeNote.title,
       content: activeNote.content,
+      type: activeNote.type || "note",
       folder: activeNote.folder,
       tags: activeNote.tags,
       updated_at: new Date().toISOString(),
@@ -168,8 +184,7 @@ export default function NotesPage() {
     <div className="flex gap-6 h-[calc(100vh-7rem)] pb-4">
       {/* Left Panel: Folders + Note List */}
       <div className="w-80 shrink-0 flex flex-col gap-4">
-        {/* Search */}
-        <div className="relative">
+        <div className="relative mb-2">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             value={searchQuery}
@@ -177,6 +192,19 @@ export default function NotesPage() {
             placeholder="Cari catatan..."
             className="w-full bg-[var(--bg-card)] border border-[var(--border-light)] text-white rounded-xl pl-10 pr-4 py-2.5 outline-none focus:border-[var(--primary)] transition-all placeholder:text-slate-600 text-sm"
           />
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 p-1 bg-[var(--bg-card)] rounded-xl border border-[var(--border-light)] mb-2">
+          {["all", "note", "til", "standup"].map(tab => (
+            <button 
+              key={tab} 
+              onClick={() => setActiveTab(tab as any)}
+              className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${activeTab === tab ? "bg-[var(--primary)] text-white shadow-md shadow-[var(--primary)]/20" : "text-slate-500 hover:text-white"}`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
         {/* Folders */}
@@ -227,16 +255,21 @@ export default function NotesPage() {
 
         {/* Note List */}
         <div className="flex-1 overflow-y-auto space-y-2 scrollbar-hide">
-          <button onClick={handleCreate} className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-white/10 text-slate-400 hover:text-white hover:border-[var(--primary)]/30 transition-all text-sm font-semibold">
-            <Plus size={14} /> Catatan Baru
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => handleCreate("note")} className="flex-1 py-2.5 rounded-xl border border-dashed border-white/10 bg-white/5 text-slate-400 hover:text-white hover:border-slate-400 hover:bg-slate-500/10 transition-all text-[10px] font-bold uppercase"><Plus size={14} className="mx-auto"/></button>
+            <button onClick={() => handleCreate("til")} className="flex-1 py-2.5 rounded-xl border border-dashed border-white/10 bg-white/5 text-cyan-500/70 hover:text-cyan-400 hover:border-cyan-400/50 hover:bg-cyan-500/10 transition-all text-[10px] font-bold uppercase tracking-wider">+ TIL</button>
+            <button onClick={() => handleCreate("standup")} className="flex-1 py-2.5 rounded-xl border border-dashed border-white/10 bg-white/5 text-orange-500/70 hover:text-orange-400 hover:border-orange-400/50 hover:bg-orange-500/10 transition-all text-[10px] font-bold uppercase tracking-wider">+ Standup</button>
+          </div>
           {filteredNotes.map(note => (
             <button
               key={note.id}
               onClick={() => setActiveNoteId(note.id)}
               className={`w-full text-left p-3 rounded-xl transition-all ${activeNoteId === note.id ? "bg-[var(--primary)]/10 border border-[var(--primary)]/30" : "bg-[var(--bg-card)] border border-[var(--border-light)] hover:border-white/10"}`}
             >
-              <p className="text-sm font-semibold text-white truncate">{note.title || "Tanpa Judul"}</p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-white truncate">{note.title || "Tanpa Judul"}</p>
+                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full shrink-0 ${note.type === "standup" ? "bg-orange-500/20 text-orange-400" : note.type === "til" ? "bg-cyan-500/20 text-cyan-400" : "bg-white/10 text-white/50"}`}>{note.type || 'note'}</span>
+              </div>
               <p className="text-[10px] text-slate-500 mt-1 truncate">{note.content?.slice(0, 60) || "Kosong..."}</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-[9px] text-slate-600 font-semibold">{note.folder}</span>
@@ -271,6 +304,15 @@ export default function NotesPage() {
                   placeholder="Judul catatan..."
                 />
                 <div className="flex items-center gap-3 mt-2">
+                  <select
+                    value={activeNote.type || "note"}
+                    onChange={(e) => updateLocalNote({ type: e.target.value })}
+                    className="text-[10px] font-bold uppercase tracking-widest bg-[var(--bg-sidebar)] border border-[var(--border-light)] text-slate-400 rounded-lg px-2 py-1 outline-none"
+                  >
+                    <option value="note">NOTE</option>
+                    <option value="til">TIL</option>
+                    <option value="standup">STANDUP</option>
+                  </select>
                   <select
                     value={activeNote.folder}
                     onChange={(e) => updateLocalNote({ folder: e.target.value })}

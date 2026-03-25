@@ -4,10 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { UserProfile, CharacterStats } from "@/types/user";
 
 const DEFAULT_STATS: CharacterStats = {
-    health: 50,
+    vitality: 50,
     knowledge: 50,
     discipline: 50,
-    finance: 50,
     creativity: 50,
 };
 

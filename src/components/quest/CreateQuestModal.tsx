@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, Zap, Coins, Sword, Target, Clock, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { QuestPriority, QuestType, QuestDifficulty } from "@/types/quest";
+import { QuestPriority, QuestType, QuestDifficulty, QuestCategory } from "@/types/quest";
 import { StatKey } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createQuest } from "@/lib/mutations";
@@ -21,6 +21,7 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
     const [description, setDescription] = useState("");
     const [priority, setPriority] = useState<QuestPriority>("medium");
     const [difficulty, setDifficulty] = useState<QuestDifficulty>("medium");
+    const [category, setCategory] = useState<QuestCategory>("general");
     const [selectedStat, setSelectedStat] = useState<StatKey>("discipline");
 
     const queryClient = useQueryClient();
@@ -62,6 +63,7 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
             description,
             priority,
             difficulty,
+            category,
             type: "daily" as QuestType,
             xp_reward: Math.round(rewards.xp * priorityMultiplier),
             coin_reward: Math.round(rewards.coin * priorityMultiplier),
@@ -127,8 +129,39 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
                                     />
                                 </div>
 
-                                {/* Grid: Priority, Difficulty & Stat Reward */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Grid: Priority, Difficulty, Category & Stat Reward */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Category</label>
+                                        <select
+                                            className="w-full bg-[#13141f] border border-white/5 focus:border-[var(--primary)]/50 rounded-2xl px-5 py-3.5 text-white outline-none transition-all appearance-none cursor-pointer"
+                                            value={category}
+                                            onChange={(e) => setCategory(e.target.value as QuestCategory)}
+                                        >
+                                            <option value="general">General</option>
+                                            <option value="feature">Feature</option>
+                                            <option value="bugfix">Bugfix</option>
+                                            <option value="refactor">Refactor</option>
+                                            <option value="devops">DevOps</option>
+                                            <option value="documentation">Documentation</option>
+                                            <option value="review">Code Review</option>
+                                            <option value="testing">Testing</option>
+                                            <option value="planning">Planning</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Focus Stat</label>
+                                        <select
+                                            className="w-full bg-[#13141f] border border-white/5 focus:border-[var(--primary)]/50 rounded-2xl px-5 py-3.5 text-white outline-none transition-all appearance-none cursor-pointer"
+                                            value={selectedStat}
+                                            onChange={(e) => setSelectedStat(e.target.value as StatKey)}
+                                        >
+                                            <option value="discipline">Discipline</option>
+                                            <option value="knowledge">Knowledge</option>
+                                            <option value="vitality">Vitality</option>
+                                            <option value="creativity">Creativity</option>
+                                        </select>
+                                    </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Priority</label>
                                         <select
@@ -155,21 +188,9 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
                                             <option value="extreme">Extreme (🔥🔥🔥)</option>
                                         </select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Focus Stat</label>
-                                        <select
-                                            className="w-full bg-[#13141f] border border-white/5 focus:border-[var(--primary)]/50 rounded-2xl px-5 py-3.5 text-white outline-none transition-all appearance-none cursor-pointer"
-                                            value={selectedStat}
-                                            onChange={(e) => setSelectedStat(e.target.value as StatKey)}
-                                        >
-                                            <option value="discipline">Discipline</option>
-                                            <option value="knowledge">Knowledge</option>
-                                            <option value="health">Vitality</option>
-                                            <option value="creativity">Creativity</option>
-                                        </select>
-                                    </div>
                                 </div>
                             </div>
+
 
                             {/* Submit Button */}
                             <div className="pt-4">

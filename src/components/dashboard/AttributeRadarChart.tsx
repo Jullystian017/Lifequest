@@ -18,14 +18,13 @@ export default function AttributeRadarChart() {
 
     const { data: user } = useQuery({ queryKey: userQueryKey(userId!), queryFn: () => fetchUser(userId!), enabled: !!userId });
     
-    const stats = user?.stats || { discipline: 0, knowledge: 0, health: 0, creativity: 0 };
+    const stats = user?.stats || { discipline: 0, knowledge: 0, vitality: 0, creativity: 0 };
 
     // Stats mapped to points on a pentagon
-    // Discipline, Knowledge, Vitality, Finance, Creativity
     const data = useMemo(() => [
         { label: "DIS", value: stats.discipline, color: "var(--discipline)" },
         { label: "INT", value: stats.knowledge, color: "var(--knowledge)" },
-        { label: "VIT", value: stats.health, color: "var(--health)" },
+        { label: "VIT", value: stats.vitality, color: "var(--health)" },
         { label: "CRT", value: stats.creativity, color: "var(--creativity)" },
     ], [stats]);
 

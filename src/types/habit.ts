@@ -1,11 +1,14 @@
 import { StatKey } from "./user";
 
+export type HabitCategory = "coding" | "learning" | "health" | "communication" | "devops";
+
 export interface Habit {
     id: string;
     user_id: string;
     title: string;
     description?: string;
     icon?: string;
+    category?: HabitCategory;
     frequency: HabitFrequency;
     stat_reward: StatKey;
     xp_per_completion: number;

@@ -93,7 +93,7 @@ export default function LandingHero() {
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[var(--primary)]" />
           </span>
           <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--text-secondary)]">
-            The Ultimate Gamified Productivity Tool
+            The Ultimate Gamified Productivity Tool for Developers
           </span>
         </div>
 
@@ -143,8 +143,8 @@ export default function LandingHero() {
             transition: "opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s",
           }}
         >
-          Transform your daily grind into an epic adventure. Level up your
-          character by completing real-world tasks and building legendary habits.
+          Transform your dev workflow into an epic adventure. Level up your
+          developer skills by completing coding tasks, shipping features, and building legendary habits.
         </p>
 
         {/* CTA buttons */}

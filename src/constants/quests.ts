@@ -1,25 +1,25 @@
 /**
- * LifeQuest - Default Quest Templates
+ * LifeQuest for Developers - Default Quest Templates
  */
 
 import { Quest } from "@/types/quest";
 
 /** Daily quest templates */
-export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_value" | "is_completed" | "workspaceId" | "assigneeId" | "completed_at">[] = [
+export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_value" | "is_completed" | "is_archived" | "workspaceId" | "assigneeId" | "completed_at" | "status" | "category">[] = [
     {
-        title: "Complete 3 Tasks",
-        description: "Finish any 3 tasks from your task list",
+        title: "Push Code Today",
+        description: "Make at least one commit and push to your repository",
         type: "daily",
         difficulty: "easy",
         xp_reward: 50,
         coin_reward: 10,
         stat_rewards: { discipline: 2 },
-        target_value: 3,
+        target_value: 1,
         priority: 'medium',
     },
     {
-        title: "Study for 1 Hour",
-        description: "Dedicate 1 hour to learning something new",
+        title: "Write or Update Tests",
+        description: "Write new tests or update existing ones for your codebase",
         type: "daily",
         difficulty: "medium",
         xp_reward: 80,
@@ -29,48 +29,48 @@ export const DAILY_QUEST_TEMPLATES: Omit<Quest, "id" | "created_at" | "current_v
         priority: 'high',
     },
     {
-        title: "Drink 2L Water",
-        description: "Stay hydrated by drinking at least 2 liters of water",
+        title: "Fix a Bug",
+        description: "Hunt down and squash at least one bug",
         type: "daily",
-        difficulty: "easy",
-        xp_reward: 30,
-        coin_reward: 5,
-        stat_rewards: { health: 2 },
-        target_value: 2,
-        priority: 'medium',
+        difficulty: "medium",
+        xp_reward: 70,
+        coin_reward: 12,
+        stat_rewards: { vitality: 2, discipline: 1 },
+        target_value: 1,
+        priority: 'high',
     },
     {
-        title: "Read 10 Pages",
-        description: "Read at least 10 pages of any book",
+        title: "Code Review",
+        description: "Review a pull request or someone's code",
         type: "daily",
         difficulty: "easy",
         xp_reward: 40,
         coin_reward: 8,
         stat_rewards: { knowledge: 2, creativity: 1 },
-        target_value: 10,
+        target_value: 1,
         priority: 'medium',
     },
     {
-        title: "30 Min Workout",
-        description: "Exercise for at least 30 minutes",
-        type: "daily",
-        difficulty: "medium",
-        xp_reward: 70,
-        coin_reward: 12,
-        stat_rewards: { health: 4 },
-        target_value: 1,
-        priority: 'high',
-    },
-    {
-        title: "Save Money Today",
-        description: "Track and save at least some money today",
+        title: "Read Tech Docs",
+        description: "Spend 30 minutes reading documentation or tech articles",
         type: "daily",
         difficulty: "easy",
         xp_reward: 35,
-        coin_reward: 20,
-        stat_rewards: { finance: 3 },
+        coin_reward: 6,
+        stat_rewards: { knowledge: 2 },
         target_value: 1,
         priority: 'low',
+    },
+    {
+        title: "Refactor a Module",
+        description: "Clean up and improve code quality in an existing module",
+        type: "daily",
+        difficulty: "hard",
+        xp_reward: 100,
+        coin_reward: 20,
+        stat_rewards: { discipline: 3, creativity: 2 },
+        target_value: 1,
+        priority: 'medium',
     },
 ];
 

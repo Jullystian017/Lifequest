@@ -30,6 +30,7 @@ interface UserRow {
     level: number;
     stat_points: number;
     stats: Record<string, number>;
+    class?: "frontend" | "backend" | "devops" | "fullstack";
 }
 
 export async function completeQuest(userId: string, quest: Quest, currentUser: UserRow) {
@@ -51,7 +52,15 @@ export async function completeQuest(userId: string, quest: Quest, currentUser: U
 
     const newStats = { ...currentUser.stats };
     for (const [key, value] of Object.entries(quest.stat_rewards ?? {})) {
-        newStats[key] = Math.min(100, (newStats[key] || 0) + (value as number));
+        let finalBonus = value as number;
+        
+        // Apply class-specific bonuses
+        if (currentUser.class === "frontend" && key === "creativity") finalBonus += 2;
+        else if (currentUser.class === "backend" && key === "knowledge") finalBonus += 2;
+        else if (currentUser.class === "devops" && key === "discipline") finalBonus += 2;
+        else if (currentUser.class === "fullstack") finalBonus += 1;
+
+        newStats[key] = Math.min(100, (newStats[key] || 0) + finalBonus);
     }
 
     // 3. Update user row
@@ -125,6 +134,8 @@ export async function createQuest(userId: string, quest: {
     title: string;
     description?: string;
     type?: string;
+    category?: string;
+    status?: string;
     difficulty?: string;
     xp_reward: number;
     coin_reward: number;

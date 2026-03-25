@@ -20,7 +20,7 @@ export interface AchievementRequirement {
 export type AchievementCategory =
     | "streak"
     | "productivity"
-    | "health"
+    | "vitality"
     | "knowledge"
     | "finance"
     | "special";

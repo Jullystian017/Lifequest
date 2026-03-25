@@ -10,13 +10,13 @@ interface StatsRadarProps {
 /** Simple radar/pentagon chart for character stats using SVG */
 export default function StatsRadar({ stats }: StatsRadarProps) {
     const statKeys: (keyof CharacterStats)[] = [
-        "health",
+        "vitality",
         "knowledge",
         "discipline",
         "creativity",
     ];
 
-    const labels = ["Health", "Knowledge", "Discipline", "Creativity"];
+    const labels = ["Vitality", "Knowledge", "Discipline", "Creativity"];
     const colors = ["#EF4444", "#3B82F6", "#8B5CF6", "#F59E0B"];
 
     const cx = 150;

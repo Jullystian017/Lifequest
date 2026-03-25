@@ -18,18 +18,22 @@ import {
   RotateCcw,
   Target,
   BookOpen,
-  Hammer,
   Search,
-  Trophy,
-  Star,
+  CheckCircle2,
+  CalendarDays,
+  ShieldCheck,
 } from "lucide-react";
 
 const CATEGORY_CONFIG: Record<string, { icon: any; color: string; label: string }> = {
-  research: { icon: Search, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20", label: "Riset" },
-  practice: { icon: Hammer, color: "text-blue-400 bg-blue-500/10 border-blue-500/20", label: "Latihan" },
-  create: { icon: Star, color: "text-purple-400 bg-purple-500/10 border-purple-500/20", label: "Buat" },
-  review: { icon: BookOpen, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", label: "Review" },
-  milestone: { icon: Trophy, color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20", label: "Milestone" },
+  general: { icon: Target, color: "text-slate-400 bg-slate-500/10 border-slate-500/20", label: "General" },
+  feature: { icon: Sparkles, color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20", label: "Feature" },
+  bugfix: { icon: ShieldCheck, color: "text-red-400 bg-red-500/10 border-red-500/20", label: "Bugfix" },
+  refactor: { icon: RotateCcw, color: "text-yellow-400 bg-yellow-500/10 border-yellow-500/20", label: "Refactor" },
+  devops: { icon: Zap, color: "text-purple-400 bg-purple-500/10 border-purple-500/20", label: "DevOps" },
+  documentation: { icon: BookOpen, color: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20", label: "Docs" },
+  review: { icon: Search, color: "text-amber-400 bg-amber-500/10 border-amber-500/20", label: "Review" },
+  testing: { icon: CheckCircle2, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20", label: "Testing" },
+  planning: { icon: CalendarDays, color: "text-pink-400 bg-pink-500/10 border-pink-500/20", label: "Planning" },
 };
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -47,11 +51,11 @@ const DIFFICULTY_LABELS: Record<string, string> = {
 };
 
 const SAMPLE_GOALS = [
-  "Aku mau jago React.js dalam 1 bulan",
-  "Aku ingin bisa public speaking dengan percaya diri",
-  "Aku mau belajar desain UI/UX dari nol",
-  "Aku ingin menguasai bahasa Inggris level intermediate",
-  "Aku mau bisa main gitar dalam 3 bulan",
+  "Membangun SaaS Boilerplate dengan Next.js 15",
+  "Migrasi seluruh aplikasi dari JavaScript ke TypeScript",
+  "Optimasi performa database dan query caching",
+  "Riset dan implementasi AI ke dalam fitur produk",
+  "Belajar Rust untuk optimasi backend service",
 ];
 
 import { Suspense } from "react";
@@ -136,10 +140,11 @@ function QuestMasterContent() {
         description: quest.description,
         type: "daily",
         difficulty: quest.difficulty,
-        priority: quest.category === "milestone" ? "high" : "medium",
+        priority: (quest.category === "feature" || quest.category === "planning") ? "high" : "medium",
         xp_reward: quest.xp_reward,
         coin_reward: quest.coin_reward,
-        stat_rewards: {},
+        category: quest.category || "general",
+        stat_rewards: { ["knowledge"]: Math.round(quest.xp_reward / 10) },
         target_value: 1,
         current_value: 0,
         is_completed: false,
@@ -194,10 +199,10 @@ function QuestMasterContent() {
                 <Wand2 size={48} className="text-[var(--primary)]" />
               </div>
               <h2 className="text-3xl font-bold text-white font-[family-name:var(--font-heading)]">
-                Apa tujuan besarmu?
+                Apa tantangan ngodingmu hari ini?
               </h2>
               <p className="text-slate-400 text-sm max-w-md mx-auto">
-                Ketik goal apapun dan AI Quest Master akan merancang roadmap quest khusus untukmu.
+                Ketik goal developer-mu dan AI Quest Master akan merancang roadmap teknis khusus untukmu.
               </p>
             </div>
 
@@ -208,7 +213,7 @@ function QuestMasterContent() {
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-                  placeholder='Contoh: "Aku mau jago React.js dalam 1 bulan"'
+                  placeholder='Contoh: "Update arsitektur ke microservices"'
                   className="w-full bg-[var(--bg-card)] border border-[var(--border-light)] text-white rounded-2xl px-6 py-5 pr-14 outline-none focus:border-[var(--primary)] transition-all placeholder:text-slate-600 text-base font-medium shadow-xl"
                   suppressHydrationWarning
                 />

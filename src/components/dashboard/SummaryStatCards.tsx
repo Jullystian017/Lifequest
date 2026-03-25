@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, BookOpen, Dumbbell, Palette, PiggyBank, LucideIcon } from "lucide-react";
+import { Heart, BookOpen, Dumbbell, Palette, LucideIcon } from "lucide-react";
 
 interface StatProp {
   label: string;
@@ -14,7 +14,7 @@ interface StatProp {
 
 interface SummaryStatCardsProps {
   stats: {
-    health: number;
+    vitality: number;
     knowledge: number;
     discipline: number;
     creativity: number;
@@ -23,9 +23,9 @@ interface SummaryStatCardsProps {
 
 export default function SummaryStatCards({ stats }: SummaryStatCardsProps) {
   const getSubtext = (stat: string, value: number) => {
-    if (stat === "health") {
-      if (value < 30) return "Rest strongly recommended";
-      if (value < 70) return "Good physical condition";
+    if (stat === "vitality") {
+      if (value < 30) return "Rest & recover recommended";
+      if (value < 70) return "Steady energy levels";
       return "Peak vitality reached";
     }
     if (stat === "knowledge") {
@@ -35,9 +35,6 @@ export default function SummaryStatCards({ stats }: SummaryStatCardsProps) {
       if (value > 80) return "High Focus State";
       return "Consistency is key";
     }
-    if (stat === "finance") {
-      return `Gold efficiency: ${Math.round(value / 2)}%`;
-    }
     if (stat === "creativity") {
       return "Inspiration phase active";
     }
@@ -45,7 +42,7 @@ export default function SummaryStatCards({ stats }: SummaryStatCardsProps) {
   };
 
   const statItems: StatProp[] = [
-    { label: "Vitality", short: "HP", value: stats.health, icon: Heart, color: "#ef4444", subtext: getSubtext("health", stats.health) },
+    { label: "Vitality", short: "VIT", value: stats.vitality, icon: Heart, color: "#ef4444", subtext: getSubtext("vitality", stats.vitality) },
     { label: "Intelligence", short: "INT", value: stats.knowledge, icon: BookOpen, color: "#3b82f6", subtext: getSubtext("knowledge", stats.knowledge) },
     { label: "Discipline", short: "DIS", value: stats.discipline, icon: Dumbbell, color: "#22c55e", subtext: getSubtext("discipline", stats.discipline) },
     { label: "Creativity", short: "CRT", value: stats.creativity, icon: Palette, color: "#a855f7", subtext: getSubtext("creativity", stats.creativity) },

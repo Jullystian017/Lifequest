@@ -10,10 +10,10 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "LifeQuest — Turn Your Life Into a Game",
+  title: "LifeQuest for Developers",
   description:
-    "Coding Your Life, Leveling Your Future. A gamified productivity app that turns your daily activities into RPG quests.",
-  keywords: ["productivity", "gamification", "RPG", "habit tracker", "task manager", "quest"],
+    "Coding Your Life, Leveling Your Future. The ultimate RPG productivity platform for software engineers.",
+  keywords: ["developer", "productivity", "gamification", "habit tracker", "coding", "software engineering"],
 };
 
 export default function RootLayout({

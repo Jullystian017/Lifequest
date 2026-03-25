@@ -66,7 +66,7 @@ export default function CharacterPage() {
     const xp = user?.total_xp || 0;
     const xpToNextLevel = user?.xp_to_next_level || 100;
     const statPoints = user?.stat_points || 0;
-    const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, creativity: 0 };
+    const stats: Record<string, number> = user?.stats || { vitality: 0, knowledge: 0, discipline: 0, creativity: 0 };
     const coins = user?.coins || 0;
     const username = user?.username || "Petualang";
     const inventory = user?.inventory || [];
@@ -95,21 +95,21 @@ export default function CharacterPage() {
     });
 
     const statsLabels: Record<string, string> = {
-        health: "Vitalitas",
+        vitality: "Vitalitas",
         knowledge: "Kecerdasan",
         discipline: "Disiplin",
         creativity: "Kreativitas",
     };
 
     const statsIcons: Record<string, React.ReactNode> = {
-        health: <Heart size={16} />,
+        vitality: <Heart size={16} />,
         knowledge: <BookOpen size={16} />,
         discipline: <Dumbbell size={16} />,
         creativity: <Palette size={16} />,
     };
 
     const statsColors: Record<string, string> = {
-        health: "var(--health)",
+        vitality: "var(--health)",
         knowledge: "var(--knowledge)",
         discipline: "var(--discipline)",
         creativity: "var(--creativity)",
