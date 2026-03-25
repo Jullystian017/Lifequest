@@ -70,7 +70,7 @@ export default function AIInsightWidget() {
                     <BrainCircuit size={40} className="text-[var(--primary)] animate-pulse" />
                     <Loader2 size={24} className="absolute -top-1 -right-1 text-indigo-400 animate-spin" />
                 </div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest animate-pulse">Menghubungkan ke Life Engine...</p>
+                <p className="text-xs font-bold text-slate-500 animate-pulse">Menghubungkan ke Life Engine...</p>
             </div>
         );
     }
@@ -99,7 +99,7 @@ export default function AIInsightWidget() {
                             Life Engine
                             <span className="text-[9px] bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-500/30 uppercase tracking-wider">Neural Core</span>
                         </h3>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Wawasan & Prediksi</p>
+                        <p className="text-[10px] text-slate-500 font-bold">Wawasan & Prediksi</p>
                     </div>
                 </div>
                 <Sparkles size={16} className="text-yellow-500/40 animate-pulse" />
@@ -114,7 +114,7 @@ export default function AIInsightWidget() {
                 >
                     <AlertTriangle size={18} className="text-orange-500 shrink-0 mt-0.5" />
                     <div>
-                        <span className="text-[10px] font-bold text-orange-500/70 uppercase tracking-widest block mb-0.5">Alert</span>
+                        <span className="text-[10px] font-bold text-orange-500/70 block mb-0.5">Alert</span>
                         <p className="text-sm text-slate-200 leading-relaxed font-medium">{insight.warning}</p>
                     </div>
                 </motion.div>
@@ -128,7 +128,7 @@ export default function AIInsightWidget() {
                 >
                     <Lightbulb size={18} className="text-blue-400 shrink-0 mt-0.5" />
                     <div>
-                        <span className="text-[10px] font-bold text-blue-400/70 uppercase tracking-widest block mb-0.5">Saran</span>
+                        <span className="text-[10px] font-bold text-blue-400/70 block mb-0.5">Saran</span>
                         <p className="text-sm text-slate-200 leading-relaxed font-medium">{insight.suggestion}</p>
                     </div>
                 </motion.div>
@@ -142,7 +142,7 @@ export default function AIInsightWidget() {
                 >
                     <Sparkles size={18} className="text-purple-400 shrink-0 mt-0.5" />
                     <div>
-                        <span className="text-[10px] font-bold text-purple-400/70 uppercase tracking-widest block mb-0.5">Prediksi</span>
+                        <span className="text-[10px] font-bold text-purple-400/70 block mb-0.5">Prediksi</span>
                         <p className="text-sm text-slate-200 leading-relaxed font-medium">{insight.prediction}</p>
                     </div>
                 </motion.div>

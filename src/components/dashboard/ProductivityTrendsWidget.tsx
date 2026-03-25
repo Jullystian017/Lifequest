@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 
 export default function ProductivityTrendsWidget() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [viewType, setViewType] = useState<"weekly" | "monthly" | "yearly">("weekly");
 
   const supabase = createClient();
   const [userId, setUserId] = useState<string | null>(null);
@@ -25,25 +26,69 @@ export default function ProductivityTrendsWidget() {
       enabled: !!userId,
   });
 
-  // Build weekly data from real quests (completed ones with XP)
-  const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-  const weeklyData = dayNames.map((day) => ({ day, xp: 0 }));
-
-  quests.forEach((q) => {
-    if (q.is_completed && q.completed_at) {
-      const d = new Date(q.completed_at);
+  // Calculate chart data based on viewType
+  const chartData = (() => {
+    if (viewType === "weekly") {
+      const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+      const data = dayNames.map((day) => ({ label: day, xp: 0 }));
       const now = new Date();
-      const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays < 7) {
-        const dayIndex = d.getDay();
-        weeklyData[dayIndex].xp += q.xp_reward || 0;
+      
+      quests.forEach((q) => {
+        if (q.is_completed && q.completed_at) {
+          const d = new Date(q.completed_at);
+          const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffDays < 7) {
+            data[d.getDay()].xp += q.xp_reward || 0;
+          }
+        }
+      });
+      return data;
+    } else if (viewType === "monthly") {
+      // Last 4 weeks
+      const data = [
+        { label: "Mgg 1", xp: 0 },
+        { label: "Mgg 2", xp: 0 },
+        { label: "Mgg 3", xp: 0 },
+        { label: "Mgg 4", xp: 0 },
+      ];
+      const now = new Date();
+      quests.forEach((q) => {
+        if (q.is_completed && q.completed_at) {
+          const d = new Date(q.completed_at);
+          const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffDays < 28) {
+            const weekIdx = 3 - Math.floor(diffDays / 7);
+            if (weekIdx >= 0) data[weekIdx].xp += q.xp_reward || 0;
+          }
+        }
+      });
+      return data;
+    } else {
+      // Yearly: Last 12 months
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      const now = new Date();
+      const data = [];
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        data.push({ label: monthNames[d.getMonth()], month: d.getMonth(), year: d.getFullYear(), xp: 0 });
       }
-    }
-  });
 
-  const totalXp = weeklyData.reduce((sum, d) => sum + d.xp, 0);
-  const avgXp = totalXp > 0 ? Math.round(totalXp / 7) : 0;
-  const highestXp = Math.max(...weeklyData.map(d => d.xp));
+      quests.forEach((q) => {
+        if (q.is_completed && q.completed_at) {
+          const d = new Date(q.completed_at);
+          const qMonth = d.getMonth();
+          const qYear = d.getFullYear();
+          const match = data.find(item => item.month === qMonth && item.year === qYear);
+          if (match) match.xp += q.xp_reward || 0;
+        }
+      });
+      return data;
+    }
+  })();
+
+  const totalXp = chartData.reduce((sum, d) => sum + d.xp, 0);
+  const avgXp = totalXp > 0 ? Math.round(totalXp / chartData.length) : 0;
+  const highestXp = Math.max(...chartData.map(d => d.xp));
   const hasData = totalXp > 0;
 
   return (
@@ -51,20 +96,33 @@ export default function ProductivityTrendsWidget() {
       <div className="absolute top-[-50px] right-[-50px] w-64 h-64 bg-[var(--primary)]/5 blur-[80px] rounded-full pointer-events-none"></div>
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-8 relative z-10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 relative z-10">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-[var(--primary)]">
             <TrendingUp size={20} />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white">Tren Produktivitas</h3>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">XP yang didapat 7 hari terakhir</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+              {viewType === "weekly" ? "XP 7 hari terakhir" : viewType === "monthly" ? "XP 4 minggu terakhir" : "XP 12 bulan terakhir"}
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-xs font-semibold text-[var(--text-secondary)]">
-          <CalendarDays size={14} className="text-[var(--text-muted)]" />
-          Minggu Ini
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)]">
+          {(["weekly", "monthly", "yearly"] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setViewType(type)}
+              className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                viewType === type 
+                ? "bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20" 
+                : "text-[var(--text-muted)] hover:text-white hover:bg-white/5"
+              }`}
+            >
+              {type === "weekly" ? "Harian" : type === "monthly" ? "Bulanan" : "Tahunan"}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -81,17 +139,17 @@ export default function ProductivityTrendsWidget() {
           {/* Stats Summary */}
           <div className="flex gap-6 mb-8 relative z-10">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Total XP</p>
+              <p className="text-xs font-semibold text-[var(--text-muted)] mb-1">Total XP</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-semibold font-[family-name:var(--font-heading)] text-white">{totalXp.toLocaleString()}</span>
               </div>
             </div>
             <div className="w-px h-10 bg-[var(--border-light)]"></div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-1">Rata-rata Harian</p>
+              <p className="text-xs font-semibold text-[var(--text-muted)] mb-1">Rata-rata Harian</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-semibold font-[family-name:var(--font-heading)] text-white">{avgXp}</span>
-                <span className="text-xs font-semibold text-[var(--text-muted)]">XP / hari</span>
+                    <span className="text-[10px] font-semibold text-indigo-400">XP / hari</span>
               </div>
             </div>
           </div>
@@ -99,7 +157,7 @@ export default function ProductivityTrendsWidget() {
           {/* Recharts Bar Chart */}
           <div className="h-[220px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}
+              <BarChart data={chartData} margin={{ top: 0, right: 0, left: -25, bottom: 0 }}
                  onMouseMove={(state) => {
                      if (state.activeTooltipIndex !== undefined) {
                          setActiveIndex(Number(state.activeTooltipIndex));
@@ -109,7 +167,7 @@ export default function ProductivityTrendsWidget() {
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-medium)" opacity={0.4} />
                 <XAxis 
-                  dataKey="day" 
+                  dataKey="label" 
                   axisLine={false} 
                   tickLine={false} 
                   tick={{ fill: "var(--text-muted)", fontSize: 11, fontWeight: 600 }}
@@ -130,15 +188,15 @@ export default function ProductivityTrendsWidget() {
                     color: "white",
                     fontSize: "12px",
                     fontWeight: "600"
-                  }}
-                  itemStyle={{ color: "var(--primary-light)" }}
+                   }}
+                   itemStyle={{ color: "var(--primary-light)" }}
                 />
                 <Bar 
                   dataKey="xp" 
                   radius={[6, 6, 6, 6]} 
-                  barSize={32}
+                  barSize={viewType === "yearly" ? 20 : 32}
                 >
-                    {weeklyData.map((entry, index) => (
+                    {chartData.map((entry, index) => (
                         <Cell 
                             key={`cell-${index}`} 
                             fill={entry.xp === highestXp && entry.xp > 0 ? "var(--primary)" : activeIndex === index ? "var(--primary-light)" : "var(--border-medium)"} 

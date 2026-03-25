@@ -40,9 +40,9 @@ export default function RecentActivityWidget({ quests = [] }: RecentActivityWidg
           <div className="p-2 rounded-xl bg-[var(--bg-main)] border border-[var(--border-light)] text-slate-400">
             <History size={16} />
           </div>
-          <h3 className="text-sm font-bold text-white uppercase tracking-widest">Aktivitas Terbaru</h3>
+          <h3 className="text-sm font-bold text-white tracking-wide">Aktivitas Terbaru</h3>
         </div>
-        <Link href="/dashboard/quests" className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 hover:text-white transition-colors">
+        <Link href="/dashboard/quests" className="text-[10px] font-semibold tracking-wide text-slate-500 hover:text-white transition-colors">
           Lihat Semua
         </Link>
       </div>

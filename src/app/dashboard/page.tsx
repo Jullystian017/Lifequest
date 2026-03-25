@@ -74,7 +74,7 @@ export default function DashboardPage() {
         return (
             <div className="w-full h-[60vh] flex flex-col items-center justify-center text-slate-500 gap-4">
                 <Loader2 className="animate-spin text-[var(--primary)]" size={40} />
-                <p className="text-sm font-semibold uppercase tracking-widest">Memuat Dashboard...</p>
+                <p className="text-xs font-bold text-slate-500 animate-pulse">Menghubungkan ke Life Engine...</p>
             </div>
         );
     }
@@ -115,11 +115,11 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                             <h2 className="text-2xl font-semibold text-white truncate">{username}</h2>
-                            <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Level {level} Petualang</p>
+                            <p className="text-xs font-semibold text-indigo-400">Level {level} Petualang</p>
 
                             <div className="mt-3">
                                 <div className="flex justify-between items-center mb-1.5">
-                                    <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Pengalaman</span>
+                                    <span className="text-[10px] font-semibold text-slate-500">Pengalaman</span>
                                     <span className="text-[10px] font-semibold text-white">{xp} / {xpToNextLevel} XP</span>
                                 </div>
                                 <div className="h-2.5 w-full bg-[#2a2b3d] rounded-full overflow-hidden border border-white/5">
@@ -139,17 +139,17 @@ export default function DashboardPage() {
                         <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
                             <Flame size={16} className="text-orange-500 mx-auto mb-1" />
                             <p className="text-lg font-semibold text-white leading-none">{habits.filter(h => h.completed_today).length}</p>
-                            <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Streak Hari Ini</p>
+                            <p className="text-[9px] font-semibold text-slate-500 mt-0.5">Streak Hari Ini</p>
                         </div>
                         <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
                             <Zap size={16} className="text-indigo-400 mx-auto mb-1" />
                             <p className="text-lg font-semibold text-white leading-none">{todayXp}</p>
-                            <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">XP Hari Ini</p>
+                            <p className="text-[9px] font-semibold text-slate-500 mt-0.5">XP Hari Ini</p>
                         </div>
                         <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
                             <Star size={16} className="text-yellow-500 mx-auto mb-1" />
                             <p className="text-lg font-semibold text-white leading-none">{gold.toLocaleString()}</p>
-                            <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">Gold</p>
+                            <p className="text-[9px] font-semibold text-slate-500 mt-0.5">Gold</p>
                         </div>
                     </div>
                 </motion.div>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                                     <Swords size={18} className="text-indigo-400" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-semibold text-indigo-400 uppercase tracking-widest">Lanjutkan Quest</p>
+                                    <p className="text-xs font-semibold text-indigo-400">Lanjutkan Quest</p>
                                     <p className="text-sm font-semibold text-white truncate max-w-[300px]">{pendingQuests[0].title}</p>
                                 </div>
                             </div>

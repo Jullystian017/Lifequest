@@ -80,72 +80,12 @@ export default function DailyQuestPanel({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-500/20 transition-all"
-          >
-            <Plus size={12} /> Tambah Cepat
-          </button>
           <Link href="/dashboard/quests" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors">
             Semua Quest
           </Link>
         </div>
       </div>
 
-      {/* Quick Add Form */}
-      <AnimatePresence>
-        {showForm && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden mb-6 relative z-10"
-          >
-            <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 space-y-3">
-              <div className="flex gap-2">
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleQuickAdd()}
-                  placeholder="Nama quest baru..."
-                  className="flex-1 bg-[var(--bg-main)] border border-[var(--border-light)] text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-500/50 placeholder:text-slate-600"
-                  autoFocus
-                />
-                <button onClick={() => setShowForm(false)} className="p-2 text-slate-500 hover:text-white">
-                  <X size={16} />
-                </button>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  {(["easy", "medium", "hard"] as const).map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setDifficulty(d)}
-                      className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border transition-all ${
-                        difficulty === d
-                          ? d === "easy" ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-                          : d === "medium" ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
-                          : "bg-red-500/20 text-red-400 border-red-500/30"
-                          : "bg-transparent text-slate-500 border-white/5 hover:border-white/20"
-                      }`}
-                    >
-                      {DIFF_LABEL[d]} (+{XP_MAP[d]} XP)
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={handleQuickAdd}
-                  disabled={!title.trim() || isSubmitting}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 disabled:opacity-40 transition-all"
-                >
-                  {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                  Buat Quest
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {quests.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-14 text-center">
@@ -153,13 +93,7 @@ export default function DailyQuestPanel({
             <Scroll size={32} className="text-indigo-500/40" />
           </div>
           <p className="text-sm font-semibold text-slate-400 mb-1">Belum ada quest yang aktif</p>
-          <p className="text-xs text-slate-500 mb-4">Buat quest pertamamu untuk memulai petualangan!</p>
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500 transition-all"
-          >
-            <Plus size={14} /> Buat Quest Pertama
-          </button>
+          <p className="text-xs text-slate-500 mb-4">Buka papan quest untuk memulai petualangan!</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -195,15 +129,6 @@ export default function DailyQuestPanel({
                 </div>
               </div>
 
-              <Button
-                size="md"
-                variant={quest.is_completed ? "ghost" : "primary"}
-                className={`rounded-2xl px-8 font-semibold text-xs ${quest.is_completed ? "opacity-50 grayscale" : ""}`}
-                disabled={quest.is_completed}
-                onClick={() => onCompleteQuest?.(quest.id)}
-              >
-                {quest.is_completed ? "Selesai" : "Selesaikan"}
-              </Button>
             </motion.div>
           ))}
           {quests.length > 5 && (

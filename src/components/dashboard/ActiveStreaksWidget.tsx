@@ -109,7 +109,7 @@ export default function ActiveStreaksWidget({
           >
             {showForm ? <X size={14} /> : <Plus size={16} />}
           </button>
-          <Link href="/dashboard/quests" className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)] hover:text-white transition-colors hidden sm:block">
+          <Link href="/dashboard/quests" className="text-[10px] font-semibold text-[var(--text-muted)] hover:text-white transition-colors hidden sm:block">
             Semua
           </Link>
         </div>
@@ -134,7 +134,7 @@ export default function ActiveStreaksWidget({
                 <div className="flex gap-1.5 flex-wrap">
                   {STAT_OPTIONS.map((s) => (
                     <button key={s.value} onClick={() => setStat(s.value)}
-                      className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border transition-all ${stat === s.value ? `${s.color} bg-white/5 border-white/20` : "text-slate-500 border-white/5 hover:border-white/20"}`}
+                      className={`px-2.5 py-1 rounded-lg text-[9px] font-bold border transition-all ${stat === s.value ? `${s.color} bg-white/5 border-white/20` : "text-slate-500 border-white/5 hover:border-white/20"}`}
                     >
                       {s.label}
                     </button>
@@ -179,14 +179,14 @@ export default function ActiveStreaksWidget({
                     <span className={`text-sm font-semibold transition-colors ${habit.completed_today ? "text-white" : "text-slate-400 group-hover:text-white"}`}>
                       {habit.title}
                     </span>
-                    <span className="text-[9px] text-[var(--text-muted)] font-semibold uppercase tracking-widest">{habit.description}</span>
+                    <span className="text-[9px] text-[var(--text-muted)] font-semibold">{habit.description}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`text-sm font-semibold italic ${habit.completed_today ? "text-orange-400" : "text-slate-500"}`}>
                     {habit.current_streak ?? 0}
                   </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-tighter text-[var(--text-muted)]">HARI</span>
+                  <span className="text-[10px] font-semibold text-[var(--text-muted)]">hari</span>
                   {habit.completed_today && (
                     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-orange-500">
                       <Flame size={12} fill="currentColor" />
