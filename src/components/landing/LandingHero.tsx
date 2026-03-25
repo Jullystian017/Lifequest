@@ -98,36 +98,41 @@ export default function LandingHero() {
         </div>
 
         {/* Headline */}
-        <h1
-          className="font-[family-name:var(--font-heading)] font-bold leading-[0.95] mb-8 mx-auto max-w-5xl"
-          style={{
-            fontSize: "clamp(48px, 8vw, 96px)",
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.8s ease 0.15s, transform 0.8s ease 0.15s",
-          }}
-        >
-          <span className="block text-white">Coding Your</span>
-          <span
-            className="block bg-clip-text text-transparent"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 50%, var(--accent-light) 100%)",
-            }}
-          >
-            Life.
-          </span>
-          <span className="block text-white">Leveling Your</span>
-          <span
-            className="block bg-clip-text text-transparent"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, var(--accent-light) 0%, var(--primary-light) 50%, var(--secondary-light) 100%)",
-            }}
-          >
-            Future.
-          </span>
-        </h1>
+       <h1
+  className="font-[family-name:var(--font-heading)] font-bold leading-[0.95] text-center mx-auto max-w-5xl mb-8"
+  style={{
+    fontSize: "clamp(48px, 7vw, 70px)",
+    opacity: visible ? 1 : 0,
+    transform: visible ? "translateY(0)" : "translateY(24px)",
+    transition: "opacity 0.8s ease 0.15s, transform 0.8s ease 0.15s",
+  }}
+>
+  <span className="block">
+    <span className="text-white">Coding Your </span>
+    <span
+      className="bg-clip-text text-transparent"
+      style={{
+        backgroundImage:
+          "linear-gradient(135deg, var(--primary-light), var(--secondary-light), var(--accent-light))",
+      }}
+    >
+      Life.
+    </span>
+  </span>
+
+  <span className="block">
+    <span className="text-white">Leveling Your </span>
+    <span
+      className="bg-clip-text text-transparent"
+      style={{
+        backgroundImage:
+          "linear-gradient(135deg, var(--accent-light), var(--primary-light), var(--secondary-light))",
+      }}
+    >
+      Future.
+    </span>
+  </span>
+</h1>
 
         {/* Subtitle */}
         <p
