@@ -23,6 +23,7 @@ import {
   Globe,
 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const CLASS_ICONS: Record<string, any> = {
   frontend: Code2,
@@ -48,12 +49,19 @@ export default function TeamPage() {
   const [inviteInput, setInviteInput] = useState("");
   const [copiedCode, setCopiedCode] = useState(false);
   const { activeWorkspaceId, setActiveWorkspaceId } = useWorkspaceStore();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) setUserId(data.user.id);
     });
   }, []);
+
+  useEffect(() => {
+    const action = searchParams.get("action");
+    if (action === "create") setShowCreateModal(true);
+    if (action === "join") setShowJoinModal(true);
+  }, [searchParams]);
 
   const { data: workspaces = [], refetch: refetchWorkspaces } = useQuery({
     queryKey: workspacesQueryKey(userId!),

@@ -129,15 +129,24 @@ export default function WorkspaceSwitcher() {
                         </div>
 
                         {/* Actions */}
-                        <div className="pt-2 px-2 pb-1">
+                        <div className="pt-2 px-2 pb-1 grid grid-cols-2 gap-2">
                             <button 
                                 onClick={() => {
                                     setIsOpen(false);
-                                    router.push("/dashboard/team");
+                                    router.push("/dashboard/team?action=create");
                                 }}
-                                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/[0.02] hover:bg-indigo-500/10 text-[11px] font-bold text-slate-400 hover:text-indigo-400 border border-transparent hover:border-indigo-500/20 transition-all uppercase"
+                                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[var(--primary)]/10 text-[10px] font-bold text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white border border-[var(--primary)]/20 transition-all uppercase"
                             >
-                                <Plus size={14} /> Handle New Workspace
+                                <Plus size={12} /> Buat Baru
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    router.push("/dashboard/team?action=join");
+                                }}
+                                className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white/[0.02] hover:bg-white/10 text-[10px] font-bold text-slate-300 hover:text-white border border-transparent hover:border-white/10 transition-all uppercase"
+                            >
+                                <Users size={12} /> Gabung
                             </button>
                         </div>
                     </motion.div>
