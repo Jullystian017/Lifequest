@@ -173,7 +173,7 @@ export default function RegisterPage() {
           <motion.div
             animate={{ y: [0, -20, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative w-full max-w-lg"
+            className="relative w-full max-w-lg"    
           >
             {/* Pakai aset gambar yang sama dengan login atau yang bertema inovasi tadi */}
             <img 
@@ -183,14 +183,6 @@ export default function RegisterPage() {
             />
             
             {/* Floating Badge (Opsional untuk mempercantik) */}
-            <motion.div 
-              animate={{ rotate: [0, 5, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="absolute top-10 right-10 bg-[#151921]/90 border border-emerald-500/30 p-4 rounded-2xl backdrop-blur-md shadow-xl"
-            >
-              <Shield className="text-emerald-400 mx-auto" size={32} />
-              <p className="text-[10px] text-emerald-200 mt-2 font-bold tracking-widest uppercase text-center">New Hero</p>
-            </motion.div>
           </motion.div>
         </motion.div>
 
