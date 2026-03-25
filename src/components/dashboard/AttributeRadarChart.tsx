@@ -1,11 +1,24 @@
 "use client";
 
-import { useUserStatsStore } from "@/store/userStatsStore";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, userQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 
 export default function AttributeRadarChart() {
-    const { stats } = useUserStatsStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({ queryKey: userQueryKey(userId!), queryFn: () => fetchUser(userId!), enabled: !!userId });
+    
+    const stats = user?.stats || { discipline: 0, knowledge: 0, health: 0, finance: 0, creativity: 0 };
 
     // Stats mapped to points on a pentagon
     // Discipline, Knowledge, Vitality, Finance, Creativity

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStatsStore } from "@/store/userStatsStore";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, userQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import {
     Trophy,
     Medal,
@@ -43,8 +45,23 @@ const DUMMY_PLAYERS: DBUser[] = [
 ];
 
 export default function LeaderboardPage() {
-    const { username: currentUsername } = useUserStatsStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<LeaderboardTab>('global');
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+    
+    const currentUsername = user?.username || "PlayerOne";
 
     // In a real app, this would fetch from Supabase
     // For demo, we just inject the actual current user's name if they are "Rank 3"

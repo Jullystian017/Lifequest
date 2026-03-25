@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuestStore } from "@/store/questStore";
-import { useUserStatsStore } from "@/store/userStatsStore";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, fetchQuests, userQueryKey, questsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import {
   Bot,
   Send,
@@ -33,12 +34,34 @@ const quickCommands = [
 ];
 
 export default function AIAssistantPage() {
+  const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setUserId(data.user.id);
+    });
+  }, []);
+
+  const { data: user } = useQuery({
+      queryKey: userQueryKey(userId!),
+      queryFn: () => fetchUser(userId!),
+      enabled: !!userId,
+  });
+
+  const { data: quests = [] } = useQuery({
+      queryKey: questsQueryKey(userId!),
+      queryFn: () => fetchQuests(userId!),
+      enabled: !!userId,
+  });
+
+  const username = user?.username || "Pemain";
+  const level = user?.level || 1;
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { username, level } = useUserStatsStore();
-  const { quests } = useQuestStore();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

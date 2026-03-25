@@ -2,12 +2,28 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { TrendingUp, CalendarDays, BarChart3 } from "lucide-react";
-import { useState } from "react";
-import { useQuestStore } from "@/store/questStore";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchQuests, questsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ProductivityTrendsWidget() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const { quests } = useQuestStore();
+
+  const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setUserId(data.user.id);
+    });
+  }, []);
+
+  const { data: quests = [] } = useQuery({
+      queryKey: questsQueryKey(userId!),
+      queryFn: () => fetchQuests(userId!),
+      enabled: !!userId,
+  });
 
   // Build weekly data from real quests (completed ones with XP)
   const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];

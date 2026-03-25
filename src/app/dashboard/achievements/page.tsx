@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAchievementStore, AchievementCategory } from "@/store/achievementStore";
-import { useQuestStore } from "@/store/questStore";
-import { useHabitStore } from "@/store/habitStore";
-import { useUserStatsStore } from "@/store/userStatsStore";
+import { AchievementCategory, DEFAULT_ACHIEVEMENTS, Achievement } from "@/store/achievementStore"; // We keep the static constants
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, fetchQuests, fetchHabits, userQueryKey, questsQueryKey, habitsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import {
     Trophy,
     Award,
@@ -32,10 +32,39 @@ const CATEGORY_TABS: { id: AchievementCategory | 'all', label: string }[] = [
 ];
 
 export default function AchievementsPage() {
-    const { achievements, unlockedIds, unlockAchievement } = useAchievementStore();
-    const { quests } = useQuestStore();
-    const { habits } = useHabitStore();
-    const { level } = useUserStatsStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const { data: quests = [] } = useQuery({
+        queryKey: questsQueryKey(userId!),
+        queryFn: () => fetchQuests(userId!),
+        enabled: !!userId,
+    });
+
+    const { data: habits = [] } = useQuery({
+        queryKey: habitsQueryKey(userId!),
+        queryFn: () => fetchHabits(userId!),
+        enabled: !!userId,
+    });
+
+    const level = user?.level || 1;
+    // In actual implementation we would track `unlockedIds` in DB, but for now we default to empty array
+    const unlockedIds: string[] = user?.unlocked_achievements || [];
+    
+    const achievements = DEFAULT_ACHIEVEMENTS; // Pull from constants file directly so we don't need store logic
+    
     const [activeTab, setActiveTab] = useState<AchievementCategory | 'all'>('all');
 
     // Dynamic Progress Calculation
@@ -43,10 +72,10 @@ export default function AchievementsPage() {
         let current = 0;
         switch(type) {
             case 'complete_quests':
-                current = quests.filter(q => q.is_completed).length;
+                current = quests.filter((q: any) => q.is_completed).length;
                 break;
             case 'reach_streak':
-                current = habits.filter(h => h.completed_today).length; // Simplify for now
+                current = habits.filter((h: any) => h.completed_today).length; // Simplify for now
                 break;
             case 'reach_level':
                 current = level;
@@ -63,8 +92,7 @@ export default function AchievementsPage() {
         return { current, percentage, isCompleted };
     };
 
-    // Filter by tab
-    const filteredAchievements = achievements.filter(a => activeTab === 'all' || a.category === activeTab);
+    const filteredAchievements = achievements.filter((a: Achievement) => activeTab === 'all' || a.category === activeTab);
     
     // Stats
     const totalUnlocked = unlockedIds.length;
@@ -111,7 +139,7 @@ export default function AchievementsPage() {
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <AnimatePresence mode="popLayout">
-                    {filteredAchievements.map((ach) => {
+                    {filteredAchievements.map((ach: Achievement) => {
                         const IconComp = ICON_MAP[ach.icon] || Star;
                         const { current, percentage, isCompleted } = getProgress(ach.requirementType, ach.requirementValue);
                         
@@ -119,7 +147,7 @@ export default function AchievementsPage() {
                         if (isCompleted && !unlockedIds.includes(ach.id)) {
                             // In a real app this would trigger via a listener, 
                             // doing it directly here for UI demo purposes only
-                            setTimeout(() => unlockAchievement(ach.id), 100); 
+                            // unlockAchievement(ach.id); 
                         }
 
                         const isUnlocked = unlockedIds.includes(ach.id);

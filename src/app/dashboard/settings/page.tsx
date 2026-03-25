@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStatsStore } from "@/store/userStatsStore";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchUser, userQueryKey } from "@/lib/queries";
 import {
     User,
     Bot,
@@ -42,15 +43,35 @@ const DEFAULT_SETTINGS: AppSettings = {
 };
 
 export default function SettingsPage() {
-    const { username, setUsername } = useUserStatsStore();
+    const queryClient = useQueryClient();
     const router = useRouter();
     const supabase = createClient();
 
+    const [userId, setUserId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<SettingsTab>('ai');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
+
+    useEffect(() => {
+        const fetchUserSession = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setUserId(user.id);
+                if (user.email) setEmail(user.email);
+            }
+        };
+        fetchUserSession();
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const username = user?.username || "";
 
     // Load settings from localStorage
     const [settings, setSettings] = useState<AppSettings>(() => {
@@ -58,17 +79,8 @@ export default function SettingsPage() {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
         }
-        return { ...DEFAULT_SETTINGS, displayName: username };
+        return { ...DEFAULT_SETTINGS, displayName: "" };
     });
-
-    // Fetch email on mount
-    useEffect(() => {
-        const fetchEmail = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user?.email) setEmail(user.email);
-        };
-        fetchEmail();
-    }, []);
 
     useEffect(() => {
         if (!settings.displayName && username) {
@@ -92,17 +104,15 @@ export default function SettingsPage() {
         // Persist to localStorage
         localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 
-        // Update username in store and Supabase
-        if (settings.displayName !== username) {
-            setUsername(settings.displayName);
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                await supabase.from("profiles").upsert({
-                    id: user.id,
-                    username: settings.displayName,
-                    updated_at: new Date().toISOString(),
-                }, { onConflict: "id" });
-            }
+        // Update username in Supabase
+        if (settings.displayName !== username && userId) {
+            await supabase.from("profiles").upsert({
+                id: userId,
+                username: settings.displayName,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: "id" });
+            
+            queryClient.invalidateQueries({ queryKey: userQueryKey(userId) });
         }
 
         // Small delay for UX

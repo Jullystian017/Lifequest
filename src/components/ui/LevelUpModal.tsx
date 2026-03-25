@@ -1,12 +1,43 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStatsStore } from "@/store/userStatsStore";
 import { Trophy, Star, Shield, Sword } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, userQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import Button from "./Button";
 
 export default function LevelUpModal() {
-    const { level, showLevelUpModal, setLevelUpModal } = useUserStatsStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const level = user?.level || 1;
+    const prevLevelRef = useRef<number>(level);
+    const [showLevelUpModal, setLevelUpModal] = useState(false);
+
+    useEffect(() => {
+        if (user && prevLevelRef.current > 0) {
+            if (user.level > prevLevelRef.current) {
+                setLevelUpModal(true);
+            }
+            prevLevelRef.current = user.level;
+        } else if (user && prevLevelRef.current === 0) {
+            prevLevelRef.current = user.level;
+        }
+    }, [user?.level]);
 
     return (
         <AnimatePresence>

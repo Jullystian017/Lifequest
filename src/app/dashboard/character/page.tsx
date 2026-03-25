@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUserStatsStore } from "@/store/userStatsStore";
-import { useQuestStore } from "@/store/questStore";
-import { useHabitStore } from "@/store/habitStore";
-import { useShopStore } from "@/store/shopStore";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchUser, fetchQuests, fetchHabits, userQueryKey, questsQueryKey, habitsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import {
     User,
     Shield,
@@ -31,17 +30,57 @@ import Link from "next/link";
 type Tab = "stats" | "history" | "equipment";
 
 export default function CharacterPage() {
-    const { level, xp, xpToNextLevel, stats, equippedItems, equipItem, username, coins } = useUserStatsStore();
-    const { items, inventory } = useShopStore();
-    const { quests } = useQuestStore();
-    const { habits } = useHabitStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("stats");
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const { data: quests = [] } = useQuery({
+        queryKey: questsQueryKey(userId!),
+        queryFn: () => fetchQuests(userId!),
+        enabled: !!userId,
+    });
+
+    const { data: habits = [] } = useQuery({
+        queryKey: habitsQueryKey(userId!),
+        queryFn: () => fetchHabits(userId!),
+        enabled: !!userId,
+    });
+
+    const level = user?.level || 1;
+    const xp = user?.total_xp || 0;
+    const xpToNextLevel = user?.xp_to_next_level || 100;
+    const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, finance: 0, creativity: 0 };
+    const coins = user?.coins || 0;
+    const username = user?.username || "Petualang";
+    const inventory = user?.inventory || [];
+    const equippedItems = user?.equipped_items || {};
+
+    // Temporary static items structure since we haven't synced shopItems to DB yet
+    const items = [
+        { id: "avatar_frame_gold", name: "Golden Frame", description: "Exclusive golden avatar frame", price: 500, category: "cosmetic", slot: "border" }
+    ];
 
     const ownedCosmetics = items.filter(i => i.category === 'cosmetic' && inventory.includes(i.id));
     const xpPercentage = xpToNextLevel > 0 ? (xp / xpToNextLevel) * 100 : 0;
-    const completedQuests = quests.filter(q => q.is_completed);
-    const streakCount = habits.filter(h => h.completed_today).length;
-    const totalXpEarned = completedQuests.reduce((sum, q) => sum + (q.xp_reward || 0), 0);
+    const completedQuests = quests.filter((q: any) => q.is_completed);
+    const streakCount = habits.filter((h: any) => h.completed_today).length;
+    const totalXpEarned = completedQuests.reduce((sum: number, q: any) => sum + (q.xp_reward || 0), 0);
+
+    const equipItem = async (slot: string, itemId: string) => {
+        // We will mock this or handle with mutation later if needed
+    };
 
     const statsLabels: Record<string, string> = {
         health: "Vitalitas",

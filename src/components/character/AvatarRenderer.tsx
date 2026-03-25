@@ -1,21 +1,38 @@
 "use client";
 
-import { useUserStatsStore } from "@/store/userStatsStore";
-import { useShopStore } from "@/store/shopStore";
 import { AvatarParts } from "./AvatarParts";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, userQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
+import { SHOP_ITEMS } from "@/lib/constants";
+import { useState, useEffect } from "react";
 
 interface AvatarRendererProps {
     className?: string;
 }
 
 export default function AvatarRenderer({ className = "" }: AvatarRendererProps) {
-    const { equippedItems } = useUserStatsStore();
-    const { items } = useShopStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const equippedItems = user?.equipped_items || {};
 
     // Helper to get item info from itemId
     const getItem = (itemId: string) => {
-        return items.find(i => i.id === itemId);
+        return SHOP_ITEMS.find(i => i.id === itemId);
     };
 
     const headItem = getItem(equippedItems['head'] || "");

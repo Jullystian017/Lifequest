@@ -3,9 +3,9 @@
 import { useEffect, useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { syncUserStatsToSupabase } from "@/lib/syncUserStats";
-import { useQuestStore } from "@/store/questStore";
-import { useUserStatsStore } from "@/store/userStatsStore";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchQuests, fetchUser, questsQueryKey, userQueryKey } from "@/lib/queries";
+import { completeQuest as completeQuestMutFn, completeQuestPenalty, completeQuestBonus, createQuest, deleteQuest as deleteQuestFn, updateQuestStatus } from "@/lib/mutations";
 import { Quest } from "@/types/quest";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import {
@@ -36,126 +36,101 @@ const TAGS = [
 ];
 
 export default function ProQuestBoard() {
-  const { quests, setQuests, addQuest, updateQuest, completeQuest, deleteQuest } = useQuestStore();
-  const { addXp, addCoins, updateStat } = useUserStatsStore();
+  const supabase = createClient();
+  const queryClient = useQueryClient();
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBrowser, setIsBrowser] = useState(false);
-  
-  // Search & Filter State
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-
-  // Modals Data
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
-  
-  // Proof of Action Flow
   const [showProofFlow, setShowProofFlow] = useState(false);
   const [proofImage, setProofImage] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<{ verified: boolean; confidence: number; reason: string } | null>(null);
-
-  // Create Form
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newDifficulty, setNewDifficulty] = useState<Quest["difficulty"]>("medium");
   const [newType, setNewType] = useState("coding");
-  
-  const supabase = createClient();
 
-  // Initialization
   useEffect(() => {
     setIsBrowser(true);
-    async function load() {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = "/login"; return; }
-
-      const { data } = await supabase
-        .from("quests")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-      if (data) setQuests(data);
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) { window.location.href = "/login"; return; }
+      setUserId(data.user.id);
       setLoading(false);
-    }
-    load();
-  }, [setQuests]);
+    });
+  }, []);
 
-  // Derived columns map (filtered)
+  const { data: quests = [], refetch: refetchQuests } = useQuery({
+    queryKey: questsQueryKey(userId!),
+    queryFn: () => fetchQuests(userId!),
+    enabled: !!userId,
+  });
+
+  const { data: currentUser } = useQuery({
+    queryKey: userQueryKey(userId!),
+    queryFn: () => fetchUser(userId!),
+    enabled: !!userId,
+  });
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: questsQueryKey(userId!) });
+    queryClient.invalidateQueries({ queryKey: userQueryKey(userId!) });
+  };
+
+
   const columnsMap = useMemo(() => {
     const map: Record<KanbanColumn, Quest[]> = { todo: [], in_progress: [], done: [] };
-    
-    // Apply filters
-    const filtered = quests.filter(q => {
+    const filtered = quests.filter((q: Quest) => {
       const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesFilter = activeFilter ? q.difficulty === activeFilter : true;
       return matchesSearch && matchesFilter;
     });
-
-    filtered.forEach(q => {
+    filtered.forEach((q: Quest) => {
       if (q.is_completed) map.done.push(q);
       else if (q.current_value > 0) map.in_progress.push(q);
       else map.todo.push(q);
     });
-    
     return map;
   }, [quests, searchQuery, activeFilter]);
 
-  // Handle Drag & Drop
   const onDragEnd = async (result: DropResult) => {
     const { source, destination, draggableId } = result;
     if (!destination) return;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
-
-    const quest = quests.find(q => q.id === draggableId);
+    const quest = quests.find((q: Quest) => q.id === draggableId);
     if (!quest) return;
-
-    const sourceCol = source.droppableId as KanbanColumn;
     const destCol = destination.droppableId as KanbanColumn;
-
-    // Fast Optimistic UI Update (Locally first)
+    const sourceCol = source.droppableId as KanbanColumn;
     if (destCol === "in_progress" && sourceCol === "todo") {
-      updateQuest(quest.id, { current_value: 1 });
+      await updateQuestStatus(quest.id, "in_progress");
       await supabase.from("quests").update({ current_value: 1 }).eq("id", quest.id);
-    } 
-    else if (destCol === "todo" && sourceCol === "in_progress") {
-      updateQuest(quest.id, { current_value: 0 });
+      refetchQuests();
+    } else if (destCol === "todo" && sourceCol === "in_progress") {
+      await updateQuestStatus(quest.id, "todo");
       await supabase.from("quests").update({ current_value: 0 }).eq("id", quest.id);
-    }
-    else if (destCol === "done" && sourceCol !== "done") {
-      // If dropped directly into done, intercept and open detail modal to force "Complete Quest" flow
+      refetchQuests();
+    } else if (destCol === "done" && sourceCol !== "done") {
       setSelectedQuest(quest);
-      // Snap it back locally because we haven't actually completed it yet
-      updateQuest(quest.id, { current_value: sourceCol === "in_progress" ? 1 : 0 });
     }
   };
 
   const handleCreateQuest = async () => {
-    if (!newTitle.trim()) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const newQuest: any = {
-      user_id: user.id,
+    if (!newTitle.trim() || !userId) return;
+    await createQuest(userId, {
       title: newTitle,
       description: newDesc,
       type: newType,
       difficulty: newDifficulty,
-      priority: "medium",
       xp_reward: newDifficulty === "easy" ? 50 : newDifficulty === "medium" ? 100 : 250,
       coin_reward: newDifficulty === "easy" ? 25 : newDifficulty === "medium" ? 50 : 100,
-      target_value: 1,
-      current_value: 0,
-      is_completed: false,
-    };
-
-    const { data, error } = await supabase.from("quests").insert(newQuest).select().single();
-    if (data && !error) {
-      addQuest(data);
-      setShowCreateModal(false);
-      setNewTitle(""); setNewDesc(""); 
-    }
+    });
+    refetchQuests();
+    setShowCreateModal(false);
+    setNewTitle(""); setNewDesc("");
   };
 
   const handleDeleteQuest = async () => {
@@ -163,28 +138,16 @@ export default function ProQuestBoard() {
     if (!confirm("Konfirmasi penghapusan: Quest ini akan dihapus selamanya dari quest board. Yakin?")) return;
     
     // Optimistic delete
-    deleteQuest(selectedQuest.id);
+    await deleteQuestFn(selectedQuest.id);
     setSelectedQuest(null);
     setShowProofFlow(false);
-
-    // Supabase delete
-    await supabase.from("quests").delete().eq("id", selectedQuest.id);
+    refetchQuests();
   };
 
-  // Proof of action handlers
   const handleCompleteWithoutProof = async () => {
-    if (!selectedQuest) return;
-    
-    // Low XP Penalty (50% reduction)
-    const penaltyXp = Math.round(selectedQuest.xp_reward * 0.5);
-    const penaltyGold = Math.round(selectedQuest.coin_reward * 0.5);
-
-    completeQuest(selectedQuest.id);
-    addXp(penaltyXp);
-    addCoins(penaltyGold);
-    await supabase.from("quests").update({ is_completed: true, completed_at: new Date().toISOString() }).eq("id", selectedQuest.id);
-    await syncUserStatsToSupabase();
-    
+    if (!selectedQuest || !currentUser) return;
+    await completeQuestPenalty(userId!, selectedQuest, currentUser);
+    invalidate();
     setSelectedQuest(null);
     setShowProofFlow(false);
   };
@@ -216,15 +179,9 @@ export default function ProQuestBoard() {
       const data = await res.json();
       setVerifyResult(data);
 
-      if (data.verified && !selectedQuest.is_completed) {
-        // Full XP + Bonus XP 20%
-        const bonusXp = Math.round(selectedQuest.xp_reward * 0.2);
-        completeQuest(selectedQuest.id);
-        addXp(selectedQuest.xp_reward + bonusXp);
-        addCoins(selectedQuest.coin_reward);
-        
-        await supabase.from("quests").update({ is_completed: true, completed_at: new Date().toISOString() }).eq("id", selectedQuest.id);
-        await syncUserStatsToSupabase();
+      if (data.verified && !selectedQuest.is_completed && currentUser) {
+        await completeQuestBonus(userId!, selectedQuest, currentUser);
+        invalidate();
         setSelectedQuest({ ...selectedQuest, is_completed: true });
         
         setTimeout(() => {
@@ -578,9 +535,10 @@ export default function ProQuestBoard() {
                     <div className="flex gap-3 w-full md:w-auto">
                     {!selectedQuest.is_completed && selectedQuest.current_value === 0 && (
                         <button 
-                            onClick={() => {
-                                updateQuest(selectedQuest.id, { current_value: 1 });
-                                supabase.from("quests").update({ current_value: 1 }).eq("id", selectedQuest.id);
+                            onClick={async () => {
+                                await updateQuestStatus(selectedQuest.id, "in_progress");
+                                await supabase.from("quests").update({ current_value: 1 }).eq("id", selectedQuest.id);
+                                refetchQuests();
                                 setSelectedQuest(null);
                                 setShowProofFlow(false);
                             }} 

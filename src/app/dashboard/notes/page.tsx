@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { useNoteStore, Note } from "@/store/noteStore";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchNotes, notesQueryKey } from "@/lib/queries";
 import {
   Plus,
   Search,
@@ -29,8 +30,9 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 export default function NotesPage() {
-  const { notes, setNotes, addNote, updateNote, deleteNote, activeNoteId, setActiveNote } = useNoteStore();
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
   const [newTag, setNewTag] = useState("");
@@ -39,9 +41,23 @@ export default function NotesPage() {
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [customFolders, setCustomFolders] = useState<string[]>([]);
 
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+        if (data.user) setUserId(data.user.id);
+    });
+  }, []);
+
+  const { data: notes = [], isLoading: loading } = useQuery({
+      queryKey: notesQueryKey(userId!),
+      queryFn: () => fetchNotes(userId!),
+      enabled: !!userId,
+  });
+
   // Dynamic folders: "Umum" always first + all unique folders from notes + custom created ones
   const allFolders = useMemo(() => {
-    const fromNotes = new Set(notes.map(n => n.folder));
+    const fromNotes = new Set(notes.map((n: any) => n.folder));
     const combined = new Set(["Umum", ...customFolders, ...fromNotes]);
     return Array.from(combined);
   }, [notes, customFolders]);
@@ -54,21 +70,25 @@ export default function NotesPage() {
     setNewFolderName("");
     setShowNewFolder(false);
   };
-  const supabase = createClient();
 
-  const activeNote = notes.find(n => n.id === activeNoteId) || null;
+  // Local state for the actively edited note to prevent lag when typing
+  const [editedNote, setEditedNote] = useState<any>(null);
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = "/login"; return; }
-      const { data } = await supabase.from("notes").select("*").eq("user_id", user.id).order("updated_at", { ascending: false });
-      if (data) setNotes(data);
-      setLoading(false);
-    }
-    load();
-  }, [setNotes]);
+      const found = notes.find((n: any) => n.id === activeNoteId);
+      if (found) {
+          setEditedNote({ ...found });
+      } else {
+          setEditedNote(null);
+      }
+  }, [activeNoteId, notes]);
+
+  const activeNote = editedNote;
+
+  const updateLocalNote = (updates: any) => {
+      if (!editedNote) return;
+      setEditedNote({ ...editedNote, ...updates });
+  };
 
   const filteredNotes = useMemo(() => {
     let result = notes;
@@ -81,10 +101,9 @@ export default function NotesPage() {
   }, [notes, activeFolder, searchQuery]);
 
   const handleCreate = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const newNote: any = {
-      user_id: user.id,
+    if (!userId) return;
+    const newNote = {
+      user_id: userId,
       title: "Catatan Baru",
       content: "",
       folder: activeFolder || "Umum",
@@ -92,13 +111,13 @@ export default function NotesPage() {
     };
     const { data, error } = await supabase.from("notes").insert(newNote).select().single();
     if (data && !error) {
-      addNote(data);
-      setActiveNote(data.id);
+      queryClient.invalidateQueries({ queryKey: notesQueryKey(userId) });
+      setActiveNoteId(data.id);
     }
   };
 
   const handleSave = async () => {
-    if (!activeNote) return;
+    if (!activeNote || !userId) return;
     setSaving(true);
     await supabase.from("notes").update({
       title: activeNote.title,
@@ -107,24 +126,27 @@ export default function NotesPage() {
       tags: activeNote.tags,
       updated_at: new Date().toISOString(),
     }).eq("id", activeNote.id);
+    queryClient.invalidateQueries({ queryKey: notesQueryKey(userId) });
     setSaving(false);
   };
 
   const handleDelete = async (id: string) => {
-    deleteNote(id);
+    if (!userId) return;
     await supabase.from("notes").delete().eq("id", id);
+    if (activeNoteId === id) setActiveNoteId(null);
+    queryClient.invalidateQueries({ queryKey: notesQueryKey(userId) });
   };
 
   const handleAddTag = () => {
     if (!activeNote || !newTag.trim()) return;
     const tags = [...(activeNote.tags || []), newTag.trim().toLowerCase()];
-    updateNote(activeNote.id, { tags });
+    updateLocalNote({ tags });
     setNewTag("");
   };
 
   const handleRemoveTag = (tag: string) => {
     if (!activeNote) return;
-    updateNote(activeNote.id, { tags: activeNote.tags.filter(t => t !== tag) });
+    updateLocalNote({ tags: activeNote.tags.filter((t: string) => t !== tag) });
   };
 
   const folderCounts = useMemo(() => {
@@ -211,14 +233,14 @@ export default function NotesPage() {
           {filteredNotes.map(note => (
             <button
               key={note.id}
-              onClick={() => setActiveNote(note.id)}
+              onClick={() => setActiveNoteId(note.id)}
               className={`w-full text-left p-3 rounded-xl transition-all ${activeNoteId === note.id ? "bg-[var(--primary)]/10 border border-[var(--primary)]/30" : "bg-[var(--bg-card)] border border-[var(--border-light)] hover:border-white/10"}`}
             >
               <p className="text-sm font-semibold text-white truncate">{note.title || "Tanpa Judul"}</p>
               <p className="text-[10px] text-slate-500 mt-1 truncate">{note.content?.slice(0, 60) || "Kosong..."}</p>
               <div className="flex items-center gap-2 mt-2">
                 <span className="text-[9px] text-slate-600 font-semibold">{note.folder}</span>
-                {note.tags?.slice(0, 2).map(t => (
+                {note.tags?.slice(0, 2).map((t: string) => (
                   <span key={t} className={`text-[9px] font-semibold px-1.5 py-0.5 rounded ${TAG_COLORS[t] || "text-slate-400 bg-slate-500/10"}`}>{t}</span>
                 ))}
               </div>
@@ -244,20 +266,20 @@ export default function NotesPage() {
               <div className="flex-1 min-w-0">
                 <input
                   value={activeNote.title}
-                  onChange={(e) => updateNote(activeNote.id, { title: e.target.value })}
+                  onChange={(e) => updateLocalNote({ title: e.target.value })}
                   className="w-full bg-transparent text-xl font-semibold text-white outline-none placeholder:text-slate-600"
                   placeholder="Judul catatan..."
                 />
                 <div className="flex items-center gap-3 mt-2">
                   <select
                     value={activeNote.folder}
-                    onChange={(e) => updateNote(activeNote.id, { folder: e.target.value })}
+                    onChange={(e) => updateLocalNote({ folder: e.target.value })}
                     className="text-[10px] font-semibold bg-[var(--bg-sidebar)] border border-[var(--border-light)] text-slate-400 rounded-lg px-2 py-1 outline-none"
                   >
                     {allFolders.map(f => <option key={f} value={f}>{f}</option>)}
                   </select>
                   <div className="flex items-center gap-1 flex-wrap">
-                    {activeNote.tags?.map(t => (
+                    {activeNote.tags?.map((t: string) => (
                       <span key={t} className={`text-[9px] font-semibold px-1.5 py-0.5 rounded flex items-center gap-1 ${TAG_COLORS[t] || "text-slate-400 bg-slate-500/10"}`}>
                         {t}
                         <button onClick={() => handleRemoveTag(t)} className="hover:text-white"><X size={8} /></button>
@@ -289,7 +311,7 @@ export default function NotesPage() {
             {/* Markdown Editor */}
             <textarea
               value={activeNote.content}
-              onChange={(e) => updateNote(activeNote.id, { content: e.target.value })}
+              onChange={(e) => updateLocalNote({ content: e.target.value })}
               placeholder="Tuliskan catatanmu di sini... (mendukung Markdown)"
               className="flex-1 p-6 bg-transparent text-slate-200 text-sm leading-relaxed outline-none resize-none scrollbar-hide placeholder:text-slate-700 font-mono"
             />

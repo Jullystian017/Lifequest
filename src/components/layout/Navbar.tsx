@@ -5,10 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStatsStore } from "@/store/userStatsStore";
-import { useQuestStore } from "@/store/questStore";
-import { useHabitStore } from "@/store/habitStore";
 import { createClient } from "@/lib/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, fetchQuests, fetchHabits, userQueryKey, questsQueryKey, habitsQueryKey } from "@/lib/queries";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -19,6 +18,13 @@ export default function Navbar() {
   const notifRef = useRef<HTMLDivElement>(null);
 
   const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setUserId(data.user.id);
+    });
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -83,12 +89,20 @@ export default function Navbar() {
   };
 
   const { title, subtitle } = getPageInfo();
-  const { coins, level, xp, xpToNextLevel, username, avatar_url } = useUserStatsStore();
-  const { quests } = useQuestStore();
-  const { habits } = useHabitStore();
 
-  const totalCompletedQuests = useMemo(() => quests.filter(q => q.is_completed).length, [quests]);
-  const maxStreak = useMemo(() => habits.length > 0 ? Math.max(...habits.map(h => h.current_streak), 0) : 0, [habits]);
+  const { data: user } = useQuery({ queryKey: userQueryKey(userId!), queryFn: () => fetchUser(userId!), enabled: !!userId });
+  const { data: quests = [] } = useQuery({ queryKey: questsQueryKey(userId!), queryFn: () => fetchQuests(userId!), enabled: !!userId });
+  const { data: habits = [] } = useQuery({ queryKey: habitsQueryKey(userId!), queryFn: () => fetchHabits(userId!), enabled: !!userId });
+
+  const coins = user?.gold ?? 0;
+  const level = user?.level ?? 1;
+  const xp = user?.xp ?? 0;
+  const xpToNextLevel = user?.xp_to_next_level ?? 100;
+  const username = user?.username ?? "Petualang";
+  const avatar_url = user?.avatar_url ?? "/lifequest.png";
+
+  const totalCompletedQuests = useMemo(() => quests.filter((q: any) => q.is_completed).length, [quests]);
+  const maxStreak = useMemo(() => habits.length > 0 ? Math.max(...habits.map((h: any) => h.current_streak ?? 0), 0) : 0, [habits]);
 
   return (
     <header className="h-24 flex items-center justify-between px-10 bg-[var(--bg-main)] sticky top-0 z-30 w-full border-b border-white/[0.02]">

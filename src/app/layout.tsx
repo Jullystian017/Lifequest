@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/app/providers";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -12,14 +13,7 @@ export const metadata: Metadata = {
   title: "LifeQuest — Turn Your Life Into a Game",
   description:
     "Coding Your Life, Leveling Your Future. A gamified productivity app that turns your daily activities into RPG quests.",
-  keywords: [
-    "productivity",
-    "gamification",
-    "RPG",
-    "habit tracker",
-    "task manager",
-    "quest",
-  ],
+  keywords: ["productivity", "gamification", "RPG", "habit tracker", "task manager", "quest"],
 };
 
 export default function RootLayout({
@@ -30,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${plusJakartaSans.variable} antialiased`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

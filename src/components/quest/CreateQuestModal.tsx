@@ -2,11 +2,14 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, Zap, Coins, Sword, Target, Clock } from "lucide-react";
+import { X, Sparkles, Zap, Coins, Sword, Target, Clock, Loader2 } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { useQuestStore } from "@/store/questStore";
 import { QuestPriority, QuestType } from "@/types/quest";
 import { StatKey } from "@/types/user";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createQuest } from "@/lib/mutations";
+import { questsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 
 interface CreateQuestModalProps {
     isOpen: boolean;
@@ -14,36 +17,47 @@ interface CreateQuestModalProps {
 }
 
 export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalProps) {
-    const { addQuest } = useQuestStore();
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [priority, setPriority] = useState<QuestPriority>("medium");
     const [selectedStat, setSelectedStat] = useState<StatKey>("discipline");
+
+    const queryClient = useQueryClient();
+    const supabase = createClient();
+
+    const mutation = useMutation({
+        mutationFn: async (questData: any) => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Not logged in");
+            return createQuest(user.id, questData);
+        },
+        onSuccess: async () => {
+             const { data: { user } } = await supabase.auth.getUser();
+             if (user) {
+                 queryClient.invalidateQueries({ queryKey: questsQueryKey(user.id) });
+             }
+             setTitle("");
+             setDescription("");
+             onClose();
+        }
+    });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!title) return;
 
         const newQuest = {
-            id: Math.random().toString(36).substring(7),
             title,
             description,
             priority,
-            difficulty: "medium" as any,
+            difficulty: "medium",
             type: "daily" as QuestType,
             xp_reward: priority === "urgent" ? 500 : priority === "high" ? 300 : 150,
             coin_reward: priority === "urgent" ? 100 : priority === "high" ? 60 : 30,
-            stat_rewards: { [selectedStat]: 2 },
-            target_value: 1,
-            current_value: 0,
-            is_completed: false,
-            created_at: new Date().toISOString(),
+            stat_rewards: { [selectedStat]: 2 }
         };
 
-        addQuest(newQuest);
-        setTitle("");
-        setDescription("");
-        onClose();
+        mutation.mutate(newQuest);
     };
 
     return (
@@ -138,9 +152,10 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
                             <div className="pt-4">
                                 <Button
                                     type="submit"
-                                    className="w-full rounded-2xl py-4 font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(99,102,241,0.2)]"
+                                    disabled={mutation.isPending}
+                                    className="w-full rounded-2xl py-4 font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(99,102,241,0.2)] disabled:opacity-50"
                                 >
-                                    <Sparkles size={18} />
+                                    {mutation.isPending ? <Loader2 size={18} className="animate-spin" /> : <Sparkles size={18} />}
                                     Accept Quest
                                 </Button>
                             </div>

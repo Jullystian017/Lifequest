@@ -6,23 +6,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Zap, Coins, Scroll, Plus, X, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useQuestStore } from "@/store/questStore";
 import Link from "next/link";
 
 interface DailyQuestPanelProps {
   quests: Quest[];
   onCompleteQuest?: (questId: string) => void;
+  onQuestAdded?: () => void;  // callback to refetch quests after adding
+  userId?: string;
 }
 
 export default function DailyQuestPanel({
   quests,
   onCompleteQuest,
+  onQuestAdded,
+  userId,
 }: DailyQuestPanelProps) {
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { addQuest } = useQuestStore();
 
   const XP_MAP = { easy: 25, medium: 50, hard: 100 };
   const COIN_MAP = { easy: 10, medium: 25, hard: 50 };
@@ -32,11 +34,11 @@ export default function DailyQuestPanel({
     if (!title.trim()) return;
     setIsSubmitting(true);
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setIsSubmitting(false); return; }
+    const uid = userId || (await supabase.auth.getUser()).data.user?.id;
+    if (!uid) { setIsSubmitting(false); return; }
 
-    const newQuest: any = {
-      user_id: user.id,
+    await supabase.from("quests").insert({
+      user_id: uid,
       title: title.trim(),
       description: "",
       type: "daily",
@@ -48,15 +50,12 @@ export default function DailyQuestPanel({
       target_value: 1,
       current_value: 0,
       is_completed: false,
-    };
+    });
 
-    const { data, error } = await supabase.from("quests").insert(newQuest).select().single();
-    if (data && !error) {
-      addQuest(data);
-      setTitle("");
-      setShowForm(false);
-    }
+    setTitle("");
+    setShowForm(false);
     setIsSubmitting(false);
+    onQuestAdded?.();
   };
 
   const pendingQuests = quests.filter(q => !q.is_completed);
@@ -81,7 +80,7 @@ export default function DailyQuestPanel({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button 
+          <button
             onClick={() => setShowForm(!showForm)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-500/20 transition-all"
           >
@@ -179,7 +178,6 @@ export default function DailyQuestPanel({
                 <div className="w-14 h-14 rounded-2xl bg-[var(--bg-sidebar)] border border-[var(--border-light)] flex items-center justify-center font-semibold text-[var(--text-secondary)] shadow-inner">
                   {quest.title.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
                 </div>
-
                 <div className="flex flex-col gap-1">
                   <span className="text-lg font-semibold group-hover:text-white transition-colors">
                     {quest.title}

@@ -3,14 +3,33 @@
 import { useState, useEffect } from "react";
 import { Play, Pause, RotateCcw, Zap, Brain, Coffee } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStatsStore } from "@/store/userStatsStore";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addXpAndStat } from "@/lib/mutations";
+import { userQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 
 export default function FocusModeWidget() {
     const [minutes, setMinutes] = useState(25);
     const [seconds, setSeconds] = useState(0);
     const [isActive, setIsActive] = useState(false);
     const [mode, setMode] = useState<"focus" | "break">("focus");
-    const { updateStat, addXp } = useUserStatsStore();
+
+    const supabase = createClient();
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: async ({ xp, statKey, statAmt }: any) => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Not logged in");
+            return addXpAndStat(user.id, xp, statKey, statAmt);
+        },
+        onSuccess: async () => {
+             const { data: { user } } = await supabase.auth.getUser();
+             if (user) {
+                 queryClient.invalidateQueries({ queryKey: userQueryKey(user.id) });
+             }
+        }
+    });
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -35,8 +54,7 @@ export default function FocusModeWidget() {
     const handleTimerComplete = () => {
         setIsActive(false);
         if (mode === "focus") {
-            updateStat("discipline", 2);
-            addXp(100);
+            mutation.mutate({ xp: 100, statKey: "discipline", statAmt: 2 });
             setMode("break");
             setMinutes(5);
         } else {

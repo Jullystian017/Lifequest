@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useUserStatsStore } from "@/store/userStatsStore";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, userQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import {
     BrainCircuit,
     Swords,
@@ -55,7 +57,22 @@ const ONBOARDING_STEPS = [
 
 export default function OnboardingPage() {
     const router = useRouter();
-    const { username } = useUserStatsStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const username = user?.username || "";
     const [step, setStep] = useState(0);
     const [selections, setSelections] = useState<Record<string, string>>({});
 

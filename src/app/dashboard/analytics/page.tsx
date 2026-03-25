@@ -1,8 +1,9 @@
 "use client";
 
-import { useUserStatsStore } from "@/store/userStatsStore";
-import { useHabitStore } from "@/store/habitStore";
-import { useQuestStore } from "@/store/questStore";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, fetchHabits, fetchQuests, userQueryKey, habitsQueryKey, questsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import {
     TrendingUp,
     Zap,
@@ -18,22 +19,50 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function AnalyticsPage() {
-    const { level, xp, stats, coins } = useUserStatsStore();
-    const { habits } = useHabitStore();
-    const { quests } = useQuestStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const { data: habits = [] } = useQuery({
+        queryKey: habitsQueryKey(userId!),
+        queryFn: () => fetchHabits(userId!),
+        enabled: !!userId,
+    });
+
+    const { data: quests = [] } = useQuery({
+        queryKey: questsQueryKey(userId!),
+        queryFn: () => fetchQuests(userId!),
+        enabled: !!userId,
+    });
+
+    const level = user?.level || 1;
+    const xp = user?.total_xp || 0;
+    const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, finance: 0, creativity: 0 };
+    const coins = user?.coins || 0;
 
     // Real data calculations
-    const completedQuests = quests.filter(q => q.is_completed);
-    const activeQuests = quests.filter(q => !q.is_completed);
-    const totalXpEarned = completedQuests.reduce((sum, q) => sum + (q.xp_reward || 0), 0);
-    const totalGoldEarned = completedQuests.reduce((sum, q) => sum + (q.coin_reward || 0), 0);
+    const completedQuests = quests.filter((q: any) => q.is_completed);
+    const activeQuests = quests.filter((q: any) => !q.is_completed);
+    const totalXpEarned = completedQuests.reduce((sum: number, q: any) => sum + (q.xp_reward || 0), 0);
+    const totalGoldEarned = completedQuests.reduce((sum: number, q: any) => sum + (q.coin_reward || 0), 0);
 
-    const activeHabits = habits.filter(h => h.completed_today).length;
+    const activeHabits = habits.filter((h: any) => h.completed_today).length;
     const totalHabits = habits.length || 1;
     const completionRate = Math.round((activeHabits / totalHabits) * 100);
 
     // Best streak from habits
-    const bestStreak = habits.reduce((max, h) => Math.max(max, h.longest_streak || h.current_streak || 0), 0);
+    const bestStreak = habits.reduce((max: number, h: any) => Math.max(max, h.longest_streak || h.current_streak || 0), 0);
 
     // Build real 7-day chart data from completed quests
     const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -46,7 +75,7 @@ export default function AnalyticsPage() {
         const dayIdx = d.getDay();
         const dateStr = d.toISOString().split('T')[0];
 
-        const dayQuests = completedQuests.filter(q => {
+        const dayQuests = completedQuests.filter((q: any) => {
             if (!q.completed_at) return false;
             return q.completed_at.startsWith(dateStr);
         });
@@ -54,17 +83,17 @@ export default function AnalyticsPage() {
         last7Days.push({
             label: dayNames[dayIdx],
             quests: dayQuests.length,
-            xp: dayQuests.reduce((s, q) => s + (q.xp_reward || 0), 0),
+            xp: dayQuests.reduce((s: number, q: any) => s + (q.xp_reward || 0), 0),
         });
     }
 
     const maxXp = Math.max(...last7Days.map(d => d.xp), 1);
 
     // Quest type breakdown
-    const dailyCount = quests.filter(q => q.type === 'daily').length;
-    const weeklyCount = quests.filter(q => q.type === 'weekly').length;
-    const storyCount = quests.filter(q => q.type === 'story').length;
-    const aiCount = quests.filter(q => q.type === 'ai_generated').length;
+    const dailyCount = quests.filter((q: any) => q.type === 'daily').length;
+    const weeklyCount = quests.filter((q: any) => q.type === 'weekly').length;
+    const storyCount = quests.filter((q: any) => q.type === 'story').length;
+    const aiCount = quests.filter((q: any) => q.type === 'ai_generated').length;
 
     // Stat with highest value
     const statsEntries = Object.entries(stats);

@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { useQuestStore } from "@/store/questStore";
-import { useQuestMasterStore } from "@/store/questMasterStore";
+import { questsQueryKey } from "@/lib/queries";
 import {
   Wand2,
   Sparkles,
@@ -55,13 +55,27 @@ const SAMPLE_GOALS = [
 ];
 
 export default function QuestMasterPage() {
-  // Use Zustand store for persistent state
-  const { goal, setGoal, quests, setQuests, step, setStep, addedCount, setAddedCount, toggleQuest, resetAll } = useQuestMasterStore();
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [aiMessage, setAiMessage] = useState<string | null>(null);
+
+  const [goal, setGoal] = useState("");
+  const [quests, setQuests] = useState<any[]>([]);
+  const [step, setStep] = useState<"input" | "loading" | "result">("input");
+  const [addedCount, setAddedCount] = useState(0);
+
+  const toggleQuest = (index: number) => {
+    setQuests(prev => prev.map((q, i) => i === index ? { ...q, selected: !q.selected } : q));
+  };
+  
+  const resetAll = () => {
+    setGoal("");
+    setQuests([]);
+    setStep("input");
+    setAddedCount(0);
+  };
 
   useEffect(() => {
     if (action === "reschedule" || action === "fix") {
@@ -69,7 +83,7 @@ export default function QuestMasterPage() {
     }
   }, [action]);
   
-  const { addQuest } = useQuestStore();
+  const queryClient = useQueryClient();
   const supabase = createClient();
 
   const handleGenerate = async () => {
@@ -131,8 +145,8 @@ export default function QuestMasterPage() {
 
       const { data, error } = await supabase.from("quests").insert(newQuest).select().single();
       if (data && !error) {
-        addQuest(data);
         added++;
+        queryClient.invalidateQueries({ queryKey: questsQueryKey(user.id) });
       } else {
         console.error("Gagal insert quest:", error);
         lastError = error;

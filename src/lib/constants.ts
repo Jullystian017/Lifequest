@@ -1,6 +1,3 @@
-import { create } from 'zustand';
-import { useUserStatsStore } from './userStatsStore';
-
 export type ShopItemCategory = 'consumable' | 'cosmetic' | 'custom';
 export type EquipmentSlot = 'head' | 'body' | 'outerwear' | 'accessory' | 'none';
 
@@ -10,21 +7,14 @@ export interface ShopItem {
     description: string;
     price: number;
     category: ShopItemCategory;
-    icon: string; // Lucide icon name or emoji
+    icon: string;
     color: string;
-    isOwned?: boolean; // Mainly for cosmetics
+    isOwned?: boolean;
     slot?: EquipmentSlot;
-    svgPart?: string; // Name of the SVG part to render
+    svgPart?: string;
 }
 
-interface ShopState {
-    items: ShopItem[];
-    inventory: string[]; // Array of item IDs owned by user
-    buyItem: (itemId: string) => boolean; // Returns true if successful
-    addCustomReward: (reward: ShopItem) => void;
-}
-
-const INITIAL_ITEMS: ShopItem[] = [
+export const SHOP_ITEMS: ShopItem[] = [
     {
         id: 's1',
         name: 'Streak Freeze',
@@ -32,7 +22,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 200,
         category: 'consumable',
         icon: 'Snowflake',
-        color: '#3B82F6' // Blue
+        color: '#3B82F6'
     },
     {
         id: 's2',
@@ -41,7 +31,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 150,
         category: 'consumable',
         icon: 'FlaskConical',
-        color: '#EF4444' // Red
+        color: '#EF4444'
     },
     {
         id: 's3',
@@ -50,7 +40,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 300,
         category: 'consumable',
         icon: 'Zap',
-        color: '#EAB308' // Yellow
+        color: '#EAB308'
     },
     {
         id: 's4',
@@ -59,7 +49,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 1000,
         category: 'cosmetic',
         icon: 'Shield',
-        color: '#4B5563', // Gray
+        color: '#4B5563',
         slot: 'outerwear',
         svgPart: 'dark_knight'
     },
@@ -81,7 +71,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 800,
         category: 'cosmetic',
         icon: 'Shirt',
-        color: '#B91C1C', // Dark Red
+        color: '#B91C1C',
         slot: 'accessory',
         svgPart: 'royal_cape'
     },
@@ -92,7 +82,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 600,
         category: 'cosmetic',
         icon: 'Hat',
-        color: '#1D4ED8', // Dark Blue
+        color: '#1D4ED8',
         slot: 'head',
         svgPart: 'wizard_hat'
     },
@@ -103,7 +93,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 1200,
         category: 'cosmetic',
         icon: 'Eye',
-        color: '#06B6D4', // Cyan
+        color: '#06B6D4',
         slot: 'head',
         svgPart: 'visor'
     },
@@ -118,7 +108,6 @@ const INITIAL_ITEMS: ShopItem[] = [
         slot: 'outerwear',
         svgPart: 'leather_jacket'
     },
-    // Custom rewards
     {
         id: 'c1',
         name: 'Watch 1 Episode of Anime',
@@ -126,7 +115,7 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 100,
         category: 'custom',
         icon: 'Tv',
-        color: '#EC4899' // Pink
+        color: '#EC4899'
     },
     {
         id: 'c2',
@@ -135,40 +124,6 @@ const INITIAL_ITEMS: ShopItem[] = [
         price: 500,
         category: 'custom',
         icon: 'Pizza',
-        color: '#F97316' // Orange
+        color: '#F97316'
     }
 ];
-
-export const useShopStore = create<ShopState>((set, get) => ({
-    items: INITIAL_ITEMS,
-    inventory: [],
-    
-    buyItem: (itemId) => {
-        const item = get().items.find(i => i.id === itemId);
-        if (!item) return false;
-
-        const statsStore = useUserStatsStore.getState();
-        if (statsStore.coins >= item.price) {
-            
-            // Check if cosmetic is already owned
-            if (item.category === 'cosmetic' && get().inventory.includes(itemId)) {
-                return false; // Cannot buy twice
-            }
-
-            // Deduct coins
-            statsStore.subtractCoins(item.price);
-            
-            // Add to inventory
-            set((state) => ({
-                inventory: [...state.inventory, itemId],
-                // If it's cosmetic, mark it as owned in the items list for easy UI rendering
-                items: state.items.map(i => i.id === itemId && i.category === 'cosmetic' ? { ...i, isOwned: true } : i)
-            }));
-            
-            return true;
-        }
-        return false;
-    },
-
-    addCustomReward: (reward) => set((state) => ({ items: [...state.items, reward] }))
-}));

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles, AlertTriangle, Lightbulb, CrystalBall, ArrowRight, Loader2, BrainCircuit } from "lucide-react";
-import { useUserStatsStore } from "@/store/userStatsStore";
-import { useQuestStore } from "@/store/questStore";
-import { useHabitStore } from "@/store/habitStore";
+import { Sparkles, AlertTriangle, Lightbulb, ArrowRight, Loader2, BrainCircuit } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUser, fetchQuests, fetchHabits, userQueryKey, questsQueryKey, habitsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -17,14 +17,29 @@ interface InsightData {
 }
 
 export default function AIInsightWidget() {
-    const { level, username, stats } = useUserStatsStore();
-    const { quests } = useQuestStore();
-    const { habits } = useHabitStore();
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: user, isLoading: loadingUser } = useQuery({ queryKey: userQueryKey(userId!), queryFn: () => fetchUser(userId!), enabled: !!userId });
+    const { data: quests = [], isLoading: loadingQuests } = useQuery({ queryKey: questsQueryKey(userId!), queryFn: () => fetchQuests(userId!), enabled: !!userId });
+    const { data: habits = [], isLoading: loadingHabits } = useQuery({ queryKey: habitsQueryKey(userId!), queryFn: () => fetchHabits(userId!), enabled: !!userId });
+
+    const level = user?.level || 1;
+    const username = user?.username || "Pemain";
+    const stats = user?.stats || {};
     
     const [insight, setInsight] = useState<InsightData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        if (loadingUser || loadingQuests || loadingHabits) return;
+
         async function fetchInsight() {
             try {
                 const res = await fetch("/api/ai/life-engine", {
@@ -46,7 +61,7 @@ export default function AIInsightWidget() {
         } else {
             setIsLoading(false);
         }
-    }, []);
+    }, [quests.length, habits.length, loadingUser, loadingQuests, loadingHabits]);
 
     if (isLoading) {
         return (

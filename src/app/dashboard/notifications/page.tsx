@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUserStatsStore } from "@/store/userStatsStore";
 import {
     Bell,
     Gift,
@@ -73,7 +72,6 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
 ];
 
 export default function NotificationsPage() {
-    const { username } = useUserStatsStore();
     const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
 
     const unreadCount = notifications.filter(n => !n.read).length;

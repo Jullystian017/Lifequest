@@ -1,10 +1,12 @@
 "use client";
 
-import { useUserStatsStore } from "@/store/userStatsStore";
-import { useShopStore, ShopItem } from "@/store/shopStore";
-import { Coins, Snowflake, FlaskConical, Zap, Shield, Sparkles, Tv, Pizza, Plus, Check, ShoppingBag, AlertCircle } from "lucide-react";
+import { Coins, Snowflake, FlaskConical, Zap, Shield, Sparkles, Tv, Pizza, Plus, Check, ShoppingBag, AlertCircle, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchUser, userQueryKey } from "@/lib/queries";
+import { purchaseShopItem } from "@/lib/mutations";
+import { createClient } from "@/lib/supabase/client";
 
 const iconMap: Record<string, React.ReactNode> = {
     Snowflake: <Snowflake size={24} />,
@@ -17,27 +19,69 @@ const iconMap: Record<string, React.ReactNode> = {
 };
 
 export default function ShopPage() {
-    const { coins, addCoins } = useUserStatsStore();
-    const { items, buyItem } = useShopStore();
+    const supabase = createClient();
+    const queryClient = useQueryClient();
+    const [userId, setUserId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [items, setItems] = useState<any[]>([]); // We'll keep static items for now or fetch them if they are in DB. Wait, shopStore items were static.
+
     const [buyNotif, setBuyNotif] = useState<string | null>(null);
+
+    // Initial auth
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) {
+                setUserId(data.user.id);
+            }
+            // Temporarily define static items here if we haven't migrated them to DB
+            const INITIAL_ITEMS = [
+                { id: "potion_hp", name: "Health Potion", description: "Restore 50 HP", price: 20, category: "consumable", icon: "FlaskConical", color: "#ef4444" },
+                { id: "potion_mana", name: "Mana Potion", description: "Restore 50 MP", price: 20, category: "consumable", icon: "FlaskConical", color: "#3b82f6" },
+                { id: "avatar_frame_gold", name: "Golden Frame", description: "Exclusive golden avatar frame", price: 500, category: "cosmetic", icon: "Sparkles", color: "#eab308" },
+                { id: "netflix_1h", name: "Netflix 1 Jam", description: "Nonton netflix santai", price: 100, category: "custom", icon: "Tv", color: "#ef4444" },
+                { id: "snack_time", name: "Snack Time", description: "Makan snack bebas", price: 50, category: "custom", icon: "Pizza", color: "#f97316" }
+            ];
+            setItems(INITIAL_ITEMS);
+            setLoading(false);
+        });
+    }, []);
+
+    const { data: currentUser, refetch: refetchUser } = useQuery({
+        queryKey: userQueryKey(userId!),
+        queryFn: () => fetchUser(userId!),
+        enabled: !!userId,
+    });
+
+    const coins = currentUser?.coins || 0;
 
     const consumables = items.filter(i => i.category === 'consumable');
     const cosmetics = items.filter(i => i.category === 'cosmetic');
     const customRewards = items.filter(i => i.category === 'custom');
 
-    const handleBuy = (id: string, name: string, price: number) => {
-        if (coins < price) return;
-        const success = buyItem(id);
-        if (success) {
-            addCoins(-price);
-            setBuyNotif(name);
-            setTimeout(() => setBuyNotif(null), 2000);
-        }
+    const handleBuy = async (id: string, name: string, price: number) => {
+        if (!userId || !currentUser || coins < price) return;
+        
+        await purchaseShopItem(userId, currentUser, price, id);
+        queryClient.invalidateQueries({ queryKey: userQueryKey(userId) });
+
+        setBuyNotif(name);
+        setTimeout(() => setBuyNotif(null), 2000);
     };
 
-    const renderItemCard = (item: ShopItem) => {
+    if (loading || !currentUser) {
+        return (
+          <div className="w-full h-[60vh] flex flex-col items-center justify-center text-slate-500 gap-4">
+            <Loader2 className="animate-spin text-[var(--primary)]" size={40} />
+            <p className="text-sm font-semibold uppercase tracking-widest">Memuat Toko...</p>
+          </div>
+        );
+    }
+
+    const renderItemCard = (item: any) => {
         const affordable = coins >= item.price;
-        const owned = item.isOwned;
+        // In this temp version, we check if the user has bought it by looking inside currentUser.inventory (if we stored it) or just let them buy infinitely.
+        // If we want to check limits, we'll check it here. For now we assume infinite purchases since we dropped the shopStore
+        const owned = false; 
 
         return (
             <motion.div
