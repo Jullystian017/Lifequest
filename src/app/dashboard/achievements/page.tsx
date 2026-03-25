@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AchievementCategory, DEFAULT_ACHIEVEMENTS, Achievement } from "@/store/achievementStore"; // We keep the static constants
+import { AchievementCategory, DEFAULT_ACHIEVEMENTS, Achievement } from "@/lib/achievements"; // From library constants
 import { useQuery } from "@tanstack/react-query";
 import { fetchUser, fetchQuests, fetchHabits, userQueryKey, questsQueryKey, habitsQueryKey } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/client";

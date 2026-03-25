@@ -1,11 +1,15 @@
 "use client";
 
-import { useSocialStore } from "@/store/socialStore";
 import { Trophy, Medal, Crown } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function LeaderboardWidget() {
-    const { leaderboard } = useSocialStore();
+    const leaderboard = [
+        { userId: "1", userName: "Ahmad", xp: 12500, rank: 1, isUser: false },
+        { userId: "2", userName: "Siti", xp: 11200, rank: 2, isUser: false },
+        { userId: "3", userName: "Budi", xp: 9800, rank: 3, isUser: false },
+        { userId: "user_123", userName: "Anda", xp: 8500, rank: 5, isUser: true, userClass: "Knight" },
+    ];
 
     // Separate top 3 and others
     const topThree = leaderboard.filter(e => e.rank <= 3).sort((a, b) => a.rank - b.rank);

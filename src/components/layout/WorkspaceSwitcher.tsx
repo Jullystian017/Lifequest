@@ -1,12 +1,28 @@
 "use client";
 
-import { useWorkspaceStore, Workspace } from "@/store/workspaceStore";
 import { Check, ChevronDown, Plus, Users, User } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+export interface Workspace {
+    id: string;
+    name: string;
+    type: 'personal' | 'team';
+    icon: string;
+    memberCount?: number;
+}
+
+const MOCK_WORKSPACES: Workspace[] = [
+    { id: "w1", name: "LifeQuest Main", type: "personal", icon: "🚀" },
+    { id: "w2", name: "Product Design", type: "team", icon: "🎨", memberCount: 5 },
+    { id: "w3", name: "Development", type: "team", icon: "💻", memberCount: 3 },
+];
+
 export default function WorkspaceSwitcher() {
-    const { activeWorkspaceId, workspaces, setActiveWorkspace } = useWorkspaceStore();
+    const [activeWorkspaceId, setActiveWorkspaceId] = useState("w1");
+    const workspaces = MOCK_WORKSPACES;
+    const setActiveWorkspace = (id: string) => setActiveWorkspaceId(id);
+
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 

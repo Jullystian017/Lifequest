@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser, userQueryKey } from "@/lib/queries";
-import { purchaseShopItem } from "@/lib/mutations";
+import { buyItem } from "@/lib/mutations";
 import { createClient } from "@/lib/supabase/client";
+import { SHOP_ITEMS } from "@/lib/constants";
 
 const iconMap: Record<string, React.ReactNode> = {
     Snowflake: <Snowflake size={24} />,
@@ -15,7 +16,11 @@ const iconMap: Record<string, React.ReactNode> = {
     Shield: <Shield size={24} />,
     Sparkles: <Sparkles size={24} />,
     Tv: <Tv size={24} />,
-    Pizza: <Pizza size={24} />
+    Pizza: <Pizza size={24} />,
+    Hat: <ShoppingBag size={24} />, // Approximation
+    Eye: <ShoppingBag size={24} />,
+    Wind: <ShoppingBag size={24} />,
+    Shirt: <ShoppingBag size={24} />
 };
 
 export default function ShopPage() {
@@ -23,7 +28,6 @@ export default function ShopPage() {
     const queryClient = useQueryClient();
     const [userId, setUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [items, setItems] = useState<any[]>([]); // We'll keep static items for now or fetch them if they are in DB. Wait, shopStore items were static.
 
     const [buyNotif, setBuyNotif] = useState<string | null>(null);
 
@@ -33,39 +37,34 @@ export default function ShopPage() {
             if (data.user) {
                 setUserId(data.user.id);
             }
-            // Temporarily define static items here if we haven't migrated them to DB
-            const INITIAL_ITEMS = [
-                { id: "potion_hp", name: "Health Potion", description: "Restore 50 HP", price: 20, category: "consumable", icon: "FlaskConical", color: "#ef4444" },
-                { id: "potion_mana", name: "Mana Potion", description: "Restore 50 MP", price: 20, category: "consumable", icon: "FlaskConical", color: "#3b82f6" },
-                { id: "avatar_frame_gold", name: "Golden Frame", description: "Exclusive golden avatar frame", price: 500, category: "cosmetic", icon: "Sparkles", color: "#eab308" },
-                { id: "netflix_1h", name: "Netflix 1 Jam", description: "Nonton netflix santai", price: 100, category: "custom", icon: "Tv", color: "#ef4444" },
-                { id: "snack_time", name: "Snack Time", description: "Makan snack bebas", price: 50, category: "custom", icon: "Pizza", color: "#f97316" }
-            ];
-            setItems(INITIAL_ITEMS);
             setLoading(false);
         });
     }, []);
 
-    const { data: currentUser, refetch: refetchUser } = useQuery({
+    const { data: currentUser } = useQuery({
         queryKey: userQueryKey(userId!),
         queryFn: () => fetchUser(userId!),
         enabled: !!userId,
     });
 
-    const coins = currentUser?.coins || 0;
+    const coins = currentUser?.gold || 0; // The column is 'gold' in DB
 
-    const consumables = items.filter(i => i.category === 'consumable');
-    const cosmetics = items.filter(i => i.category === 'cosmetic');
-    const customRewards = items.filter(i => i.category === 'custom');
+    const consumables = SHOP_ITEMS.filter(i => i.category === 'consumable');
+    const cosmetics = SHOP_ITEMS.filter(i => i.category === 'cosmetic');
+    const customRewards = SHOP_ITEMS.filter(i => i.category === 'custom');
 
-    const handleBuy = async (id: string, name: string, price: number) => {
+    const handleBuy = async (id: string, name: string, price: number, category: string) => {
         if (!userId || !currentUser || coins < price) return;
         
-        await purchaseShopItem(userId, currentUser, price, id);
-        queryClient.invalidateQueries({ queryKey: userQueryKey(userId) });
+        try {
+            await buyItem(userId, id, category, price, currentUser.gold);
+            queryClient.invalidateQueries({ queryKey: userQueryKey(userId) });
 
-        setBuyNotif(name);
-        setTimeout(() => setBuyNotif(null), 2000);
+            setBuyNotif(name);
+            setTimeout(() => setBuyNotif(null), 2000);
+        } catch (error: any) {
+            alert(error.message || "Gagal membeli item");
+        }
     };
 
     if (loading || !currentUser) {
@@ -112,7 +111,7 @@ export default function ShopPage() {
                     <p className="text-sm text-[var(--text-muted)] mb-6 flex-grow">{item.description}</p>
 
                     <button
-                        onClick={() => handleBuy(item.id, item.name, item.price)}
+                        onClick={() => handleBuy(item.id, item.name, item.price, item.category)}
                         disabled={!affordable || owned}
                         className={`w-full py-3 rounded-xl font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
                             owned 

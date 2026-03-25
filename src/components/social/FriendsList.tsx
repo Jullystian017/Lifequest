@@ -1,10 +1,14 @@
 "use client";
 
-import { useSocialStore } from "@/store/socialStore";
 import { MessageSquare } from "lucide-react";
 
 export default function FriendsList() {
-    const { friendStreaks } = useSocialStore();
+    const friendStreaks = [
+        { userId: "1", userName: "Ahmad", lastActivity: "Baru saja menyelesaikan quest", isOnline: true },
+        { userId: "2", userName: "Siti", lastActivity: "Aktif 5 menit yang lalu", isOnline: true },
+        { userId: "3", userName: "Budi", lastActivity: "Aktif 2 jam yang lalu", isOnline: false },
+        { userId: "4", userName: "Dewi", lastActivity: "Aktif kemarin", isOnline: false },
+    ];
 
     return (
         <div className="bg-[#151921]/10 rounded-3xl p-6 border border-white/5 space-y-6">

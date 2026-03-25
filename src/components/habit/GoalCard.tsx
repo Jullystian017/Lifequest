@@ -1,7 +1,6 @@
 "use client";
 
 import { Goal } from "@/types/goal";
-import { useGoalStore } from "@/store/goalStore";
 import { CheckCircle2, Circle, Target, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,7 +10,7 @@ interface GoalCardProps {
 }
 
 export default function GoalCard({ goal }: GoalCardProps) {
-    const { toggleMilestone } = useGoalStore();
+    const toggleMilestone = (goalId: string, milestoneId: string) => console.log("Toggle milestone", goalId, milestoneId);
     const [isExpanded, setIsExpanded] = useState(false);
 
     const completedMilestones = goal.milestones.filter(m => m.is_completed).length;

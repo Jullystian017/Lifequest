@@ -1,11 +1,15 @@
 "use client";
 
-import { useSocialStore } from "@/store/socialStore";
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ActivityFeed() {
-    const { activities, likeActivity } = useSocialStore();
+    const activities = [
+        { id: "1", userName: "Ahmad", content: "menyelesaikan 7 hari streak quest", timestamp: "2 JAM YANG LALU", hasLiked: false },
+        { id: "2", userName: "Siti", content: "mendapatkan badge Pejuang Gigih", timestamp: "5 JAM YANG LALU", hasLiked: true },
+        { id: "3", userName: "Budi", content: "menyelesaikan quest Harian", timestamp: "1 HARI YANG LALU", hasLiked: false },
+    ];
+    const likeActivity = (id: string) => console.log("Like activity", id);
 
     return (
         <div className="space-y-4">

@@ -167,3 +167,26 @@ export async function deleteNote(noteId: string) {
     const { error } = await supabase.from("notes").delete().eq("id", noteId);
     if (error) throw error;
 }
+
+// ─── Add XP and Individual Stat ──────────────────────────────────────────
+export async function addXpAndStat(userId: string, xpGained: number, statName: string, statValue: number, currentUser: UserRow) {
+    const newTotalXp = (currentUser.total_xp || 0) + xpGained;
+    const { level, xp, xpToNextLevel } = calcLevelFromTotalXp(newTotalXp);
+    
+    const newStats = { ...currentUser.stats };
+    newStats[statName] = Math.min(100, (newStats[statName] || 0) + statValue);
+
+    const { error } = await supabase
+        .from("users")
+        .update({
+            total_xp: newTotalXp,
+            xp: xp,
+            level,
+            xp_to_next_level: xpToNextLevel,
+            stats: newStats
+        })
+        .eq("id", userId);
+    
+    if (error) throw error;
+    return { level, xp, xpToNextLevel, total_xp: newTotalXp };
+}

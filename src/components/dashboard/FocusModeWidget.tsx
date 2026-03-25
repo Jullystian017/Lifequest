@@ -19,9 +19,19 @@ export default function FocusModeWidget() {
 
     const mutation = useMutation({
         mutationFn: async ({ xp, statKey, statAmt }: any) => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("Not logged in");
-            return addXpAndStat(user.id, xp, statKey, statAmt);
+            const { data: { user: authUser } } = await supabase.auth.getUser();
+            if (!authUser) throw new Error("Not logged in");
+            
+            // Fetch current user data for stats calculation
+            const { data: userData, error: fetchError } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", authUser.id)
+                .single();
+                
+            if (fetchError || !userData) throw new Error("Gagal mengambil data user");
+
+            return addXpAndStat(authUser.id, xp, statKey, statAmt, userData);
         },
         onSuccess: async () => {
              const { data: { user } } = await supabase.auth.getUser();

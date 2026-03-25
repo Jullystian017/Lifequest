@@ -2,11 +2,12 @@
 
 import { Target, ChevronRight, Compass } from "lucide-react";
 import { motion } from "framer-motion";
-import { useGoalStore } from "@/store/goalStore";
 import Link from "next/link";
-
 export default function GoalPlannerWidget() {
-    const { goals } = useGoalStore();
+    const goals = [
+        { id: "g1", title: "Selesaikan Project LifeQuest", category: "Karier", progress: 75 },
+        { id: "g2", title: "Lari 5km Tanpa Berhenti", category: "Kesehatan", progress: 40 },
+    ];
 
     return (
         <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">

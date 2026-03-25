@@ -10,11 +10,11 @@ interface QuestCardProps {
     onComplete?: (id: string) => void;
 }
 
-const difficultyColors = {
+const difficultyColors: Record<string, string> = {
     easy: "#22C55E",
     medium: "#F59E0B",
     hard: "#EF4444",
-    epic: "#8B5CF6",
+    extreme: "#8B5CF6",
 };
 
 export default function QuestCard({ quest, onComplete }: QuestCardProps) {
