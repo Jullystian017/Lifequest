@@ -37,6 +37,8 @@ export default function DailyQuestPanel({
     const uid = userId || (await supabase.auth.getUser()).data.user?.id;
     if (!uid) { setIsSubmitting(false); return; }
 
+    const statReward = difficulty === "easy" ? 1 : difficulty === "medium" ? 2 : 5;
+
     await supabase.from("quests").insert({
       user_id: uid,
       title: title.trim(),
@@ -46,7 +48,7 @@ export default function DailyQuestPanel({
       priority: "medium",
       xp_reward: XP_MAP[difficulty],
       coin_reward: COIN_MAP[difficulty],
-      stat_rewards: {},
+      stat_rewards: { discipline: statReward },
       target_value: 1,
       current_value: 0,
       is_completed: false,

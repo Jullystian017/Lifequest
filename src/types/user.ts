@@ -16,7 +16,6 @@ export interface CharacterStats {
     health: number;
     knowledge: number;
     discipline: number;
-    finance: number;
     creativity: number;
 }
 

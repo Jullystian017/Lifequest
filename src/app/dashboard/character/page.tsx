@@ -66,7 +66,7 @@ export default function CharacterPage() {
     const xp = user?.total_xp || 0;
     const xpToNextLevel = user?.xp_to_next_level || 100;
     const statPoints = user?.stat_points || 0;
-    const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, finance: 0, creativity: 0 };
+    const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, creativity: 0 };
     const coins = user?.coins || 0;
     const username = user?.username || "Petualang";
     const inventory = user?.inventory || [];
@@ -98,7 +98,6 @@ export default function CharacterPage() {
         health: "Vitalitas",
         knowledge: "Kecerdasan",
         discipline: "Disiplin",
-        finance: "Keuangan",
         creativity: "Kreativitas",
     };
 
@@ -106,7 +105,6 @@ export default function CharacterPage() {
         health: <Heart size={16} />,
         knowledge: <BookOpen size={16} />,
         discipline: <Dumbbell size={16} />,
-        finance: <PiggyBank size={16} />,
         creativity: <Palette size={16} />,
     };
 
@@ -114,7 +112,6 @@ export default function CharacterPage() {
         health: "var(--health)",
         knowledge: "var(--knowledge)",
         discipline: "var(--discipline)",
-        finance: "var(--finance)",
         creativity: "var(--creativity)",
     };
 

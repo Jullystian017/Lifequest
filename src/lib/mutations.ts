@@ -129,6 +129,7 @@ export async function createQuest(userId: string, quest: {
     xp_reward: number;
     coin_reward: number;
     priority?: string;
+    stat_rewards?: Record<string, number>;
 }) {
     const { data, error } = await supabase
         .from("quests")

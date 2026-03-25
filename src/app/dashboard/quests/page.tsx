@@ -121,13 +121,24 @@ export default function ProQuestBoard() {
 
   const handleCreateQuest = async () => {
     if (!newTitle.trim() || !userId) return;
+    
+    const baseRewards = {
+        easy: { xp: 100, coin: 20, stat: 2 },
+        medium: { xp: 250, coin: 50, stat: 5 },
+        hard: { xp: 500, coin: 100, stat: 10 },
+        extreme: { xp: 1000, coin: 250, stat: 25 },
+    };
+
+    const rewards = baseRewards[newDifficulty as keyof typeof baseRewards] || baseRewards.medium;
+
     await createQuest(userId, {
       title: newTitle,
       description: newDesc,
       type: newType,
       difficulty: newDifficulty,
-      xp_reward: newDifficulty === "easy" ? 50 : newDifficulty === "medium" ? 100 : 250,
-      coin_reward: newDifficulty === "easy" ? 25 : newDifficulty === "medium" ? 50 : 100,
+      xp_reward: rewards.xp,
+      coin_reward: rewards.coin,
+      stat_rewards: { [newType === "fitness" ? "health" : newType === "study" ? "knowledge" : "discipline"]: rewards.stat }
     });
     refetchQuests();
     setShowCreateModal(false);
@@ -333,6 +344,12 @@ export default function ProQuestBoard() {
                                       <Coins size={14} className="opacity-80 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
                                       <span className="text-xs font-bold leading-none">{quest.coin_reward}</span>
                                     </div>
+                                    {quest.stat_rewards && Object.entries(quest.stat_rewards).length > 0 && (
+                                      <div className="flex items-center gap-1.5 text-emerald-400">
+                                        <Plus size={10} className="opacity-80" />
+                                        <span className="text-xs font-bold leading-none">{Object.values(quest.stat_rewards)[0]}</span>
+                                      </div>
+                                    )}
                                   </div>
                                   
                                   {/* Status indicator on card */}
@@ -420,6 +437,10 @@ export default function ProQuestBoard() {
                   <div className="p-4 rounded-2xl bg-black/20 border border-white/5 flex flex-col gap-1 items-center justify-center text-center">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gold</span>
                     <span className="text-xl font-black text-yellow-500">+{selectedQuest.coin_reward}</span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-black/20 border border-white/5 flex flex-col gap-1 items-center justify-center text-center">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Stat Reward</span>
+                    <span className="text-xl font-black text-emerald-400">+{selectedQuest.stat_rewards ? Object.values(selectedQuest.stat_rewards)[0] : 0}</span>
                   </div>
                    <div className="p-4 rounded-2xl bg-black/20 border border-white/5 flex flex-col gap-1 items-center justify-center text-center">
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</span>
@@ -624,9 +645,10 @@ export default function ProQuestBoard() {
                      <div>
                         <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Tingkat Kesulitan</label>
                         <select value={newDifficulty} onChange={(e) => setNewDifficulty(e.target.value as any)} className="w-full bg-[#0D1017] border border-white/10 text-white rounded-xl px-4 py-3.5 outline-none focus:border-emerald-500 font-medium text-sm appearance-none cursor-pointer capitalize">
-                            <option value="easy">Easy (50 XP)</option>
-                            <option value="medium">Medium (100 XP)</option>
-                            <option value="hard">Hard (250 XP)</option>
+                             <option value="easy">Easy (100 XP)</option>
+                            <option value="medium">Medium (250 XP)</option>
+                            <option value="hard">Hard (500 XP)</option>
+                            <option value="extreme">Extreme (1000 XP)</option>
                         </select>
                     </div>
                 </div>

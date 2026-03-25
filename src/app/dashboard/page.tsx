@@ -10,12 +10,12 @@ import {
 } from "@/lib/queries";
 import { completeQuest } from "@/lib/mutations";
 
-import GoalPlannerWidget from "@/components/dashboard/GoalPlannerWidget";
 import ProductivityTrendsWidget from "@/components/dashboard/ProductivityTrendsWidget";
 import DailyQuestPanel from "@/components/dashboard/DailyQuestPanel";
 import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
 import RecentActivityWidget from "@/components/dashboard/RecentActivityWidget";
 import AIInsightWidget from "@/components/dashboard/AIInsightWidget";
+import SummaryStatCards from "@/components/dashboard/SummaryStatCards";
 
 import {
     Heart, BookOpen, Dumbbell, PiggyBank, Palette,
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         );
     }
 
-    const stats = user?.stats ?? { health: 0, knowledge: 0, discipline: 0, finance: 0, creativity: 0 };
+    const stats = user?.stats ?? { health: 0, knowledge: 0, discipline: 0, creativity: 0 };
     const xp = user?.xp ?? 0;
     const xpToNextLevel = user?.xp_to_next_level ?? 100;
     const level = user?.level ?? 1;
@@ -97,119 +97,72 @@ export default function DashboardPage() {
         .reduce((sum, q) => sum + (q.xp_reward || 0), 0);
 
     return (
-        <div className="space-y-8 pb-20 animate-fade-in w-full">
+        <div className="space-y-10 pb-20 animate-fade-in w-full">
 
-            {/* Hero Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-                {/* User Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    className="lg:col-span-5 p-6 rounded-3xl bg-gradient-to-br from-[var(--bg-card)] to-[#1a1b2e] border border-[var(--border-light)] relative overflow-hidden group"
-                >
-                    <div className="absolute top-[-40px] right-[-40px] w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
-
-                    <div className="flex items-center gap-5 relative z-10 mb-6">
-                        <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.3)] shrink-0">
-                            <img src={avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h2 className="text-2xl font-semibold text-white truncate">{username}</h2>
-                            <p className="text-xs font-semibold text-indigo-400">Level {level} Petualang</p>
-
-                            <div className="mt-3">
-                                <div className="flex justify-between items-center mb-1.5">
-                                    <span className="text-[10px] font-semibold text-slate-500">Pengalaman</span>
-                                    <span className="text-[10px] font-semibold text-white">{xp} / {xpToNextLevel} XP</span>
-                                </div>
-                                <div className="h-2.5 w-full bg-[#2a2b3d] rounded-full overflow-hidden border border-white/5">
-                                    <motion.div
-                                        className="h-full bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]"
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${xpPercent}%` }}
-                                        transition={{ duration: 1, ease: "easeOut" }}
-                                    />
-                                </div>
-                                <p className="text-[10px] text-slate-500 mt-1">{xpToNextLevel - xp} XP lagi menuju Level {level + 1}</p>
-                            </div>
-                        </div>
+            {/* Compact Header Section */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-indigo-500/30 shadow-lg shrink-0">
+                  <img src={avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-white tracking-tight">Halo, {username}!</h1>
+                  <p className="text-sm text-slate-500 font-medium">Selamat datang kembali di petualanganmu hari ini.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="px-4 py-2 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-3 shadow-sm">
+                  <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
+                    <Zap size={16} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-slate-500 leading-none mb-1">LEVEL {level}</span>
+                    <div className="w-24 h-1.5 bg-[#1a1b2e] rounded-full overflow-hidden">
+                      <motion.div 
+                        initial={{ width: 0 }} 
+                        animate={{ width: `${xpPercent}%` }} 
+                        className="h-full bg-indigo-500" 
+                      />
                     </div>
-
-                    <div className="grid grid-cols-3 gap-3 relative z-10">
-                        <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
-                            <Flame size={16} className="text-orange-500 mx-auto mb-1" />
-                            <p className="text-lg font-semibold text-white leading-none">{habits.filter(h => h.completed_today).length}</p>
-                            <p className="text-[9px] font-semibold text-slate-500 mt-0.5">Streak Hari Ini</p>
-                        </div>
-                        <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
-                            <Zap size={16} className="text-indigo-400 mx-auto mb-1" />
-                            <p className="text-lg font-semibold text-white leading-none">{todayXp}</p>
-                            <p className="text-[9px] font-semibold text-slate-500 mt-0.5">XP Hari Ini</p>
-                        </div>
-                        <div className="p-3 rounded-xl bg-black/20 border border-white/5 text-center">
-                            <Star size={16} className="text-yellow-500 mx-auto mb-1" />
-                            <p className="text-lg font-semibold text-white leading-none">{gold.toLocaleString()}</p>
-                            <p className="text-[9px] font-semibold text-slate-500 mt-0.5">Gold</p>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Stat Cards + Continue */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4"
-                >
-                    {[
-                        { label: "Vitalitas", short: "HP", value: stats.health, icon: Heart, color: "var(--health)", desc: "Kesehatan fisikmu" },
-                        { label: "Kecerdasan", short: "INT", value: stats.knowledge, icon: BookOpen, color: "var(--knowledge)", desc: "Pengetahuan & belajar" },
-                        { label: "Disiplin", short: "DIS", value: stats.discipline, icon: Dumbbell, color: "var(--discipline)", desc: "Fokus & konsistensi" },
-                        { label: "Kreativitas", short: "CRT", value: stats.creativity, icon: Palette, color: "var(--creativity)", desc: "Inspirasi & seni" },
-                    ].map((stat, idx) => (
-                        <div key={stat.short} className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-4 group hover:border-white/10 transition-all">
-                            <div className="p-2.5 rounded-xl border border-white/5" style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 15%, transparent)` }}>
-                                <stat.icon size={18} style={{ color: stat.color }} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-baseline mb-1">
-                                    <span className="text-xs font-semibold text-slate-400">{stat.label} ({stat.short})</span>
-                                    <span className="text-lg font-semibold text-white">{stat.value}</span>
-                                </div>
-                                <div className="h-1.5 w-full bg-[var(--bg-sidebar)] rounded-full overflow-hidden border border-white/5">
-                                    <motion.div
-                                        className="h-full rounded-full"
-                                        style={{ backgroundColor: stat.color }}
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${stat.value}%` }}
-                                        transition={{ duration: 1, delay: idx * 0.1 }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    {pendingQuests.length > 0 && (
-                        <Link href="/dashboard/quests" className="sm:col-span-2 p-4 rounded-2xl bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border border-indigo-500/20 flex items-center justify-between group hover:border-indigo-500/40 transition-all cursor-pointer">
-                            <div className="flex items-center gap-4">
-                                <div className="p-2.5 rounded-xl bg-indigo-500/20 border border-indigo-500/30">
-                                    <Swords size={18} className="text-indigo-400" />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-semibold text-indigo-400">Lanjutkan Quest</p>
-                                    <p className="text-sm font-semibold text-white truncate max-w-[300px]">{pendingQuests[0].title}</p>
-                                </div>
-                            </div>
-                            <ArrowRight size={18} className="text-indigo-400 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                    )}
-                </motion.div>
+                  </div>
+                </div>
+                
+                <div className="px-4 py-2 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-2 shadow-sm">
+                  <Star size={16} className="text-yellow-500 shrink-0" />
+                  <span className="text-sm font-bold text-white leading-none">{gold.toLocaleString()} Gold</span>
+                </div>
+              </div>
             </div>
 
-            {/* Main Content */}
+            {/* Summary Stat Cards */}
+            <SummaryStatCards stats={stats} />
+
+            {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                {/* Left Column (Wider) */}
                 <div className="lg:col-span-8 space-y-10">
-                    <GoalPlannerWidget />
+                    <AIInsightWidget />
+                    
+                    {pendingQuests.length > 0 && (
+                        <Link href="/dashboard/quests" className="p-6 rounded-3xl bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border border-indigo-500/20 flex items-center justify-between group hover:border-indigo-500/40 transition-all cursor-pointer shadow-xl">
+                            <div className="flex items-center gap-5">
+                                <div className="p-3.5 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 shadow-inner">
+                                    <Swords size={24} className="text-indigo-400" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-indigo-400 mb-1">LANJUTKAN QUEST</p>
+                                    <p className="text-xl font-bold text-white truncate max-w-[400px] leading-tight">{pendingQuests[0].title}</p>
+                                </div>
+                            </div>
+                            <div className="p-3 rounded-full bg-indigo-500/10 border border-indigo-500/20 group-hover:bg-indigo-500/20 group-hover:translate-x-1 transition-all">
+                              <ArrowRight size={20} className="text-indigo-400" />
+                            </div>
+                        </Link>
+                    )}
+
                     <ProductivityTrendsWidget />
+                    
                     <DailyQuestPanel
                         quests={quests}
                         userId={userId!}
@@ -217,8 +170,9 @@ export default function DashboardPage() {
                         onQuestAdded={() => refetchQuests()}
                     />
                 </div>
+
+                {/* Right Column (Narrower) */}
                 <div className="lg:col-span-4 space-y-10">
-                    <AIInsightWidget />
                     <ActiveStreaksWidget
                         habits={habits}
                         userId={userId!}

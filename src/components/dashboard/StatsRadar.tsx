@@ -13,17 +13,16 @@ export default function StatsRadar({ stats }: StatsRadarProps) {
         "health",
         "knowledge",
         "discipline",
-        "finance",
         "creativity",
     ];
 
-    const labels = ["Health", "Knowledge", "Discipline", "Finance", "Creativity"];
-    const colors = ["#EF4444", "#3B82F6", "#8B5CF6", "#22C55E", "#F59E0B"];
+    const labels = ["Health", "Knowledge", "Discipline", "Creativity"];
+    const colors = ["#EF4444", "#3B82F6", "#8B5CF6", "#F59E0B"];
 
     const cx = 150;
     const cy = 150;
     const maxR = 100;
-    const angleStep = (2 * Math.PI) / 5;
+    const angleStep = (2 * Math.PI) / 4;
     const startAngle = -Math.PI / 2;
 
     const getPoint = (index: number, value: number) => {

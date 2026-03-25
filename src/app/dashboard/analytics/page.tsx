@@ -49,7 +49,7 @@ export default function AnalyticsPage() {
     const level = user?.level || 1;
     const totalXp = user?.total_xp || 0;
     const currentXp = user?.xp || 0;
-    const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, finance: 0, creativity: 0 };
+    const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, creativity: 0 };
     const gold = user?.gold || 0;
 
     // Real data calculations
@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
 
     const statLabels: Record<string, string> = {
         health: "Vitalitas", knowledge: "Kecerdasan", discipline: "Disiplin",
-        finance: "Keuangan", creativity: "Kreativitas"
+        creativity: "Kreativitas"
     };
 
     return (
