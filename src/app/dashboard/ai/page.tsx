@@ -35,6 +35,8 @@ type ChatMessage = {
   content: string;
 };
 
+const EMPTY_ARRAY = [] as any[];
+
 const quickCommands = [
   { label: "Buat Quest Harian", icon: Swords, prompt: "Buatkan 3 quest harian yang bisa saya kerjakan hari ini" },
   { label: "Analisis Produktivitas", icon: BarChart3, prompt: "Analisis produktivitas saya berdasarkan quest yang sudah selesai dan berikan saran" },
@@ -59,25 +61,28 @@ export default function AIAssistantPage() {
       enabled: !!userId,
   });
 
-  const { data: quests = [] } = useQuery({
+  const { data: questsData } = useQuery({
       queryKey: questsQueryKey(userId!),
       queryFn: () => fetchQuests(userId!),
       enabled: !!userId,
   });
+  const quests = questsData ?? EMPTY_ARRAY;
 
-  const { data: chats = [] } = useQuery({
+  const { data: chatsData } = useQuery({
       queryKey: chatsQueryKey(userId!),
       queryFn: () => fetchChats(userId!),
       enabled: !!userId,
   });
+  const chats = chatsData ?? EMPTY_ARRAY;
 
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
 
-  const { data: chatMessages = [] } = useQuery({
+  const { data: chatMessagesData } = useQuery({
       queryKey: chatMessagesQueryKey(activeChatId!),
       queryFn: () => fetchChatMessages(activeChatId!),
       enabled: !!activeChatId,
   });
+  const chatMessages = chatMessagesData ?? EMPTY_ARRAY;
 
   const username = user?.username || "Pemain";
   const level = user?.level || 1;
@@ -88,12 +93,12 @@ export default function AIAssistantPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-      if (chatMessages && chatMessages.length > 0) {
-          setLocalMessages(chatMessages);
-      } else if (!activeChatId) {
-          setLocalMessages([]);
-      }
-  }, [chatMessages, activeChatId]);
+    if (chatMessages && chatMessages.length > 0) {
+        setLocalMessages(chatMessages);
+    } else if (!activeChatId && localMessages.length > 0) {
+        setLocalMessages(EMPTY_ARRAY);
+    }
+  }, [chatMessages, activeChatId, localMessages.length]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
