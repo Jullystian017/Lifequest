@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { workspacesQueryKey, workspaceActivityQueryKey, fetchUserWorkspaces, fetchWorkspaceActivity } from "@/lib/queries";
+import { workspacesQueryKey, fetchUserWorkspaces, fetchWorkspaceActivity, workspaceActivityQueryKey } from "@/lib/queries";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import { Zap, CheckCircle2, UserPlus, Skull, Trophy, BookOpen, Loader2, Activity } from "lucide-react";
 
 const EVENT_CONFIG: Record<string, { icon: any; color: string; label: string }> = {
@@ -36,13 +37,15 @@ export default function ActivityFeedPage() {
     supabase.auth.getUser().then(({ data }) => { if (data.user) setUserId(data.user.id); });
   }, []);
 
+  const { activeWorkspaceId } = useWorkspaceStore();
+  
   const { data: workspaces = [] } = useQuery({
     queryKey: workspacesQueryKey(userId!),
     queryFn: () => fetchUserWorkspaces(userId!),
     enabled: !!userId,
   });
 
-  const activeWorkspace = workspaces[0];
+  const activeWorkspace = activeWorkspaceId ? workspaces.find((w: any) => w.id === activeWorkspaceId) : null;
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: workspaceActivityQueryKey(activeWorkspace?.id),

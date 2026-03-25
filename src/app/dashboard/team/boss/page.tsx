@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { workspacesQueryKey, bossesQueryKey, fetchUserWorkspaces, fetchWorkspaceBosses } from "@/lib/queries";
+import { workspacesQueryKey, fetchUserWorkspaces, fetchWorkspaceBosses, bossesQueryKey } from "@/lib/queries";
 import { createBoss, damageBoss } from "@/lib/mutations";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import { Swords, Plus, Loader2, Skull, Trophy, Shield, Zap, ChevronDown, ChevronUp } from "lucide-react";
 
 function HPBar({ current, max, color = "from-red-500 to-orange-500" }: { current: number; max: number; color?: string }) {
@@ -37,13 +38,15 @@ export default function BossRaidsPage() {
     supabase.auth.getUser().then(({ data }) => { if (data.user) setUserId(data.user.id); });
   }, []);
 
+  const { activeWorkspaceId } = useWorkspaceStore();
+
   const { data: workspaces = [] } = useQuery({
     queryKey: workspacesQueryKey(userId!),
     queryFn: () => fetchUserWorkspaces(userId!),
     enabled: !!userId,
   });
 
-  const activeWorkspace = workspaces[0];
+  const activeWorkspace = activeWorkspaceId ? workspaces.find((w: any) => w.id === activeWorkspaceId) : null;
 
   const { data: bosses = [], isLoading } = useQuery({
     queryKey: bossesQueryKey(activeWorkspace?.id),

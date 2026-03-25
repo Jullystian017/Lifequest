@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { workspacesQueryKey, fetchUserWorkspaces } from "@/lib/queries";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import { Globe, Loader2, Users, CheckCircle2, Circle, Zap, Coins } from "lucide-react";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -30,13 +31,15 @@ export default function TeamBoardPage() {
     supabase.auth.getUser().then(({ data }) => { if (data.user) setUserId(data.user.id); });
   }, []);
 
+  const { activeWorkspaceId } = useWorkspaceStore();
+
   const { data: workspaces = [] } = useQuery({
     queryKey: workspacesQueryKey(userId!),
     queryFn: () => fetchUserWorkspaces(userId!),
     enabled: !!userId,
   });
 
-  const activeWorkspace = workspaces[0];
+  const activeWorkspace = activeWorkspaceId ? workspaces.find((w: any) => w.id === activeWorkspaceId) : null;
 
   useEffect(() => {
     if (!activeWorkspace?.id) return;

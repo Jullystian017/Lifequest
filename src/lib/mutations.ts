@@ -416,10 +416,11 @@ export async function createBoss(workspaceId: string, userId: string, data: {
             workspace_id: workspaceId,
             created_by: userId,
             name: data.name,
-            description: data.description,
+            description: data.description ?? "",
             max_hp: data.max_hp,
             current_hp: data.max_hp,
             is_defeated: false,
+            status: "active",
         })
         .select()
         .single();
@@ -434,7 +435,12 @@ export async function damageBoss(bossId: string, damage: number) {
     const defeated = newHp <= 0;
     const { error } = await supabase
         .from("bosses")
-        .update({ current_hp: newHp, is_defeated: defeated, defeated_at: defeated ? new Date().toISOString() : null })
+        .update({
+            current_hp: newHp,
+            is_defeated: defeated,
+            defeated_at: defeated ? new Date().toISOString() : null,
+            status: defeated ? "defeated" : "active",
+        })
         .eq("id", bossId);
     if (error) throw error;
     return { newHp, defeated };

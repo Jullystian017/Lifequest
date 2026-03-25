@@ -4,13 +4,9 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import {
-  workspacesQueryKey,
-  workspaceMembersQueryKey,
-  fetchUserWorkspaces,
-  fetchWorkspaceMembers,
-} from "@/lib/queries";
-import { createWorkspace, joinWorkspaceByCode } from "@/lib/mutations";
+import { workspacesQueryKey, fetchUserWorkspaces, workspaceMembersQueryKey, fetchWorkspaceMembers } from "@/lib/queries";
+import { joinWorkspace, createWorkspace } from "@/lib/mutations";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import {
   Users,
   Plus,
@@ -45,13 +41,13 @@ export default function TeamPage() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
-  const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [wsName, setWsName] = useState("");
   const [wsDesc, setWsDesc] = useState("");
   const [inviteInput, setInviteInput] = useState("");
   const [copiedCode, setCopiedCode] = useState(false);
+  const { activeWorkspaceId, setActiveWorkspaceId } = useWorkspaceStore();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -59,13 +55,20 @@ export default function TeamPage() {
     });
   }, []);
 
-  const { data: workspaces = [] } = useQuery({
+  const { data: workspaces = [], refetch: refetchWorkspaces } = useQuery({
     queryKey: workspacesQueryKey(userId!),
     queryFn: () => fetchUserWorkspaces(userId!),
     enabled: !!userId,
   });
 
-  const activeWorkspace = workspaces.find((w: any) => w.id === activeWorkspaceId) ?? workspaces[0];
+  const activeWorkspace = activeWorkspaceId ? workspaces.find((w: any) => w.id === activeWorkspaceId) : null;
+
+  // Auto-set workspace id if newly fetched and none selected
+  useEffect(() => {
+     if (!activeWorkspaceId && workspaces.length > 0) {
+         setActiveWorkspaceId(workspaces[0].id);
+     }
+  }, [workspaces, activeWorkspaceId, setActiveWorkspaceId]);
 
   const { data: members = [] } = useQuery({
     queryKey: workspaceMembersQueryKey(activeWorkspace?.id),

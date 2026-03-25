@@ -30,6 +30,7 @@ export const fetchQuests = async (userId: string) => {
         .from("quests")
         .select("*")
         .eq("user_id", userId)
+        .is("workspace_id", null)
         .order("created_at", { ascending: false });
     if (error) throw error;
     return data ?? [];
@@ -197,7 +198,7 @@ export const bossesQueryKey = (workspaceId: string) => ["bosses", workspaceId] a
 export const fetchWorkspaceBosses = async (workspaceId: string) => {
     const { data, error } = await supabase
         .from("bosses")
-        .select("*, boss_tasks(*)")
+        .select("*")
         .eq("workspace_id", workspaceId)
         .order("created_at", { ascending: false });
     if (error) throw error;

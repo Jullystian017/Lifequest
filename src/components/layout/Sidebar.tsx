@@ -26,10 +26,11 @@ import {
   Activity,
 } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import WorkspaceSwitcher from "./WorkspaceSwitcher";
 import { useState } from "react";
 
-const primaryNav = [
+const personalNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Quest Board", href: "/dashboard/quests", icon: Target },
   { label: "Quest Master", href: "/dashboard/quest-master", icon: Wand2 },
@@ -38,6 +39,13 @@ const primaryNav = [
   { label: "Catatan", href: "/dashboard/notes", icon: FileText },
   { label: "Pencapaian", href: "/dashboard/achievements", icon: Trophy },
   { label: "Papan Peringkat", href: "/dashboard/leaderboard", icon: Medal },
+];
+
+const teamNav = [
+  { label: "Dashboard Tim", href: "/dashboard/team", icon: Users },
+  { label: "Sprint Board", href: "/dashboard/team/board", icon: Globe },
+  { label: "Boss Raids", href: "/dashboard/team/boss", icon: Skull },
+  { label: "Activity Feed", href: "/dashboard/team/feed", icon: Activity },
 ];
 
 const secondaryNav = [
@@ -58,9 +66,13 @@ const tertiaryNav = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { isCollapsed, toggleSidebar } = useSidebarStore();
-  const [showSecondary, setShowSecondary] = useState(true);
+  const { activeWorkspaceId } = useWorkspaceStore();
+  
+  const [showSecondary, setShowSecondary] = useState(false);
 
-  const NavLink = ({ item }: { item: typeof primaryNav[0] }) => {
+  const activeNav = activeWorkspaceId ? teamNav : personalNav;
+
+  const NavLink = ({ item }: { item: typeof personalNav[0] }) => {
     const isActive = pathname === item.href;
     return (
       <Link
@@ -120,18 +132,7 @@ export default function Sidebar() {
         )}
 
         {/* Primary Navigation */}
-        {primaryNav.map((item) => (
-          <NavLink key={item.href} item={item} />
-        ))}
-
-        {/* Team Section */}
-        {!isCollapsed && (
-          <div className="pt-4 pb-2 px-1">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">Tim & Kolaborasi</span>
-          </div>
-        )}
-        {isCollapsed && <div className="h-px bg-[var(--border-light)] my-2 mx-2" />}
-        {secondaryNav.map((item) => (
+        {activeNav.map((item) => (
           <NavLink key={item.href} item={item} />
         ))}
 
