@@ -54,7 +54,9 @@ const SAMPLE_GOALS = [
   "Aku mau bisa main gitar dalam 3 bulan",
 ];
 
-export default function QuestMasterPage() {
+import { Suspense } from "react";
+
+function QuestMasterContent() {
   const searchParams = useSearchParams();
   const action = searchParams.get("action");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -175,15 +177,15 @@ export default function QuestMasterPage() {
           >
             {/* AI Action Message */}
             {aiMessage && (
-              <motion.div 
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-2xl p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium flex items-center gap-3"
-              >
-                <Sparkles size={18} />
-                {aiMessage}
-                <button onClick={() => setAiMessage(null)} className="ml-auto text-xs opacity-50 hover:opacity-100">Tutup</button>
-              </motion.div>
+               <motion.div 
+                 initial={{ opacity: 0, y: -10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 className="w-full max-w-2xl p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm font-medium flex items-center gap-3"
+               >
+                 <Sparkles size={18} />
+                 {aiMessage}
+                 <button onClick={() => setAiMessage(null)} className="ml-auto text-xs opacity-50 hover:opacity-100">Tutup</button>
+               </motion.div>
             )}
 
             {/* Hero */}
@@ -208,6 +210,7 @@ export default function QuestMasterPage() {
                   onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
                   placeholder='Contoh: "Aku mau jago React.js dalam 1 bulan"'
                   className="w-full bg-[var(--bg-card)] border border-[var(--border-light)] text-white rounded-2xl px-6 py-5 pr-14 outline-none focus:border-[var(--primary)] transition-all placeholder:text-slate-600 text-base font-medium shadow-xl"
+                  suppressHydrationWarning
                 />
                 <button
                   onClick={handleGenerate}
@@ -225,6 +228,7 @@ export default function QuestMasterPage() {
                     key={sample}
                     onClick={() => setGoal(sample)}
                     className="px-3 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-light)] text-xs font-medium text-slate-400 hover:text-white hover:border-[var(--primary)]/30 transition-all"
+                    suppressHydrationWarning
                   >
                     {sample}
                   </button>
@@ -385,3 +389,16 @@ export default function QuestMasterPage() {
     </div>
   );
 }
+
+export default function QuestMasterPage() {
+  return (
+    <Suspense fallback={
+       <div className="flex items-center justify-center min-h-[50vh]">
+         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+       </div>
+    }>
+      <QuestMasterContent />
+    </Suspense>
+  );
+}
+

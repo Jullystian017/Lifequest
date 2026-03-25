@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchQuests, fetchUser, questsQueryKey, userQueryKey } from "@/lib/queries";
-import { completeQuest as completeQuestMutFn, completeQuestPenalty, completeQuestBonus, createQuest, deleteQuest as deleteQuestFn, updateQuestStatus } from "@/lib/mutations";
+import { completeQuest as completeQuestMutFn, completeQuestPenalty, completeQuestBonus, createQuest, deleteQuest as deleteQuestFn, archiveQuest, updateQuestStatus } from "@/lib/mutations";
 import { Quest } from "@/types/quest";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import {
   Plus, Loader2, X, Zap, Coins, Clock, CheckCircle2, CircleDot, Circle,
-  Search, Filter, Target, CalendarDays, BrainCircuit, Play, Camera, ShieldCheck, Upload, Trash2
+  Search, Filter, Target, CalendarDays, BrainCircuit, Play, Camera, ShieldCheck, Upload, Trash2, Archive
 } from "lucide-react";
 
 type KanbanColumn = "todo" | "in_progress" | "done";
@@ -85,9 +85,10 @@ export default function ProQuestBoard() {
   const columnsMap = useMemo(() => {
     const map: Record<KanbanColumn, Quest[]> = { todo: [], in_progress: [], done: [] };
     const filtered = quests.filter((q: Quest) => {
+      const isVisible = !q.is_archived;
       const matchesSearch = q.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesFilter = activeFilter ? q.difficulty === activeFilter : true;
-      return matchesSearch && matchesFilter;
+      return isVisible && matchesSearch && matchesFilter;
     });
     filtered.forEach((q: Quest) => {
       if (q.is_completed) map.done.push(q);
@@ -135,10 +136,15 @@ export default function ProQuestBoard() {
 
   const handleDeleteQuest = async () => {
     if (!selectedQuest) return;
-    if (!confirm("Konfirmasi penghapusan: Quest ini akan dihapus selamanya dari quest board. Yakin?")) return;
     
-    // Optimistic delete
-    await deleteQuestFn(selectedQuest.id);
+    if (selectedQuest.is_completed) {
+      if (!confirm("Arsip Quest: Quest ini akan disembunyikan dari board tapi datanya tetep aman di statistik & grafik kamu. Lanjutkan?")) return;
+      await archiveQuest(selectedQuest.id);
+    } else {
+      if (!confirm("Konfirmasi penghapusan: Quest ini belum selesai dan akan dihapus selamanya. Yakin?")) return;
+      await deleteQuestFn(selectedQuest.id);
+    }
+    
     setSelectedQuest(null);
     setShowProofFlow(false);
     refetchQuests();
@@ -527,10 +533,14 @@ export default function ProQuestBoard() {
                   <div className="p-4 md:p-6 border-t border-white/5 bg-[#0D1017] flex items-center justify-between gap-3 shrink-0">
                     <button 
                         onClick={handleDeleteQuest}
-                        className="p-3.5 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all border border-red-500/20 shadow-lg shadow-red-500/10"
-                        title="Hapus Quest"
+                        className={`p-3.5 rounded-xl transition-all border shadow-lg ${
+                            selectedQuest.is_completed 
+                            ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20 hover:bg-indigo-500 hover:text-white shadow-indigo-500/10" 
+                            : "bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white shadow-red-500/10"
+                        }`}
+                        title={selectedQuest.is_completed ? "Arsip Quest" : "Hapus Quest"}
                     >
-                        <Trash2 size={18} />
+                        {selectedQuest.is_completed ? <Archive size={18} /> : <Trash2 size={18} />}
                     </button>
                     <div className="flex gap-3 w-full md:w-auto">
                     {!selectedQuest.is_completed && selectedQuest.current_value === 0 && (

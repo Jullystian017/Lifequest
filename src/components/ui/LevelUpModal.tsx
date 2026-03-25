@@ -25,17 +25,22 @@ export default function LevelUpModal() {
     });
 
     const level = user?.level || 1;
-    const prevLevelRef = useRef<number>(level);
+    const prevLevelRef = useRef<number | null>(null);
     const [showLevelUpModal, setLevelUpModal] = useState(false);
 
     useEffect(() => {
-        if (user && prevLevelRef.current > 0) {
-            if (user.level > prevLevelRef.current) {
+        if (user) {
+            if (prevLevelRef.current === null) {
+                // Initial fetch
+                prevLevelRef.current = user.level;
+            } else if (user.level > prevLevelRef.current) {
+                // Level Up!
                 setLevelUpModal(true);
+                prevLevelRef.current = user.level;
+            } else {
+                // Sync without alert (e.g. if level goes down)
+                prevLevelRef.current = user.level;
             }
-            prevLevelRef.current = user.level;
-        } else if (user && prevLevelRef.current === 0) {
-            prevLevelRef.current = user.level;
         }
     }, [user?.level]);
 

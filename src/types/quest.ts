@@ -21,6 +21,7 @@ export interface Quest {
     target_value: number;
     current_value: number;
     is_completed: boolean;
+    is_archived: boolean;
     tasks?: QuestTask[];
     expires_at?: string;
     completed_at?: string;

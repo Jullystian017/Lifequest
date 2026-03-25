@@ -27,6 +27,8 @@ interface UserRow {
     id: string;
     total_xp: number;
     gold: number;
+    level: number;
+    stat_points: number;
     stats: Record<string, number>;
 }
 
@@ -40,8 +42,12 @@ export async function completeQuest(userId: string, quest: Quest, currentUser: U
 
     // 2. Compute new user stats
     const newTotalXp = (currentUser.total_xp || 0) + quest.xp_reward;
-    const { level, xp, xpToNextLevel } = calcLevelFromTotalXp(newTotalXp);
+    const { level: newLevel, xp, xpToNextLevel } = calcLevelFromTotalXp(newTotalXp);
     const newGold = (currentUser.gold || 0) + quest.coin_reward;
+    
+    // Award 3 stat points for each level up
+    const levelGained = Math.max(0, newLevel - (currentUser.level || 1));
+    const newStatPoints = (currentUser.stat_points || 0) + (levelGained * 3);
 
     const newStats = { ...currentUser.stats };
     for (const [key, value] of Object.entries(quest.stat_rewards ?? {})) {
@@ -54,15 +60,16 @@ export async function completeQuest(userId: string, quest: Quest, currentUser: U
         .update({
             total_xp: newTotalXp,
             xp: xp,
-            level,
+            level: newLevel,
             xp_to_next_level: xpToNextLevel,
             gold: newGold,
             stats: newStats,
+            stat_points: newStatPoints,
         })
         .eq("id", userId);
     if (userError) throw userError;
 
-    return { level, xp, xpToNextLevel, gold: newGold, total_xp: newTotalXp };
+    return { level: newLevel, xp, xpToNextLevel, gold: newGold, total_xp: newTotalXp };
 }
 
 // ─── Complete Quest (Penalty — no proof) ─────────────────────────────────
@@ -135,6 +142,11 @@ export async function createQuest(userId: string, quest: {
 // ─── Delete Quest ─────────────────────────────────────────────────────────
 export async function deleteQuest(questId: string) {
     const { error } = await supabase.from("quests").delete().eq("id", questId);
+    if (error) throw error;
+}
+
+export async function archiveQuest(questId: string) {
+    const { error } = await supabase.from("quests").update({ is_archived: true }).eq("id", questId);
     if (error) throw error;
 }
 
@@ -291,4 +303,32 @@ export async function addChatMessage(chatId: string, role: "user" | "assistant",
 export async function deleteChat(chatId: string) {
     const { error } = await supabase.from("ai_chats").delete().eq("id", chatId);
     if (error) throw error;
+}
+
+// ─── Stat Allocation ──────────────────────────────────────────────────────
+export async function allocateStatPoint(userId: string, statKey: string, currentUser: UserRow) {
+    if ((currentUser.stat_points || 0) <= 0) {
+        throw new Error("Tidak ada poin statistik yang tersedia");
+    }
+
+    const currentVal = currentUser.stats[statKey] || 0;
+    if (currentVal >= 100) {
+        throw new Error("Statistik sudah mencapai batas maksimum (100)");
+    }
+
+    const newStats = {
+        ...currentUser.stats,
+        [statKey]: currentVal + 1
+    };
+
+    const { error } = await supabase
+        .from("users")
+        .update({
+            stats: newStats,
+            stat_points: currentUser.stat_points - 1
+        })
+        .eq("id", userId);
+
+    if (error) throw error;
+    return { newStats, newStatPoints: currentUser.stat_points - 1 };
 }

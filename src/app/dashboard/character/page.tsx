@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchUser, fetchQuests, fetchHabits, userQueryKey, questsQueryKey, habitsQueryKey } from "@/lib/queries";
+import { allocateStatPoint } from "@/lib/mutations";
 import { createClient } from "@/lib/supabase/client";
 import {
     User,
@@ -21,6 +22,8 @@ import {
     Flame,
     Swords,
     TreePine,
+    Plus,
+    Loader2,
 } from "lucide-react";
 import AvatarRenderer from "@/components/character/AvatarRenderer";
 import AttributeRadarChart from "@/components/dashboard/AttributeRadarChart";
@@ -31,6 +34,7 @@ type Tab = "stats" | "history" | "equipment";
 
 export default function CharacterPage() {
     const supabase = createClient();
+    const queryClient = useQueryClient();
     const [userId, setUserId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>("stats");
 
@@ -61,6 +65,7 @@ export default function CharacterPage() {
     const level = user?.level || 1;
     const xp = user?.total_xp || 0;
     const xpToNextLevel = user?.xp_to_next_level || 100;
+    const statPoints = user?.stat_points || 0;
     const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, finance: 0, creativity: 0 };
     const coins = user?.coins || 0;
     const username = user?.username || "Petualang";
@@ -81,6 +86,13 @@ export default function CharacterPage() {
     const equipItem = async (slot: string, itemId: string) => {
         // We will mock this or handle with mutation later if needed
     };
+
+    const allocateMutation = useMutation({
+        mutationFn: (statKey: string) => allocateStatPoint(userId!, statKey, user!),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: userQueryKey(userId!) });
+        }
+    });
 
     const statsLabels: Record<string, string> = {
         health: "Vitalitas",
@@ -220,7 +232,15 @@ export default function CharacterPage() {
                     <div className="lg:col-span-7">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-[var(--bg-card)] border border-[var(--border-light)] p-8 rounded-3xl">
                             <div className="order-2 md:order-1 space-y-6">
-                                <h3 className="text-xl font-semibold text-white font-[family-name:var(--font-heading)] uppercase tracking-tight">Atribut</h3>
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-xl font-semibold text-white font-[family-name:var(--font-heading)] uppercase tracking-tight">Atribut</h3>
+                                    {statPoints > 0 && (
+                                        <div className="flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/30 px-3 py-1.5 rounded-xl animate-pulse">
+                                            <Star size={12} className="text-indigo-400" />
+                                            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">{statPoints} Poin Tersedia</span>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="space-y-4">
                                     {Object.entries(stats).map(([key, value]) => (
                                         <div key={key} className="space-y-2">
@@ -229,7 +249,22 @@ export default function CharacterPage() {
                                                     <div className="p-1 rounded bg-[var(--bg-main)]" style={{ color: statsColors[key] }}>{statsIcons[key]}</div>
                                                     <span className="text-slate-400 font-semibold">{statsLabels[key] || key}</span>
                                                 </div>
-                                                <span className="text-white font-semibold">{value}%</span>
+                                                <div className="flex items-center gap-3">
+                                                    <span className="text-white font-semibold">{value}%</span>
+                                                    {statPoints > 0 && value < 100 && (
+                                                        <button 
+                                                            onClick={() => allocateMutation.mutate(key)}
+                                                            disabled={allocateMutation.isPending}
+                                                            className="p-1 rounded-md bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white transition-all disabled:opacity-50"
+                                                        >
+                                                            {allocateMutation.isPending && allocateMutation.variables === key ? (
+                                                                <Loader2 size={12} className="animate-spin" />
+                                                            ) : (
+                                                                <Plus size={12} />
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="h-2 bg-[var(--bg-main)] rounded-full overflow-hidden border border-white/5">
                                                 <motion.div initial={{ width: 0 }} animate={{ width: `${value}%` }} className="h-full rounded-full" style={{ backgroundColor: statsColors[key] }} />

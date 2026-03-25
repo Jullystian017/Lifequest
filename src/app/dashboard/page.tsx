@@ -88,9 +88,13 @@ export default function DashboardPage() {
     const avatar_url = user?.avatar_url ?? "/lifequest.png";
     const xpPercent = xpToNextLevel > 0 ? Math.round((xp / xpToNextLevel) * 100) : 0;
 
-    const completedToday = quests.filter(q => q.is_completed).length;
+    const completedToday = quests.filter(q => q.is_completed);
     const pendingQuests = quests.filter(q => !q.is_completed);
-    const todayXp = quests.filter(q => q.is_completed).reduce((sum, q) => sum + (q.xp_reward || 0), 0);
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayXp = quests
+        .filter(q => q.is_completed && q.completed_at?.startsWith(todayStr))
+        .reduce((sum, q) => sum + (q.xp_reward || 0), 0);
 
     return (
         <div className="space-y-8 pb-20 animate-fade-in w-full">

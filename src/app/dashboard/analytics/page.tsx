@@ -47,15 +47,14 @@ export default function AnalyticsPage() {
     });
 
     const level = user?.level || 1;
-    const xp = user?.total_xp || 0;
+    const totalXp = user?.total_xp || 0;
+    const currentXp = user?.xp || 0;
     const stats: Record<string, number> = user?.stats || { health: 0, knowledge: 0, discipline: 0, finance: 0, creativity: 0 };
-    const coins = user?.coins || 0;
+    const gold = user?.gold || 0;
 
     // Real data calculations
     const completedQuests = quests.filter((q: any) => q.is_completed);
     const activeQuests = quests.filter((q: any) => !q.is_completed);
-    const totalXpEarned = completedQuests.reduce((sum: number, q: any) => sum + (q.xp_reward || 0), 0);
-    const totalGoldEarned = completedQuests.reduce((sum: number, q: any) => sum + (q.coin_reward || 0), 0);
 
     const activeHabits = habits.filter((h: any) => h.completed_today).length;
     const totalHabits = habits.length || 1;
@@ -132,23 +131,22 @@ export default function AnalyticsPage() {
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Zap size={60} /></div>
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400"><Zap size={16} /></div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total XP</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Pengalaman</span>
                     </div>
-                    <span className="text-3xl font-bold text-white tracking-tighter">{totalXpEarned.toLocaleString()}</span>
-                    <div className="text-xs font-bold text-slate-500 mt-1">Level {level} · {xp} XP saat ini</div>
+                    <span className="text-3xl font-bold text-white tracking-tighter">{totalXp.toLocaleString()} XP</span>
+                    <div className="text-xs font-bold text-slate-500 mt-1">Level {level} · {currentXp} XP saat ini</div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Award size={60} /></div>
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-500"><Coins size={16} /></div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Gold Terkumpul</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Saldo Gold</span>
                     </div>
-                    <span className="text-3xl font-bold text-white tracking-tighter">{totalGoldEarned.toLocaleString()}</span>
-                    <div className="text-xs font-bold text-slate-500 mt-1">{coins.toLocaleString()} G tersedia</div>
+                    <span className="text-3xl font-bold text-white tracking-tighter">{gold.toLocaleString()} G</span>
+                    <div className="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1">Digunakan untuk Shop & Boosts</div>
                 </div>
             </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* XP Chart - Real Data */}
                 <div className="lg:col-span-2 p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)]">
