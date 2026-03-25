@@ -5,8 +5,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { workspacesQueryKey, fetchUserWorkspaces, workspaceMembersQueryKey, fetchWorkspaceMembers } from "@/lib/queries";
-import { joinWorkspace, createWorkspace } from "@/lib/mutations";
+import { joinWorkspaceByCode, createWorkspace } from "@/lib/mutations";
 import { useWorkspaceStore } from "@/store/workspaceStore";
+import BugRadarWidget from "@/components/dashboard/BugRadarWidget";
 import {
   Users,
   Plus,
@@ -249,6 +250,10 @@ export default function TeamPage() {
             <ChevronRight size={14} className="text-slate-500 ml-auto group-hover:text-white transition-colors" />
           </Link>
         ))}
+      </div>
+
+      <div className="pt-2 pb-2">
+        <BugRadarWidget />
       </div>
 
       {/* Members */}

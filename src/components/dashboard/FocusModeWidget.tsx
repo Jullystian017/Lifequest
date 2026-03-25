@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { Play, Pause, RotateCcw, Zap, Brain, Coffee } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addXpAndStat } from "@/lib/mutations";
-import { userQueryKey } from "@/lib/queries";
+import { addXpAndStat, recordFocusSession } from "@/lib/mutations";
+import { userQueryKey, focusSessionsQueryKey } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/client";
 
 export default function FocusModeWidget() {
@@ -18,7 +18,7 @@ export default function FocusModeWidget() {
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: async ({ xp, statKey, statAmt }: any) => {
+        mutationFn: async ({ xp, statKey, statAmt, duration, mode }: any) => {
             const { data: { user: authUser } } = await supabase.auth.getUser();
             if (!authUser) throw new Error("Not logged in");
             
@@ -30,6 +30,9 @@ export default function FocusModeWidget() {
                 .single();
                 
             if (fetchError || !userData) throw new Error("Gagal mengambil data user");
+            
+            // Record session
+            await recordFocusSession(authUser.id, duration, mode);
 
             return addXpAndStat(authUser.id, xp, statKey, statAmt, userData);
         },
@@ -37,6 +40,7 @@ export default function FocusModeWidget() {
              const { data: { user } } = await supabase.auth.getUser();
              if (user) {
                  queryClient.invalidateQueries({ queryKey: userQueryKey(user.id) });
+                 queryClient.invalidateQueries({ queryKey: focusSessionsQueryKey(user.id) });
              }
         }
     });
@@ -64,10 +68,23 @@ export default function FocusModeWidget() {
     const handleTimerComplete = () => {
         setIsActive(false);
         if (mode === "focus") {
-            mutation.mutate({ xp: 100, statKey: "discipline", statAmt: 2 });
+            mutation.mutate({ 
+                xp: 100, 
+                statKey: "discipline", 
+                statAmt: 2,
+                duration: 25,
+                mode: "focus" 
+            });
             setMode("break");
             setMinutes(5);
         } else {
+            mutation.mutate({ 
+                xp: 20, 
+                statKey: "vitality", 
+                statAmt: 1,
+                duration: 5,
+                mode: "break" 
+            });
             setMode("focus");
             setMinutes(25);
         }

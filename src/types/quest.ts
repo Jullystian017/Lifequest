@@ -11,7 +11,7 @@ export interface QuestTask {
 
 export interface Quest {
     id: string;
-    workspaceId: string;
+    workspace_id?: string;
     assigneeId?: string;
     title: string;
     description: string;
@@ -28,6 +28,8 @@ export interface Quest {
     is_completed: boolean;
     is_archived: boolean;
     tasks?: QuestTask[];
+    sprint_id?: string;
+    time_spent?: number;
     expires_at?: string;
     completed_at?: string;
     created_at: string;

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { workspacesQueryKey, fetchUserWorkspaces } from "@/lib/queries";
+import { workspacesQueryKey, fetchUserWorkspaces, sprintsQueryKey, fetchWorkspaceSprints } from "@/lib/queries";
+import { createSprint } from "@/lib/mutations";
 import { useWorkspaceStore } from "@/store/workspaceStore";
-import { Globe, Loader2, Users, CheckCircle2, Circle, Zap, Coins } from "lucide-react";
+import { Globe, Loader2, Users, CheckCircle2, Circle, Zap, Coins, Calendar, Plus, ChevronDown } from "lucide-react";
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   easy: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
@@ -23,9 +24,15 @@ const COLUMNS = [
 
 export default function TeamBoardPage() {
   const supabase = createClient();
+  const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
   const [sharedQuests, setSharedQuests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Sprint Manager State
+  const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null);
+  const [showSprintModal, setShowSprintModal] = useState(false);
+  const [sprintForm, setSprintForm] = useState({ name: "", startDate: "", endDate: "" });
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => { if (data.user) setUserId(data.user.id); });
@@ -44,13 +51,34 @@ export default function TeamBoardPage() {
   useEffect(() => {
     if (!activeWorkspace?.id) return;
     setLoading(true);
-    supabase
+    let query = supabase
       .from("quests")
       .select("*, users(username, class)")
-      .eq("workspace_id", activeWorkspace.id)
-      .order("created_at", { ascending: false })
+      .eq("workspace_id", activeWorkspace.id);
+      
+    if (selectedSprintId) {
+        query = query.eq("sprint_id", selectedSprintId);
+    }
+      
+    query.order("created_at", { ascending: false })
       .then(({ data }) => { setSharedQuests(data ?? []); setLoading(false); });
-  }, [activeWorkspace?.id]);
+  }, [activeWorkspace?.id, selectedSprintId]);
+
+  const { data: sprints = [] } = useQuery({
+    queryKey: sprintsQueryKey(activeWorkspace?.id),
+    queryFn: () => fetchWorkspaceSprints(activeWorkspace?.id),
+    enabled: !!activeWorkspace?.id,
+  });
+
+  const sprintMutation = useMutation({
+    mutationFn: () => createSprint(activeWorkspace!.id, sprintForm.name, sprintForm.startDate, sprintForm.endDate),
+    onSuccess: (newSprint: any) => {
+        queryClient.invalidateQueries({ queryKey: sprintsQueryKey(activeWorkspace!.id) });
+        setSelectedSprintId(newSprint.id);
+        setShowSprintModal(false);
+        setSprintForm({ name: "", startDate: "", endDate: "" });
+    }
+  });
 
   const columnsMap = COLUMNS.reduce((acc, col) => {
     acc[col.id] = sharedQuests.filter(q => {
@@ -73,16 +101,35 @@ export default function TeamBoardPage() {
 
   return (
     <div className="space-y-6 animate-fade-in pb-10">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-white flex items-center gap-3">
             <Globe size={24} className="text-blue-400" /> Sprint Board
           </h1>
           <p className="text-slate-400 text-sm mt-1">Shared quests for {activeWorkspace.name}</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate-400">
-          <Users size={14} />
-          <span>{sharedQuests.length} shared quests</span>
+        
+        {/* Sprint Selector */}
+        <div className="flex items-center gap-2">
+            <div className="relative group">
+                <select 
+                    value={selectedSprintId || ""} 
+                    onChange={(e) => setSelectedSprintId(e.target.value || null)}
+                    className="appearance-none bg-[var(--bg-card)] border border-[var(--border-light)] text-white text-sm font-bold rounded-xl pl-4 pr-10 py-2 outline-none focus:border-[var(--primary)] hover:border-white/20 transition-all cursor-pointer min-w-[160px]"
+                >
+                    <option value="">All Sprints (Backlog)</option>
+                    {sprints.map((s: any) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
+            <button 
+                onClick={() => setShowSprintModal(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/20 font-bold text-sm hover:bg-[var(--primary)] hover:text-white transition-all"
+            >
+                <Calendar size={14} /> Buat Sprint
+            </button>
         </div>
       </div>
 
@@ -137,8 +184,57 @@ export default function TeamBoardPage() {
 
       {!loading && sharedQuests.length === 0 && (
         <div className="text-center py-10 text-slate-500 text-sm">
-          Belum ada shared quest. Quest dengan workspace_id akan muncul di sini.
+          {selectedSprintId ? "Belum ada quest di sprint ini." : "Belum ada shared quest. Quest dengan workspace_id akan muncul di sini."}
         </div>
+      )}
+
+      {/* Create Sprint Modal */}
+      {showSprintModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowSprintModal(false)} />
+              <div className="w-full max-w-md bg-[#11141c] border border-white/10 rounded-3xl p-6 shadow-2xl relative z-10 space-y-5 animate-in fade-in zoom-in duration-200">
+                  <h3 className="text-xl font-black text-white">Buat Sprint Baru</h3>
+                  <div className="space-y-4">
+                      <div>
+                          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Nama Sprint</label>
+                          <input 
+                              value={sprintForm.name} 
+                              onChange={(e) => setSprintForm(prev => ({...prev, name: e.target.value}))} 
+                              placeholder="Contoh: Sprint 1 - MVP"
+                              className="w-full bg-[#0D1017] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:border-[var(--primary)] outline-none" 
+                          />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                          <div>
+                              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Start Date</label>
+                              <input 
+                                  type="date"
+                                  value={sprintForm.startDate} 
+                                  onChange={(e) => setSprintForm(prev => ({...prev, startDate: e.target.value}))} 
+                                  className="w-full bg-[#0D1017] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:border-[var(--primary)] outline-none [color-scheme:dark]" 
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">End Date</label>
+                              <input 
+                                  type="date"
+                                  value={sprintForm.endDate} 
+                                  onChange={(e) => setSprintForm(prev => ({...prev, endDate: e.target.value}))} 
+                                  className="w-full bg-[#0D1017] border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:border-[var(--primary)] outline-none [color-scheme:dark]" 
+                              />
+                          </div>
+                      </div>
+                  </div>
+                  <button 
+                      onClick={() => sprintMutation.mutate()}
+                      disabled={!sprintForm.name || !sprintForm.startDate || !sprintForm.endDate || sprintMutation.isPending}
+                      className="w-full py-3 rounded-xl bg-[var(--primary)] text-white font-bold text-sm hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                      {sprintMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                      Simpan Sprint
+                  </button>
+              </div>
+          </div>
       )}
     </div>
   );

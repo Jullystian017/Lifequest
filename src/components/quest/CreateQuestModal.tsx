@@ -8,8 +8,10 @@ import { QuestPriority, QuestType, QuestDifficulty, QuestCategory } from "@/type
 import { StatKey } from "@/types/user";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createQuest } from "@/lib/mutations";
-import { questsQueryKey } from "@/lib/queries";
+import { questsQueryKey, sprintsQueryKey, fetchWorkspaceSprints } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/client";
+import { useWorkspaceStore } from "@/store/workspaceStore";
+import { useQuery } from "@tanstack/react-query";
 
 interface CreateQuestModalProps {
     isOpen: boolean;
@@ -23,9 +25,17 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
     const [difficulty, setDifficulty] = useState<QuestDifficulty>("medium");
     const [category, setCategory] = useState<QuestCategory>("general");
     const [selectedStat, setSelectedStat] = useState<StatKey>("discipline");
+    const [selectedSprintId, setSelectedSprintId] = useState<string>("");
 
     const queryClient = useQueryClient();
     const supabase = createClient();
+    const { activeWorkspaceId } = useWorkspaceStore();
+
+    const { data: sprints = [] } = useQuery({
+        queryKey: sprintsQueryKey(activeWorkspaceId!),
+        queryFn: () => fetchWorkspaceSprints(activeWorkspaceId!),
+        enabled: !!activeWorkspaceId,
+    });
 
     const mutation = useMutation({
         mutationFn: async (questData: any) => {
@@ -67,7 +77,9 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
             type: "daily" as QuestType,
             xp_reward: Math.round(rewards.xp * priorityMultiplier),
             coin_reward: Math.round(rewards.coin * priorityMultiplier),
-            stat_rewards: { [selectedStat]: rewards.stat }
+            stat_rewards: { [selectedStat]: rewards.stat },
+            workspace_id: activeWorkspaceId || undefined,
+            sprint_id: selectedSprintId || undefined,
         };
 
         mutation.mutate(newQuest);
@@ -189,6 +201,22 @@ export default function CreateQuestModal({ isOpen, onClose }: CreateQuestModalPr
                                         </select>
                                     </div>
                                 </div>
+                                
+                                {activeWorkspaceId && sprints.length > 0 && (
+                                    <div className="space-y-2 pt-4">
+                                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Assign to Sprint</label>
+                                        <select
+                                            className="w-full bg-[#13141f] border border-white/5 focus:border-[var(--primary)]/50 rounded-2xl px-5 py-3.5 text-white outline-none transition-all appearance-none cursor-pointer"
+                                            value={selectedSprintId}
+                                            onChange={(e) => setSelectedSprintId(e.target.value)}
+                                        >
+                                            <option value="">No Sprint (Backlog)</option>
+                                            {sprints.map((s: any) => (
+                                                <option key={s.id} value={s.id}>{s.name} ({new Date(s.start_date).toLocaleDateString()} - {new Date(s.end_date).toLocaleDateString()})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
 
 

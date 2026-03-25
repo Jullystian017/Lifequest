@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUser, fetchHabits, fetchQuests, userQueryKey, habitsQueryKey, questsQueryKey } from "@/lib/queries";
+import { fetchUser, fetchHabits, fetchQuests, fetchFocusSessions, userQueryKey, habitsQueryKey, questsQueryKey, focusSessionsQueryKey } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/client";
 import {
     TrendingUp,
@@ -14,6 +14,8 @@ import {
     BarChart3,
     CheckCircle2,
     Coins,
+    Clock,
+    Timer,
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -43,6 +45,12 @@ export default function AnalyticsPage() {
     const { data: quests = [] } = useQuery({
         queryKey: questsQueryKey(userId!),
         queryFn: () => fetchQuests(userId!),
+        enabled: !!userId,
+    });
+
+    const { data: focusSessions = [] } = useQuery({
+        queryKey: focusSessionsQueryKey(userId!),
+        queryFn: () => fetchFocusSessions(userId!),
         enabled: !!userId,
     });
 
@@ -88,6 +96,32 @@ export default function AnalyticsPage() {
 
     const maxXp = Math.max(...last7Days.map(d => d.xp), 1);
 
+    // Focus sessions calculations
+    const totalFocusMinutes = focusSessions.reduce((sum: number, s: any) => sum + (s.duration || 0), 0);
+    const focusHours = Math.floor(totalFocusMinutes / 60);
+    const focusRemainingMinutes = totalFocusMinutes % 60;
+    
+    // Focus time last 7 days for a separate chart or combined stats
+    const focus7Days: { label: string; minutes: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dayIdx = d.getDay();
+        const dateStr = d.toISOString().split('T')[0];
+
+        const dayFocus = focusSessions.filter((s: any) => {
+            if (!s.created_at) return false;
+            return s.created_at.startsWith(dateStr);
+        });
+
+        focus7Days.push({
+            label: dayNames[dayIdx],
+            minutes: dayFocus.reduce((s: number, f: any) => s + (f.duration || 0), 0),
+        });
+    }
+
+    const maxFocus = Math.max(...focus7Days.map(d => d.minutes), 1);
+
     // Quest type breakdown
     const dailyCount = quests.filter((q: any) => q.type === 'daily').length;
     const weeklyCount = quests.filter((q: any) => q.type === 'weekly').length;
@@ -106,7 +140,7 @@ export default function AnalyticsPage() {
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in">
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Target size={60} /></div>
                     <div className="flex items-center gap-3 mb-4">
@@ -138,13 +172,13 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Award size={60} /></div>
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Clock size={60} /></div>
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 rounded-lg bg-yellow-500/10 text-yellow-500"><Coins size={16} /></div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Saldo Gold</span>
+                        <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400"><Clock size={16} /></div>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Waktu Fokus</span>
                     </div>
-                    <span className="text-3xl font-bold text-white tracking-tighter">{gold.toLocaleString()} G</span>
-                    <div className="text-xs font-bold text-slate-500 mt-1 flex items-center gap-1">Digunakan untuk Shop & Boosts</div>
+                    <span className="text-3xl font-bold text-white tracking-tighter">{focusHours}j {focusRemainingMinutes}m</span>
+                    <div className="text-xs font-bold text-slate-500 mt-1">{focusSessions.length} sesi fokus terselesaikan</div>
                 </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -180,6 +214,38 @@ export default function AnalyticsPage() {
                                 </div>
 
                                 <span className="text-[10px] sm:text-xs font-bold text-slate-500 mt-4 uppercase tracking-widest group-hover:text-white transition-colors">
+                                    {day.label}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Focus Intensity Chart */}
+                <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)]">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                                <Timer size={16} className="text-emerald-400" /> Intensitas Fokus (Menit)
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-1">Total menit dalam mode fokus</p>
+                        </div>
+                    </div>
+
+                    <div className="h-[180px] mt-6 flex justify-between gap-1 sm:gap-3 px-2">
+                        {focus7Days.map((day, i) => (
+                            <div key={i} className="flex flex-col items-center justify-end w-full h-full group">
+                                <div className="w-full bg-slate-800/40 rounded-t-lg flex items-end overflow-hidden border border-white/5 relative">
+                                    <motion.div
+                                        initial={{ height: 0 }}
+                                        animate={{ height: `${day.minutes > 0 ? Math.max((day.minutes / maxFocus) * 100, 10) : 5}%` }}
+                                        transition={{ duration: 0.8, delay: i * 0.1 }}
+                                        className={`w-full transition-all duration-1000 ${
+                                            day.minutes > 0 ? "bg-emerald-500/60" : "bg-slate-700/20"
+                                        }`}
+                                    />
+                                </div>
+                                <span className="text-[8px] font-bold text-slate-500 mt-2 uppercase">
                                     {day.label}
                                 </span>
                             </div>

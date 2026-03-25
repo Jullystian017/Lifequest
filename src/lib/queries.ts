@@ -218,3 +218,44 @@ export const fetchUserRetros = async (userId: string) => {
     if (error) throw error;
     return data ?? [];
 };
+
+// ─── Sprints ─────────────────────────────────────────────────────────────────
+export const sprintsQueryKey = (workspaceId: string) => ["sprints", workspaceId] as const;
+
+export const fetchWorkspaceSprints = async (workspaceId: string) => {
+    const { data, error } = await supabase
+        .from("sprints")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .order("start_date", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+};
+
+// ─── Bug Monsters ────────────────────────────────────────────────────────────
+export const bugMonstersQueryKey = (workspaceId: string) => ["bugMonsters", workspaceId] as const;
+
+export const fetchWorkspaceBugs = async (workspaceId: string) => {
+    const { data, error } = await supabase
+        .from("bug_monsters")
+        .select("*")
+        .eq("workspace_id", workspaceId)
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+};
+
+// ─── Focus Sessions ──────────────────────────────────────────────────────────
+export const focusSessionsQueryKey = (userId: string) => ["focusSessions", userId] as const;
+
+export const fetchFocusSessions = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("focus_sessions")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+};
+

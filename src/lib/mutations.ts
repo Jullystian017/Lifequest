@@ -21,6 +21,8 @@ interface Quest {
     xp_reward: number;
     coin_reward: number;
     stat_rewards?: Record<string, number>;
+    workspace_id?: string;
+    sprint_id?: string;
 }
 
 interface UserRow {
@@ -77,6 +79,11 @@ export async function completeQuest(userId: string, quest: Quest, currentUser: U
         })
         .eq("id", userId);
     if (userError) throw userError;
+
+    // 4. (Phase 3) Gamification: 20% Chance to spawn a Bug Monster in the workspace
+    if (quest.workspace_id && Math.random() < 0.2) {
+        await spawnBugMonster(quest.workspace_id).catch(console.error);
+    }
 
     return { level: newLevel, xp, xpToNextLevel, gold: newGold, total_xp: newTotalXp };
 }
@@ -141,6 +148,8 @@ export async function createQuest(userId: string, quest: {
     coin_reward: number;
     priority?: string;
     stat_rewards?: Record<string, number>;
+    workspace_id?: string;
+    sprint_id?: string;
 }) {
     const { data, error } = await supabase
         .from("quests")
@@ -461,6 +470,82 @@ export async function saveWeeklyRetro(userId: string, retro: {
     const { data, error } = await supabase
         .from("ai_weekly_retros")
         .upsert({ user_id: userId, ...retro }, { onConflict: "user_id,week_start" })
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+// ─── Sprints ────────────────────────────────────────────────────────────────
+export async function createSprint(workspaceId: string, name: string, startDate: string, endDate: string) {
+    const { data, error } = await supabase.from("sprints").insert({
+        workspace_id: workspaceId,
+        name,
+        start_date: startDate,
+        end_date: endDate,
+        status: "active"
+    }).select().single();
+    if (error) throw error;
+    return data;
+}
+
+// ─── Bug Monsters ────────────────────────────────────────────────────────────
+export async function spawnBugMonster(workspaceId: string | null) {
+    const bugTypes = ["syntax_error", "memory_leak", "infinite_loop", "null_pointer"];
+    const bugNames = ["Syntax Serpent", "Memory Muncher", "Loop Leviathan", "Null Nibbler"];
+    const randomIndex = Math.floor(Math.random() * bugTypes.length);
+    
+    const { data, error } = await supabase.from("bug_monsters").insert({
+        workspace_id: workspaceId || null,
+        name: bugNames[randomIndex],
+        type: bugTypes[randomIndex],
+        hp: 10,
+        max_hp: 10,
+        xp_reward: 50,
+        coin_reward: 10,
+        status: "active"
+    }).select().single();
+    
+    if (error) console.error("Error spawning bug:", error);
+    return data;
+}
+
+export async function damageBugMonster(bugId: string, damage: number, userId: string) {
+    const { data: bug } = await supabase.from("bug_monsters").select("*").eq("id", bugId).single();
+    if (!bug || bug.status !== "active") return null;
+
+    const newHp = Math.max(0, bug.hp - damage);
+    const squashed = newHp === 0;
+
+    await supabase.from("bug_monsters").update({
+        hp: newHp,
+        status: squashed ? "squashed" : "active",
+        squashed_at: squashed ? new Date().toISOString() : null
+    }).eq("id", bugId);
+
+    if (squashed) {
+        // Reward the player who dealt the final blow
+        const { data: user } = await supabase.from("users").select("xp, coins").eq("id", userId).single();
+        if (user) {
+            await supabase.from("users").update({
+                xp: user.xp + bug.xp_reward,
+                coins: user.coins + bug.coin_reward
+            }).eq("id", userId);
+        }
+    }
+
+    return { squashed, newHp, reward: squashed ? { xp: bug.xp_reward, coins: bug.coin_reward } : null };
+}
+
+// ─── Focus Sessions ──────────────────────────────────────────────────────────
+export async function recordFocusSession(userId: string, durationMinutes: number, mode: "focus" | "break") {
+    const { data, error } = await supabase
+        .from("focus_sessions")
+        .insert({
+            user_id: userId,
+            duration: durationMinutes,
+            mode: mode,
+        })
         .select()
         .single();
     if (error) throw error;

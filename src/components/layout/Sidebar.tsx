@@ -24,6 +24,7 @@ import {
   Globe,
   Skull,
   Activity,
+  Timer,
 } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useWorkspaceStore } from "@/store/workspaceStore";
@@ -33,6 +34,7 @@ import { useState } from "react";
 const personalNav = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Quest Board", href: "/dashboard/quests", icon: Target },
+  { label: "Focus Mode", href: "/dashboard/focus", icon: Timer },
   { label: "Quest Master", href: "/dashboard/quest-master", icon: Wand2 },
   { label: "Asisten AI", href: "/dashboard/ai", icon: Bot },
   { label: "AI Insights", href: "/dashboard/ai/insights", icon: Sparkles },
@@ -44,6 +46,7 @@ const personalNav = [
 const teamNav = [
   { label: "Dashboard Tim", href: "/dashboard/team", icon: Users },
   { label: "Sprint Board", href: "/dashboard/team/board", icon: Globe },
+  { label: "Focus Mode", href: "/dashboard/focus", icon: Timer },
   { label: "Boss Raids", href: "/dashboard/team/boss", icon: Skull },
   { label: "Activity Feed", href: "/dashboard/team/feed", icon: Activity },
 ];
