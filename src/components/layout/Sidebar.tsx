@@ -8,6 +8,7 @@ import {
   Target,
   Wand2,
   Bot,
+  Sparkles,
   FileText,
   Trophy,
   Medal,
@@ -19,6 +20,10 @@ import {
   ChevronRight,
   MoreHorizontal,
   User,
+  Users,
+  Globe,
+  Skull,
+  Activity,
 } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
 import WorkspaceSwitcher from "./WorkspaceSwitcher";
@@ -29,12 +34,20 @@ const primaryNav = [
   { label: "Quest Board", href: "/dashboard/quests", icon: Target },
   { label: "Quest Master", href: "/dashboard/quest-master", icon: Wand2 },
   { label: "Asisten AI", href: "/dashboard/ai", icon: Bot },
+  { label: "AI Insights", href: "/dashboard/ai/insights", icon: Sparkles },
   { label: "Catatan", href: "/dashboard/notes", icon: FileText },
   { label: "Pencapaian", href: "/dashboard/achievements", icon: Trophy },
   { label: "Papan Peringkat", href: "/dashboard/leaderboard", icon: Medal },
 ];
 
 const secondaryNav = [
+  { label: "Tim", href: "/dashboard/team", icon: Users },
+  { label: "Sprint Board", href: "/dashboard/team/board", icon: Globe },
+  { label: "Boss Raids", href: "/dashboard/team/boss", icon: Skull },
+  { label: "Activity Feed", href: "/dashboard/team/feed", icon: Activity },
+];
+
+const tertiaryNav = [
   { label: "Karakter", href: "/dashboard/character", icon: User },
   { label: "Analitik", href: "/dashboard/analytics", icon: BarChart3 },
   { label: "Notifikasi", href: "/dashboard/notifications", icon: Bell },
@@ -111,6 +124,17 @@ export default function Sidebar() {
           <NavLink key={item.href} item={item} />
         ))}
 
+        {/* Team Section */}
+        {!isCollapsed && (
+          <div className="pt-4 pb-2 px-1">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">Tim & Kolaborasi</span>
+          </div>
+        )}
+        {isCollapsed && <div className="h-px bg-[var(--border-light)] my-2 mx-2" />}
+        {secondaryNav.map((item) => (
+          <NavLink key={item.href} item={item} />
+        ))}
+
         {/* Secondary Section Divider */}
         {!isCollapsed && (
           <div className="pt-4 pb-2 px-1">
@@ -124,11 +148,11 @@ export default function Sidebar() {
           </div>
         )}
 
-        {/* Secondary Navigation */}
+        {/* Tertiary Navigation */}
         {(showSecondary || isCollapsed) && (
           <>
             {isCollapsed && <div className="h-px bg-[var(--border-light)] my-2 mx-2" />}
-            {secondaryNav.map((item) => (
+            {tertiaryNav.map((item) => (
               <NavLink key={item.href} item={item} />
             ))}
           </>

@@ -135,3 +135,85 @@ export const fetchChatMessages = async (chatId: string) => {
     if (error) throw error;
     return data ?? [];
 };
+
+// ─── Workspaces ─────────────────────────────────────────────────────────────
+export const workspacesQueryKey = (userId: string) => ["workspaces", userId] as const;
+export const workspaceMembersQueryKey = (workspaceId: string) => ["workspace_members", workspaceId] as const;
+export const workspaceActivityQueryKey = (workspaceId: string) => ["workspace_activity", workspaceId] as const;
+
+export const fetchUserWorkspaces = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("workspace_members")
+        .select("workspace_id, role, workspaces(*)")
+        .eq("user_id", userId);
+    if (error) throw error;
+    return (data ?? []).map((row: any) => ({ ...row.workspaces, myRole: row.role }));
+};
+
+export const fetchWorkspaceById = async (workspaceId: string) => {
+    const { data, error } = await supabase
+        .from("workspaces")
+        .select("*")
+        .eq("id", workspaceId)
+        .single();
+    if (error) throw error;
+    return data;
+};
+
+export const fetchWorkspaceMembers = async (workspaceId: string) => {
+    const { data, error } = await supabase
+        .from("workspace_members")
+        .select("*, users(id, username, level, avatar_url, class)")
+        .eq("workspace_id", workspaceId)
+        .order("joined_at", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+};
+
+export const fetchWorkspaceActivity = async (workspaceId: string) => {
+    const { data, error } = await supabase
+        .from("team_activity_feed")
+        .select("*, users(username, avatar_url, class)")
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false })
+        .limit(50);
+    if (error) throw error;
+    return data ?? [];
+};
+
+export const fetchWorkspaceInvite = async (inviteCode: string) => {
+    const { data, error } = await supabase
+        .from("workspace_invites")
+        .select("*, workspaces(*)")
+        .eq("invite_code", inviteCode)
+        .single();
+    if (error) throw error;
+    return data;
+};
+
+// ─── Bosses ──────────────────────────────────────────────────────────────────
+export const bossesQueryKey = (workspaceId: string) => ["bosses", workspaceId] as const;
+
+export const fetchWorkspaceBosses = async (workspaceId: string) => {
+    const { data, error } = await supabase
+        .from("bosses")
+        .select("*, boss_tasks(*)")
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+};
+
+// ─── AI Retros ───────────────────────────────────────────────────────────────
+export const retrosQueryKey = (userId: string) => ["retros", userId] as const;
+
+export const fetchUserRetros = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("ai_weekly_retros")
+        .select("*")
+        .eq("user_id", userId)
+        .order("week_start", { ascending: false })
+        .limit(10);
+    if (error) throw error;
+    return data ?? [];
+};

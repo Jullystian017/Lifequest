@@ -344,3 +344,119 @@ export async function allocateStatPoint(userId: string, statKey: string, current
     if (error) throw error;
     return { newStats, newStatPoints: currentUser.stat_points - 1 };
 }
+
+// ─── Workspace Mutations ────────────────────────────────────────────────────
+export async function createWorkspace(userId: string, name: string, description?: string) {
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    const { data: workspace, error: wsError } = await supabase
+        .from("workspaces")
+        .insert({ name, description, created_by: userId, invite_code: inviteCode })
+        .select()
+        .single();
+    if (wsError) throw wsError;
+
+    // Auto-add creator as owner member
+    const { error: memberError } = await supabase
+        .from("workspace_members")
+        .insert({ workspace_id: workspace.id, user_id: userId, role: "owner" });
+    if (memberError) throw memberError;
+
+    return workspace;
+}
+
+export async function joinWorkspaceByCode(userId: string, inviteCode: string) {
+    // Find the workspace with this invite code
+    const { data: workspace, error: findError } = await supabase
+        .from("workspaces")
+        .select("id")
+        .eq("invite_code", inviteCode.toUpperCase())
+        .single();
+    if (findError) throw new Error("Kode undangan tidak ditemukan");
+
+    // Check if already a member
+    const { data: existing } = await supabase
+        .from("workspace_members")
+        .select("workspace_id")
+        .eq("workspace_id", workspace.id)
+        .eq("user_id", userId)
+        .single();
+    if (existing) throw new Error("Kamu sudah menjadi anggota workspace ini");
+
+    // Join workspace
+    const { error: joinError } = await supabase
+        .from("workspace_members")
+        .insert({ workspace_id: workspace.id, user_id: userId, role: "member" });
+    if (joinError) throw joinError;
+
+    return workspace;
+}
+
+export async function logActivityFeedEvent(
+    workspaceId: string,
+    userId: string,
+    eventType: string,
+    eventData: Record<string, any> = {}
+) {
+    const { error } = await supabase
+        .from("team_activity_feed")
+        .insert({ workspace_id: workspaceId, user_id: userId, event_type: eventType, event_data: eventData });
+    if (error) console.error("Activity feed log error:", error);
+}
+
+// ─── Boss (Project) Mutations ───────────────────────────────────────────────
+export async function createBoss(workspaceId: string, userId: string, data: {
+    name: string;
+    description?: string;
+    max_hp: number;
+}) {
+    const { data: boss, error } = await supabase
+        .from("bosses")
+        .insert({
+            workspace_id: workspaceId,
+            created_by: userId,
+            name: data.name,
+            description: data.description,
+            max_hp: data.max_hp,
+            current_hp: data.max_hp,
+            is_defeated: false,
+        })
+        .select()
+        .single();
+    if (error) throw error;
+    return boss;
+}
+
+export async function damageBoss(bossId: string, damage: number) {
+    const { data: boss } = await supabase.from("bosses").select("current_hp, max_hp").eq("id", bossId).single();
+    if (!boss) throw new Error("Boss tidak ditemukan");
+    const newHp = Math.max(0, boss.current_hp - damage);
+    const defeated = newHp <= 0;
+    const { error } = await supabase
+        .from("bosses")
+        .update({ current_hp: newHp, is_defeated: defeated, defeated_at: defeated ? new Date().toISOString() : null })
+        .eq("id", bossId);
+    if (error) throw error;
+    return { newHp, defeated };
+}
+
+// ─── AI Retro Mutations ─────────────────────────────────────────────────────
+export async function saveWeeklyRetro(userId: string, retro: {
+    week_start: string;
+    week_end: string;
+    quests_completed: number;
+    quests_failed: number;
+    habits_kept: number;
+    burnout_risk: string;
+    went_well: string;
+    went_wrong: string;
+    suggestions: string;
+}) {
+    const { data, error } = await supabase
+        .from("ai_weekly_retros")
+        .upsert({ user_id: userId, ...retro }, { onConflict: "user_id,week_start" })
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
