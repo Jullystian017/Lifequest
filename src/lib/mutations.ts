@@ -190,3 +190,76 @@ export async function addXpAndStat(userId: string, xpGained: number, statName: s
     if (error) throw error;
     return { level, xp, xpToNextLevel, total_xp: newTotalXp };
 }
+
+// ─── Goal CRUD ────────────────────────────────────────────────────────────
+export async function createGoal(userId: string, goal: {
+    title: string;
+    description?: string;
+    category: string;
+    priority: string;
+    xp_reward: number;
+    stat_rewards: Record<string, number>;
+}, milestones: string[]) {
+    // 1. Insert goal
+    const { data: goalData, error: goalError } = await supabase
+        .from("goals")
+        .insert({ ...goal, user_id: userId })
+        .select()
+        .single();
+    
+    if (goalError) throw goalError;
+
+    // 2. Insert milestones
+    const milestoneInserts = milestones.map((title, index) => ({
+        goal_id: goalData.id,
+        title,
+        order: index,
+        is_completed: false
+    }));
+
+    const { error: msError } = await supabase.from("milestones").insert(milestoneInserts);
+    if (msError) throw msError;
+
+    return goalData;
+}
+
+export async function toggleMilestone(userId: string, milestoneId: string, isCompleted: boolean, currentUser: UserRow) {
+    // 1. Update milestone
+    const { data: milestone, error: mError } = await supabase
+        .from("milestones")
+        .update({ is_completed: isCompleted })
+        .eq("id", milestoneId)
+        .select("goal_id")
+        .single();
+    
+    if (mError) throw mError;
+
+    // 2. Fetch all milestones to check if goal is complete
+    const { data: allMilestones, error: amError } = await supabase
+        .from("milestones")
+        .select("is_completed")
+        .eq("goal_id", milestone.goal_id);
+    
+    if (amError) throw amError;
+
+    const allCompletedNow = allMilestones.every(m => m.is_completed);
+
+    // 3. If just completed, award rewards
+    if (allCompletedNow && isCompleted) {
+        const { data: goal, error: gError } = await supabase
+            .from("goals")
+            .select("xp_reward, stat_rewards")
+            .eq("id", milestone.goal_id)
+            .single();
+        
+        if (gError) throw gError;
+
+        // Apply XP and first stat reward for simplicity in this helper
+        const firstStat = Object.keys(goal.stat_rewards || {})[0] || "discipline";
+        const firstAmt = (goal.stat_rewards || {})[firstStat] || 5;
+
+        return addXpAndStat(userId, goal.xp_reward, firstStat, firstAmt, currentUser);
+    }
+
+    return { allCompleted: allCompletedNow };
+}

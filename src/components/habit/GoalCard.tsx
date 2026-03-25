@@ -5,16 +5,47 @@ import { CheckCircle2, Circle, Target, ChevronDown, ChevronUp } from "lucide-rea
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { toggleMilestone } from "@/lib/mutations";
+import { goalsQueryKey, userQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
+
 interface GoalCardProps {
-    goal: Goal;
+    goal: Goal & { milestones: any[] };
 }
 
 export default function GoalCard({ goal }: GoalCardProps) {
-    const toggleMilestone = (goalId: string, milestoneId: string) => console.log("Toggle milestone", goalId, milestoneId);
+    const supabase = createClient();
+    const queryClient = useQueryClient();
+
+    const { data: user } = useQuery({
+        queryKey: ["current_user_auth"],
+        queryFn: async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return null;
+            const { data } = await supabase.from("users").select("*").eq("id", user.id).single();
+            return data;
+        }
+    });
+
+    const mutation = useMutation({
+        mutationFn: async ({ milestoneId, isCompleted }: { milestoneId: string; isCompleted: boolean }) => {
+            if (!user) throw new Error("Not logged in");
+            return toggleMilestone(user.id, milestoneId, isCompleted, user);
+        },
+        onSuccess: () => {
+            if (user) {
+                queryClient.invalidateQueries({ queryKey: goalsQueryKey(user.id) });
+                queryClient.invalidateQueries({ queryKey: userQueryKey(user.id) });
+            }
+        }
+    });
+
     const [isExpanded, setIsExpanded] = useState(false);
 
-    const completedMilestones = goal.milestones.filter(m => m.is_completed).length;
-    const totalMilestones = goal.milestones.length;
+    const completedMilestones = (goal.milestones || []).filter((m: any) => m.is_completed).length;
+    const totalMilestones = (goal.milestones || []).length;
+    const progress = totalMilestones > 0 ? Math.round((completedMilestones / totalMilestones) * 100) : 0;
 
     return (
         <motion.div
@@ -47,12 +78,12 @@ export default function GoalCard({ goal }: GoalCardProps) {
                                 Overall Progress
                             </span>
                         </div>
-                        <span className="text-sm font-semibold text-white italic">{goal.progress}%</span>
+                        <span className="text-sm font-semibold text-white italic">{progress}%</span>
                     </div>
                     <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
                         <motion.div
                             initial={{ width: 0 }}
-                            animate={{ width: `${goal.progress}%` }}
+                            animate={{ width: `${progress}%` }}
                             className="h-full bg-gradient-to-r from-[var(--primary)] to-indigo-400 rounded-full shadow-[0_0_10px_rgba(139,92,246,0.3)]"
                         />
                     </div>
@@ -74,10 +105,10 @@ export default function GoalCard({ goal }: GoalCardProps) {
                             </div>
 
                             <div className="space-y-2">
-                                {goal.milestones.map((milestone) => (
+                                { (goal.milestones || []).map((milestone: any) => (
                                     <div
                                         key={milestone.id}
-                                        onClick={() => toggleMilestone(goal.id, milestone.id)}
+                                        onClick={() => mutation.mutate({ milestoneId: milestone.id, isCompleted: !milestone.is_completed })}
                                         className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-transparent hover:border-white/10 transition-all cursor-pointer group"
                                     >
                                         <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${milestone.is_completed
@@ -96,7 +127,7 @@ export default function GoalCard({ goal }: GoalCardProps) {
 
                             {/* Reward Summary */}
                             <div className="flex items-center gap-4 pt-2">
-                                {Object.entries(goal.stat_rewards).map(([stat, amount]) => (
+                                {Object.entries(goal.stat_rewards || {}).map(([stat, amount]) => (
                                     <div key={stat} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
                                         <span className="text-[10px] font-semibold text-indigo-400 uppercase tracking-tighter">+{amount} {stat}</span>
                                     </div>

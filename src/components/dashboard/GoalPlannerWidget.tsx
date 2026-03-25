@@ -3,11 +3,28 @@
 import { Target, ChevronRight, Compass } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { fetchGoals, goalsQueryKey } from "@/lib/queries";
+import { createClient } from "@/lib/supabase/client";
+import { useState, useEffect } from "react";
+
 export default function GoalPlannerWidget() {
-    const goals = [
-        { id: "g1", title: "Selesaikan Project LifeQuest", category: "Karier", progress: 75 },
-        { id: "g2", title: "Lari 5km Tanpa Berhenti", category: "Kesehatan", progress: 40 },
-    ];
+    const supabase = createClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) setUserId(session.user.id);
+        });
+    }, []);
+
+    const { data: goals, isLoading } = useQuery({
+        queryKey: goalsQueryKey(userId!),
+        queryFn: () => fetchGoals(userId!),
+        enabled: !!userId,
+    });
+
+    if (isLoading || !userId) return <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] h-48 animate-pulse" />;
 
     return (
         <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group shadow-xl transition-all">
@@ -30,7 +47,7 @@ export default function GoalPlannerWidget() {
                 </Link>
             </div>
 
-            {goals.length === 0 ? (
+            {!goals || goals.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                     <div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 mb-4">
                         <Compass size={32} className="text-emerald-500/40" />
@@ -40,9 +57,14 @@ export default function GoalPlannerWidget() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {goals.map((goal) => (
-                        <motion.div
-                            key={goal.id}
+                    {goals?.map((goal: any) => {
+                        const completed = goal.milestones?.filter((m: any) => m.is_completed).length || 0;
+                        const total = goal.milestones?.length || 1;
+                        const progress = Math.round((completed / total) * 100);
+
+                        return (
+                            <motion.div
+                                key={goal.id}
                             whileHover={{ y: -4 }}
                             className="p-5 rounded-2xl bg-[var(--bg-sidebar)] border border-white/5 hover:border-emerald-500/30 transition-all cursor-pointer group/goal"
                         >
@@ -51,7 +73,7 @@ export default function GoalPlannerWidget() {
                                     {goal.category}
                                 </span>
                                 <div className="flex items-center gap-1 text-[10px] font-semibold text-slate-500">
-                                    <span>{goal.progress}% tercapai</span>
+                                    <span>{progress}% tercapai</span>
                                 </div>
                             </div>
 
@@ -63,7 +85,7 @@ export default function GoalPlannerWidget() {
                                 <motion.div
                                     className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                                     initial={{ width: 0 }}
-                                    animate={{ width: `${goal.progress}%` }}
+                                    animate={{ width: `${progress}%` }}
                                     transition={{ duration: 1.5, ease: "easeOut" }}
                                 />
                             </div>
@@ -80,7 +102,8 @@ export default function GoalPlannerWidget() {
                                 <ChevronRight size={14} className="text-slate-600 group-hover/goal:translate-x-1 transition-transform" />
                             </div>
                         </motion.div>
-                    ))}
+                            );
+                        })}
                 </div>
             )}
         </div>

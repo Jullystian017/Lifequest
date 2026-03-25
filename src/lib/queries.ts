@@ -90,3 +90,24 @@ export const fetchUserAchievements = async (userId: string) => {
     if (error) throw error;
     return data ?? [];
 };
+
+// ─── Goals ──────────────────────────────────────────────────────────────────
+export const goalsQueryKey = (userId: string) => ["goals", userId] as const;
+
+export const fetchGoals = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("goals")
+        .select("*, milestones(*)")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+    
+    if (error) throw error;
+    
+    // Sort milestones by order
+    const goalsWithSortedMilestones = (data ?? []).map(goal => ({
+        ...goal,
+        milestones: (goal.milestones ?? []).sort((a: any, b: any) => a.order - b.order)
+    }));
+    
+    return goalsWithSortedMilestones;
+};
