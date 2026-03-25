@@ -263,3 +263,32 @@ export async function toggleMilestone(userId: string, milestoneId: string, isCom
 
     return { allCompleted: allCompletedNow };
 }
+
+// ─── AI Chat Mutations ────────────────────────────────────────────────────
+export async function createChat(userId: string, title: string) {
+    const { data, error } = await supabase
+        .from("ai_chats")
+        .insert({ user_id: userId, title })
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+export async function addChatMessage(chatId: string, role: "user" | "assistant", content: string) {
+    const { data, error } = await supabase
+        .from("ai_messages")
+        .insert({ chat_id: chatId, role, content })
+        .select()
+        .single();
+    if (error) throw error;
+
+    // Update the parent's updated_at as well
+    await supabase.from("ai_chats").update({ updated_at: new Date().toISOString() }).eq("id", chatId);
+    return data;
+}
+
+export async function deleteChat(chatId: string) {
+    const { error } = await supabase.from("ai_chats").delete().eq("id", chatId);
+    if (error) throw error;
+}

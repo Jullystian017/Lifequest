@@ -111,3 +111,27 @@ export const fetchGoals = async (userId: string) => {
     
     return goalsWithSortedMilestones;
 };
+
+// ─── AI Chat ────────────────────────────────────────────────────────────────
+export const chatsQueryKey = (userId: string) => ["chats", userId] as const;
+export const chatMessagesQueryKey = (chatId: string) => ["chat_messages", chatId] as const;
+
+export const fetchChats = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("ai_chats")
+        .select("*")
+        .eq("user_id", userId)
+        .order("updated_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+};
+
+export const fetchChatMessages = async (chatId: string) => {
+    const { data, error } = await supabase
+        .from("ai_messages")
+        .select("*")
+        .eq("chat_id", chatId)
+        .order("created_at", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+};
