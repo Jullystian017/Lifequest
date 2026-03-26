@@ -1,8 +1,7 @@
-<p align="center">
-  <img src="public/Lifequest.png" width="120" alt="LifeQuest Logo" />
-</p>
-
-<h1 align="center">LifeQuest</h1>
+<div align="center">
+  <img src="./public/Lifequest.png" width="120" alt="LifeQuest Logo" />
+  <h1>LifeQuest</h1>
+</div>
 
 > **Transform your professional growth into an epic RPG adventure.**
 
@@ -98,9 +97,9 @@ LifeQuest follows a **Premium Dark Aesthetic** designed specifically for develop
 
 ## 👥 Meet the Team
 
-- **[Jullystian](https://github.com/jullystian)** - Lead Developer / Architect
-- **Hasboy** - Core Contributor
-- **Nnaff1** - Core Contributor
+- **[Jullystian017](https://github.com/jullystian017)** - Lead Developer / Architect
+- **[Hasboy](https://github.com/hasboy15S)** - Core Contributor
+- **[Nnaff1](https://github.com/nnaff1)** - Core Contributor
 
 ---
 
