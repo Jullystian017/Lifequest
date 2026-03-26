@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/Lifequest.png" width="120" alt="LifeQuest Logo" />
+  <img src="./public/lifequest.png" width="120" alt="LifeQuest Logo" />
   <h1>LifeQuest</h1>
 </div>
 

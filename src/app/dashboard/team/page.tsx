@@ -22,6 +22,7 @@ import { useWorkspaceStore } from "@/store/workspaceStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import {
   Users, Plus, LogIn, Copy, Check, Swords, Zap, Shield, Code2, Crown,
   ChevronRight, Loader2, Globe, BarChart3, Settings, Trophy, Target,
@@ -266,7 +267,7 @@ function WorkspaceSettingsModal({ workspace, userId, onClose }: { workspace: any
 }
 
 // ─── Main Team Page ──────────────────────────────────────────────────────────
-export default function TeamPage() {
+function TeamPageContent() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -613,6 +614,18 @@ export default function TeamPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function TeamPage() {
+  return (
+    <Suspense fallback={
+       <div className="flex items-center justify-center min-h-[50vh]">
+         <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+       </div>
+    }>
+      <TeamPageContent />
+    </Suspense>
   );
 }
 

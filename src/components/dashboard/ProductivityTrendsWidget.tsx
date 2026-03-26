@@ -67,7 +67,7 @@ export default function ProductivityTrendsWidget() {
       // Yearly: Last 12 months
       const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
       const now = new Date();
-      const data = [];
+      const data: { label: string; month: number; year: number; xp: number }[] = [];
       for (let i = 11; i >= 0; i--) {
         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         data.push({ label: monthNames[d.getMonth()], month: d.getMonth(), year: d.getFullYear(), xp: 0 });
