@@ -98,10 +98,17 @@ function QuestMasterContent() {
     setIsGenerating(true);
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: userData } = await supabase.from("users").select("*").eq("id", user?.id).single();
+
       const res = await fetch("/api/ai/quest-master", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ goal }),
+        body: JSON.stringify({ 
+          goal, 
+          userClass: userData?.role || "Fullstack Developer", 
+          userLevel: userData?.level || 1 
+        }),
       });
 
       const data = await res.json();

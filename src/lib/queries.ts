@@ -28,8 +28,8 @@ export const leaderboardQueryKey = () => ["leaderboard"] as const;
 export const fetchLeaderboard = async () => {
     const { data, error } = await supabase
         .from("users")
-        .select("id, username, level, xp")
-        .order("xp", { ascending: false })
+        .select("id, username, level, xp, total_xp, streak, highest_streak")
+        .order("total_xp", { ascending: false })
         .limit(100);
     if (error) throw error;
     
@@ -37,10 +37,35 @@ export const fetchLeaderboard = async () => {
     return (data || []).map((user, index) => ({
         ...user,
         rank: index + 1,
-        // Mock rank change and streak since they aren't directly on user table
+        rankChange: 'same' as const, // For now, we don't have historical rank data
+        rankChangeValue: 0,
+    }));
+};
+
+export const fetchWorkspaceLeaderboard = async (workspaceId: string) => {
+    // 1. Get all user IDs in this workspace
+    const { data: members, error: mError } = await supabase
+        .from("workspace_members")
+        .select("user_id")
+        .eq("workspace_id", workspaceId);
+    
+    if (mError) throw mError;
+    const userIds = members.map(m => m.user_id);
+
+    // 2. Fetch those users and sort
+    const { data, error } = await supabase
+        .from("users")
+        .select("id, username, level, xp, total_xp, streak, highest_streak")
+        .in("id", userIds)
+        .order("total_xp", { ascending: false });
+    
+    if (error) throw error;
+
+    return (data || []).map((user, index) => ({
+        ...user,
+        rank: index + 1,
         rankChange: 'same' as const,
         rankChangeValue: 0,
-        streak: 0,
     }));
 };
 
@@ -281,3 +306,16 @@ export const fetchFocusSessions = async (userId: string) => {
     return data ?? [];
 };
 
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+export const notificationsQueryKey = (userId: string) => ["notifications", userId] as const;
+
+export const fetchNotifications = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+};

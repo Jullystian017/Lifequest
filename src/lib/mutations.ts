@@ -33,6 +33,9 @@ interface UserRow {
     stat_points: number;
     stats: Record<string, number>;
     class?: "frontend" | "backend" | "devops" | "fullstack";
+    streak?: number;
+    highest_streak?: number;
+    last_quest_completed_at?: string;
 }
 
 export async function completeQuest(userId: string, quest: Quest, currentUser: UserRow) {
@@ -43,7 +46,26 @@ export async function completeQuest(userId: string, quest: Quest, currentUser: U
         .eq("id", quest.id);
     if (questError) throw questError;
 
-    // 2. Compute new user stats
+    // 2. Compute new user stats & Streak
+    const now = new Date();
+    const lastQuestAt = currentUser.last_quest_completed_at ? new Date(currentUser.last_quest_completed_at) : null;
+    let newStreak = currentUser.streak || 0;
+    
+    if (!lastQuestAt) {
+        newStreak = 1;
+    } else {
+        const diffDays = Math.floor((now.getTime() - lastQuestAt.getTime()) / (1000 * 60 * 60 * 24));
+        const isSameDay = now.toDateString() === lastQuestAt.toDateString();
+        const isYesterday = new Date(now.getTime() - 86400000).toDateString() === lastQuestAt.toDateString();
+
+        if (isYesterday) {
+            newStreak += 1;
+        } else if (!isSameDay) {
+            // Missed a day or more
+            newStreak = 1;
+        }
+    }
+
     const newTotalXp = (currentUser.total_xp || 0) + quest.xp_reward;
     const { level: newLevel, xp, xpToNextLevel } = calcLevelFromTotalXp(newTotalXp);
     const newGold = (currentUser.gold || 0) + quest.coin_reward;
@@ -76,17 +98,83 @@ export async function completeQuest(userId: string, quest: Quest, currentUser: U
             gold: newGold,
             stats: newStats,
             stat_points: newStatPoints,
+            streak: newStreak,
+            last_quest_completed_at: now.toISOString(),
+            highest_streak: Math.max(newStreak, currentUser.highest_streak || 0)
         })
         .eq("id", userId);
     if (userError) throw userError;
 
     // 4. (Phase 3) Gamification: 20% Chance to spawn a Bug Monster in the workspace
     if (quest.workspace_id && Math.random() < 0.2) {
-        await spawnBugMonster(quest.workspace_id).catch(console.error);
+        await spawnBugMonster(quest.workspace_id, userId).catch(console.error);
     }
 
-    return { level: newLevel, xp, xpToNextLevel, gold: newGold, total_xp: newTotalXp };
+    // 5. Create notification for quest completion
+    await createNotification(userId, {
+        type: "reward",
+        title: "Quest Selesai!",
+        message: `Kamu mendapatkan ${quest.xp_reward} XP dan ${quest.coin_reward} Gold dari quest: ${quest.id.slice(0, 8)}...`
+    });
+
+    if (newStreak > 1 && !lastQuestAt || (lastQuestAt && now.toDateString() !== lastQuestAt.toDateString())) {
+        if (newStreak % 7 === 0) {
+            await createNotification(userId, {
+                type: "social",
+                title: "Rangkaian Hebat!",
+                message: `Kamu telah menyelesaikan quest selama ${newStreak} hari berturut-turut!`
+            });
+        }
+    }
+
+    if (levelGained > 0) {
+        await createNotification(userId, {
+            type: "system",
+            title: "Level Up!",
+            message: `Selamat! Kamu sekarang mencapai Level ${newLevel}.`
+        });
+    }
+
+    return { level: newLevel, xp, xpToNextLevel, gold: newGold, total_xp: newTotalXp, streak: newStreak };
 }
+
+// ... existing code ... (buyItem, updateUserProfile, createQuest, deleteQuest, etc.)
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+export async function createNotification(userId: string, notif: {
+    type: "system" | "ai" | "combat" | "social" | "reward";
+    title: string;
+    message: string;
+}) {
+    const { data, error } = await supabase
+        .from("notifications")
+        .insert({ user_id: userId, ...notif })
+        .select()
+        .single();
+    if (error) console.error("Notification error:", error);
+    return data;
+}
+
+export async function markNotificationRead(notifId: string) {
+    const { error } = await supabase.from("notifications").update({ read: true }).eq("id", notifId);
+    if (error) throw error;
+}
+
+export async function markAllNotificationsRead(userId: string) {
+    const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", userId);
+    if (error) throw error;
+}
+
+export async function deleteNotification(notifId: string) {
+    const { error } = await supabase.from("notifications").delete().eq("id", notifId);
+    if (error) throw error;
+}
+
+export async function clearNotifications(userId: string) {
+    const { error } = await supabase.from("notifications").delete().eq("user_id", userId);
+    if (error) throw error;
+}
+
 
 // ─── Complete Quest (Penalty — no proof) ─────────────────────────────────
 export async function completeQuestPenalty(userId: string, quest: Quest, currentUser: UserRow) {
@@ -123,6 +211,13 @@ export async function buyItem(userId: string, itemId: string, itemCategory: stri
         .update({ gold: currentGold - price })
         .eq("id", userId);
     if (userError) throw userError;
+
+    // 3. Notify user about purchase
+    await createNotification(userId, {
+        type: "reward",
+        title: "Pembelian Berhasil!",
+        message: `Kamu telah membeli item baru seharga ${price} Gold. Cek inventarismu!`
+    });
 
     return { newGold: currentGold - price };
 }
@@ -490,12 +585,12 @@ export async function createSprint(workspaceId: string, name: string, startDate:
 }
 
 // ─── Bug Monsters ────────────────────────────────────────────────────────────
-export async function spawnBugMonster(workspaceId: string | null) {
+export async function spawnBugMonster(workspaceId: string | null, userId: string) {
     const bugTypes = ["syntax_error", "memory_leak", "infinite_loop", "null_pointer"];
     const bugNames = ["Syntax Serpent", "Memory Muncher", "Loop Leviathan", "Null Nibbler"];
     const randomIndex = Math.floor(Math.random() * bugTypes.length);
     
-    const { data, error } = await supabase.from("bug_monsters").insert({
+    const { data: bug, error } = await supabase.from("bug_monsters").insert({
         workspace_id: workspaceId || null,
         name: bugNames[randomIndex],
         type: bugTypes[randomIndex],
@@ -506,8 +601,19 @@ export async function spawnBugMonster(workspaceId: string | null) {
         status: "active"
     }).select().single();
     
-    if (error) console.error("Error spawning bug:", error);
-    return data;
+    if (error) {
+        console.error("Error spawning bug:", error);
+        return null;
+    }
+
+    // Notify user about the monster
+    await createNotification(userId, {
+        type: "combat",
+        title: "Warning: Developer Shadow!",
+        message: `Seekor ${bug.name} muncul di workspace! Kalahkan segera untuk bonus XP.`
+    });
+    
+    return bug;
 }
 
 export async function damageBugMonster(bugId: string, damage: number, userId: string) {
@@ -525,16 +631,29 @@ export async function damageBugMonster(bugId: string, damage: number, userId: st
 
     if (squashed) {
         // Reward the player who dealt the final blow
-        const { data: user } = await supabase.from("users").select("xp, coins").eq("id", userId).single();
+        const { data: user } = await supabase.from("users").select("xp, total_xp, gold").eq("id", userId).single();
         if (user) {
+            const newTotalXp = (user.total_xp || 0) + (bug.xp_reward || 0);
+            const { level: newLevel, xp: newXp, xpToNextLevel } = calcLevelFromTotalXp(newTotalXp);
+            
             await supabase.from("users").update({
-                xp: user.xp + bug.xp_reward,
-                coins: user.coins + bug.coin_reward
+                total_xp: newTotalXp,
+                xp: newXp,
+                level: newLevel,
+                xp_to_next_level: xpToNextLevel,
+                gold: (user.gold || 0) + (bug.coin_reward || 0)
             }).eq("id", userId);
+
+            // Notify user about victory
+            await createNotification(userId, {
+                type: "reward",
+                title: "Monster Dikalahkan!",
+                message: `Kamu berhasil menghancurkan ${bug.name}! +${bug.xp_reward} XP dan ${bug.coin_reward} Gold didapatkan.`
+            });
         }
     }
 
-    return { squashed, newHp, reward: squashed ? { xp: bug.xp_reward, coins: bug.coin_reward } : null };
+    return { squashed, newHp, reward: squashed ? { xp: bug.xp_reward, gold: bug.coin_reward } : null };
 }
 
 // ─── Focus Sessions ──────────────────────────────────────────────────────────

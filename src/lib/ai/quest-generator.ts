@@ -25,13 +25,15 @@ export interface QuestRoadmap {
  */
 export async function generateQuestRoadmap(
     goal: string,
-    durationDays: number = 7
+    durationDays: number = 7,
+    userClass: string = "general",
+    userLevel: number = 1
 ): Promise<QuestRoadmap> {
     try {
-        const response = await fetch("/api/ai/generate-quests", {
+        const response = await fetch("/api/ai/quest-master", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ goal, durationDays }),
+            body: JSON.stringify({ goal, durationDays, userClass, userLevel }),
         });
 
         if (!response.ok) {

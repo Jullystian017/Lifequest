@@ -1,13 +1,24 @@
 "use client";
 
-import { Bell, Flame, LogOut, Settings, User, MoreHorizontal, CheckCircle2, Clock } from "lucide-react";
+import { Bell, Flame, LogOut, Settings, User, MoreHorizontal, CheckCircle2, Clock, TrendingUp } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-import { fetchUser, fetchQuests, fetchHabits, userQueryKey, questsQueryKey, habitsQueryKey } from "@/lib/queries";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { 
+  fetchUser, 
+  fetchQuests, 
+  fetchHabits, 
+  userQueryKey, 
+  questsQueryKey, 
+  habitsQueryKey,
+  fetchNotifications,
+  notificationsQueryKey
+} from "@/lib/queries";
+import { markAllNotificationsRead } from "@/lib/mutations";
+import { useNotificationStore } from "@/store/notificationStore";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -95,6 +106,64 @@ export default function Navbar() {
   const { data: user } = useQuery({ queryKey: userQueryKey(userId!), queryFn: () => fetchUser(userId!), enabled: !!userId });
   const { data: quests = [] } = useQuery({ queryKey: questsQueryKey(userId!), queryFn: () => fetchQuests(userId!), enabled: !!userId });
   const { data: habits = [] } = useQuery({ queryKey: habitsQueryKey(userId!), queryFn: () => fetchHabits(userId!), enabled: !!userId });
+  
+  const { data: notifications = [] } = useQuery({ 
+    queryKey: notificationsQueryKey(userId!), 
+    queryFn: () => fetchNotifications(userId!), 
+    enabled: !!userId,
+    refetchInterval: 30000 // Poll every 30s for new notifs
+  });
+
+  const { addToast } = useNotificationStore();
+  const seenIds = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (notifications.length > 0) {
+      notifications.forEach((n: any) => {
+        if (!seenIds.current.has(n.id)) {
+          // If it's very new (created < 10s ago), show a toast
+          const createdAt = new Date(n.created_at).getTime();
+          const now = new Date().getTime();
+          if (now - createdAt < 10000) {
+            addToast({
+              type: (n.type as any) || 'system',
+              title: n.title,
+              message: n.message
+            });
+          }
+          seenIds.current.add(n.id);
+        }
+      });
+    }
+  }, [notifications, addToast]);
+
+  const queryClient = useQueryClient();
+  const markAllReadMutation = useMutation({
+    mutationFn: () => markAllNotificationsRead(userId!),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationsQueryKey(userId!) }),
+  });
+
+  const unreadCount = notifications.filter((n: any) => !n.is_read || !n.read).length;
+
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return "Baru saja";
+    if (diffMins < 60) return `${diffMins}m lalu`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}j lalu`;
+    return `${Math.floor(diffMins / 1440)}h lalu`;
+  };
+
+  const getNotifIcon = (type: string) => {
+    switch (type) {
+      case 'reward': return <TrendingUp size={16} className="text-yellow-400" />;
+      case 'combat': return <Flame size={16} className="text-orange-400" />;
+      case 'ai': return <CheckCircle2 size={16} className="text-indigo-400" />;
+      default: return <Bell size={16} className="text-slate-400" />;
+    }
+  };
 
   const coins = user?.gold ?? 0;
   const level = user?.level ?? 1;
@@ -103,13 +172,13 @@ export default function Navbar() {
   const username = user?.username ?? "Petualang";
   const avatar_url = user?.avatar_url ?? "/lifequest.png";
 
+// ... (rest of the logic remains same)
   const totalCompletedQuests = useMemo(() => quests.filter((q: any) => q.is_completed).length, [quests]);
   const maxStreak = useMemo(() => habits.length > 0 ? Math.max(...habits.map((h: any) => h.current_streak ?? 0), 0) : 0, [habits]);
 
   return (
     <header className="h-24 flex items-center justify-between px-10 bg-[var(--bg-main)] sticky top-0 z-30 w-full border-b border-white/[0.02]">
-
-      {/* 1. Left Side: Page Title */}
+      {/* ... (title content) ... */}
       <div className="flex flex-col gap-1.5 w-1/3">
         <h1 className="text-3xl font-bold font-[family-name:var(--font-heading)] text-white tracking-tight leading-none">
           {title}
@@ -119,18 +188,14 @@ export default function Navbar() {
         </p>
       </div>
 
-      {/* 2. Center: Empty per user request */}
-      <div className="flex-1 flex justify-center items-center">
-      </div>
+      <div className="flex-1 flex justify-center items-center"></div>
 
-      {/* 3. Right Side: Resources & Identity (The Essentials) */}
       <div className="flex items-center justify-end gap-3 w-1/3">
-
         {/* Currency (Gold) */}
         <div className="flex items-center gap-2">
+          {/* ... */}
           <button className="w-10 h-10 p-2.5 bg-[#1b1c28] border border-white/[0.05] rounded-xl flex items-center justify-center hover:bg-white/[0.05] transition-all relative shadow-sm cursor-pointer group shrink-0">
             <span className="text-base leading-none group-hover:scale-110 transition-transform duration-300">🪙</span>
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-white/[0.05] to-transparent pointer-events-none"></div>
           </button>
           <div className="flex flex-col items-start leading-none group cursor-pointer mr-2">
             <span className="text-[9px] font-bold text-orange-400/80 uppercase tracking-widest hidden sm:block">Kekayaan</span>
@@ -145,10 +210,13 @@ export default function Navbar() {
             className={`p-2.5 bg-[#1b1c28] border rounded-xl text-slate-400 hover:text-white transition-all relative shadow-sm ${isNotifOpen ? 'border-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.2)]' : 'border-white/[0.05]'}`}
           >
             <Bell size={18} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-[#1b1c28]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-indigo-500 rounded-full border-2 border-[#1b1c28] text-[9px] font-black text-white flex items-center justify-center shadow-lg">
+                {unreadCount}
+              </span>
+            )}
           </button>
 
-          {/* Notification Dropdown Modal */}
           <AnimatePresence>
             {isNotifOpen && (
               <motion.div
@@ -158,49 +226,52 @@ export default function Navbar() {
                 transition={{ type: "tween", duration: 0.2 }}
                 className="absolute right-0 top-full mt-4 w-80 bg-[#1b1c28] border border-white/[0.05] rounded-3xl shadow-2xl overflow-hidden z-50 flex flex-col"
               >
-                {/* Header */}
                 <div className="p-4 border-b border-white/[0.05] bg-white/[0.01] flex items-center justify-between">
                   <h4 className="text-white font-bold text-sm">Notifikasi</h4>
-                  <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">2 BARU</span>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-md">{unreadCount} BARU</span>
+                  )}
                 </div>
 
-                {/* Notification List */}
-                <div className="max-h-[300px] overflow-y-auto flex flex-col">
-                  {/* Item 1 */}
-                  <div className="p-4 border-b border-white/[0.02] flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-pointer relative overflow-hidden group">
-                    <div className="w-1 absolute left-0 top-0 bottom-0 bg-indigo-500"></div>
-                    <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
-                      <CheckCircle2 size={16} className="text-indigo-400" />
+                <div className="max-h-[300px] overflow-y-auto flex flex-col custom-scrollbar">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500 text-xs font-bold uppercase tracking-widest">
+                      Tidak ada notifikasi
                     </div>
-                    <div>
-                      <h5 className="text-sm font-bold text-white leading-tight">Quest Selesai</h5>
-                      <p className="text-xs text-slate-400 mt-1 leading-snug">Kamu baru saja menyelesaikan quest. +50 XP dan 100 G didapatkan.</p>
-                      <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
-                        <Clock size={10} /> 2 menit lalu
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Item 2 */}
-                  <div className="p-4 border-b border-white/[0.02] flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-pointer relative overflow-hidden group">
-                    <div className="w-1 absolute left-0 top-0 bottom-0 bg-orange-500"></div>
-                    <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0">
-                      <Flame size={16} className="text-orange-400" />
-                    </div>
-                    <div>
-                      <h5 className="text-sm font-bold text-white leading-tight">Peringatan Streak</h5>
-                      <p className="text-xs text-slate-400 mt-1 leading-snug">Jangan putuskan momentum 42 harimu! Selesaikan kebiasaan harian segera.</p>
-                      <span className="text-[9px] font-semibold text-slate-500 mt-2 block flex items-center gap-1">
-                        <Clock size={10} /> 1 jam lalu
-                      </span>
-                    </div>
-                  </div>
+                  ) : (
+                    notifications.slice(0, 5).map((notif: any) => (
+                      <div key={notif.id} className="p-4 border-b border-white/[0.02] flex items-start gap-3 hover:bg-white/[0.02] transition-colors cursor-pointer relative overflow-hidden group">
+                        {!notif.read && <div className="w-1 absolute left-0 top-0 bottom-0 bg-indigo-500"></div>}
+                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                          {getNotifIcon(notif.type)}
+                        </div>
+                        <div>
+                          <h5 className={`text-sm font-bold leading-tight ${notif.read ? 'text-slate-400' : 'text-white'}`}>{notif.title}</h5>
+                          <p className="text-xs text-slate-500 mt-1 leading-snug line-clamp-2">{notif.message}</p>
+                          <span className="text-[9px] font-semibold text-slate-600 mt-2 block flex items-center gap-1">
+                            <Clock size={10} /> {formatTime(notif.created_at)}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
 
-                {/* Footer Action */}
-                <button className="p-3 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/[0.02] transition-colors text-center w-full">
-                  Tandai semua sudah dibaca
-                </button>
+                {unreadCount > 0 && (
+                  <button 
+                    onClick={() => markAllReadMutation.mutate()}
+                    className="p-3 text-xs font-bold text-slate-400 hover:text-white hover:bg-white/[0.02] transition-colors text-center w-full border-t border-white/[0.05]"
+                  >
+                    Tandai semua sudah dibaca
+                  </button>
+                )}
+                <Link 
+                  href="/dashboard/notifications" 
+                  onClick={() => setIsNotifOpen(false)}
+                  className="p-3 text-[10px] font-bold text-indigo-400 bg-indigo-500/5 hover:bg-indigo-500/10 transition-colors text-center w-full border-t border-white/[0.05] uppercase tracking-widest"
+                >
+                  Lihat Semua Notifikasi
+                </Link>
               </motion.div>
             )}
           </AnimatePresence>

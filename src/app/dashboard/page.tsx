@@ -16,6 +16,7 @@ import ActiveStreaksWidget from "@/components/dashboard/ActiveStreaksWidget";
 import RecentActivityWidget from "@/components/dashboard/RecentActivityWidget";
 import AIInsightWidget from "@/components/dashboard/AIInsightWidget";
 import SummaryStatCards from "@/components/dashboard/SummaryStatCards";
+import GuildMaster from "@/components/dashboard/GuildMaster";
 
 import {
     Heart, BookOpen, Dumbbell, Palette,
@@ -124,6 +125,8 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Left Column (Wider) */}
                 <div className="lg:col-span-8 space-y-10">
+                    
+                    <GuildMaster user={user} quests={quests} habits={habits} />
                     
                     {pendingQuests.length > 0 && (
                         <Link href="/dashboard/quests" className="p-6 rounded-3xl bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border border-indigo-500/20 flex items-center justify-between group hover:border-indigo-500/40 transition-all cursor-pointer shadow-xl">

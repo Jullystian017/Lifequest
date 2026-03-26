@@ -134,10 +134,10 @@ export default function AnalyticsPage() {
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Flame size={60} /></div>
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-2 rounded-lg bg-orange-500/10 text-orange-400"><Flame size={16} /></div>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Streak Terbaik</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Rangkaian (Streak)</span>
                     </div>
-                    <span className="text-3xl font-bold text-white tracking-tighter">{bestStreak} Hari</span>
-                    <div className="text-xs font-bold text-slate-500 mt-1">{habits.length} kebiasaan dilacak</div>
+                    <span className="text-3xl font-bold text-white tracking-tighter">{user?.streak || 0} Hari</span>
+                    <div className="text-xs font-bold text-slate-500 mt-1">Selesaikan quest harian untuk menjaga streak!</div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">

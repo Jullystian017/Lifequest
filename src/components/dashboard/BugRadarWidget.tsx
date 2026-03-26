@@ -25,21 +25,73 @@ export default function BugRadarWidget() {
         enabled: !!activeWorkspaceId,
     });
 
+    // Realtime Subscriptions
+    useEffect(() => {
+        if (!activeWorkspaceId) return;
+
+        const channel = supabase
+            .channel(`workspace-bugs-${activeWorkspaceId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'bug_monsters',
+                    filter: `workspace_id=eq.${activeWorkspaceId}`
+                },
+                (payload) => {
+                    const updatedBug = payload.new;
+                    queryClient.setQueryData(bugMonstersQueryKey(activeWorkspaceId), (old: any) => {
+                        if (!old) return old;
+                        // If it became squashed, removing it
+                        if (updatedBug.status === 'squashed') {
+                            return old.filter((b: any) => b.id !== updatedBug.id);
+                        }
+                        return old.map((b: any) => b.id === updatedBug.id ? { ...b, ...updatedBug } : b);
+                    });
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'bug_monsters',
+                    filter: `workspace_id=eq.${activeWorkspaceId}`
+                },
+                (payload) => {
+                    const newBug = payload.new;
+                    queryClient.setQueryData(bugMonstersQueryKey(activeWorkspaceId), (old: any) => {
+                        if (!old) return [newBug];
+                        if (old.some((b: any) => b.id === newBug.id)) return old;
+                        return [newBug, ...old];
+                    });
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [activeWorkspaceId, queryClient, supabase]);
+
     const attackMutation = useMutation({
         mutationFn: async ({ bugId, damage }: { bugId: string, damage: number }) => {
             if (!userId) throw new Error("Not logged in");
             return damageBugMonster(bugId, damage, userId);
         },
         onSuccess: (result, variables) => {
-            // Optimistically update or refetch
             if (result && result.squashed) {
-                queryClient.invalidateQueries({ queryKey: bugMonstersQueryKey(activeWorkspaceId!) });
-                // We could also show a toast or confeti here!
-            } else {
-                // Update local HP cache to feel responsive
+                // Remove from local list immediately
                 queryClient.setQueryData(bugMonstersQueryKey(activeWorkspaceId!), (old: any) => {
                     if (!old) return old;
-                    return old.map((b: any) => b.id === variables.bugId ? { ...b, hp: result!.newHp } : b);
+                    return old.filter((b: any) => b.id !== variables.bugId);
+                });
+            } else if (result) {
+                // Update HP immediately
+                queryClient.setQueryData(bugMonstersQueryKey(activeWorkspaceId!), (old: any) => {
+                    if (!old) return old;
+                    return old.map((b: any) => b.id === variables.bugId ? { ...b, hp: result.newHp } : b);
                 });
             }
         }

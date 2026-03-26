@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
+import { fetchNotifications, notificationsQueryKey } from "@/lib/queries";
+import { markNotificationRead, markAllNotificationsRead, clearNotifications, deleteNotification } from "@/lib/mutations";
 import {
     Bell,
     Gift,
     Swords,
-    TrendingUp,
     AlertCircle,
     BrainCircuit,
     CheckCircle2,
@@ -17,64 +20,39 @@ import {
 
 type NotificationType = 'system' | 'ai' | 'combat' | 'social' | 'reward';
 
-interface AppNotification {
-    id: string;
-    type: NotificationType;
-    title: string;
-    message: string;
-    time: string;
-    read: boolean;
-    reward?: string;
-}
-
-const INITIAL_NOTIFICATIONS: AppNotification[] = [
-    {
-        id: "n1",
-        type: "ai",
-        title: "Peringatan Konsistensi Jangka Panjang",
-        message: "Pola tidurmu berkurang 20% minggu ini. Jangan lupakan pemulihan sebelum menghadapi Shadow Boss selanjutnya.",
-        time: "10 menit yang lalu",
-        read: false
-    },
-    {
-        id: "n2",
-        type: "reward",
-        title: "Pencapaian Terbuka: Konsisten",
-        message: "Kamu telah menyelesaikan rutinitas selama 3 hari beruntun! Ambil hadiah XP-mu sekarang.",
-        time: "1 jam yang lalu",
-        read: false,
-        reward: "+100 XP"
-    },
-    {
-        id: "n3",
-        type: "combat",
-        title: "Serangan Shadow Enemy: Prokrastinator Kecil",
-        message: "Musuh mencoba mencuri waktumu saat kamu membuka media sosial. Segera alihkan perhatian ke 'Deep Work'!",
-        time: "2 jam yang lalu",
-        read: true
-    },
-    {
-        id: "n4",
-        type: "system",
-        title: "Pembaruan Sistem LifeQuest v1.2",
-        message: "Fitur Simulasi Masa Depan dan Papan Peringkat kini telah aktif. Cek sekarang untuk memantau lintasanmu.",
-        time: "1 hari yang lalu",
-        read: true
-    },
-    {
-        id: "n5",
-        type: "social",
-        title: "Pesan Guild: Alex Miller",
-        message: "'Jangan lupa setoran quest hariannya ya teman-teman!' - Ketuk untuk melihat chat Guild.",
-        time: "1 hari yang lalu",
-        read: true
-    }
-];
-
 export default function NotificationsPage() {
-    const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
+    const supabase = createClient();
+    const queryClient = useQueryClient();
+    const [userId, setUserId] = useState<string | null>(null);
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) setUserId(data.user.id);
+        });
+    }, []);
+
+    const { data: notifications = [], isLoading } = useQuery({
+        queryKey: notificationsQueryKey(userId!),
+        queryFn: () => fetchNotifications(userId!),
+        enabled: !!userId,
+    });
+
+    const markReadMutation = useMutation({
+        mutationFn: (id: string) => markNotificationRead(id),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationsQueryKey(userId!) }),
+    });
+
+    const markAllReadMutation = useMutation({
+        mutationFn: () => markAllNotificationsRead(userId!),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationsQueryKey(userId!) }),
+    });
+
+    const clearAllMutation = useMutation({
+        mutationFn: () => clearNotifications(userId!),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: notificationsQueryKey(userId!) }),
+    });
+
+    const unreadCount = notifications.filter((n: any) => !n.read).length;
 
     const getIcon = (type: NotificationType) => {
         switch(type) {
@@ -97,12 +75,23 @@ export default function NotificationsPage() {
         }
     };
 
-    const markAllRead = () => setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    const clearAll = () => setNotifications([]);
+    const formatTime = (dateStr: string) => {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
 
-    const toggleRead = (id: string) => {
-        setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: !n.read } : n));
+        if (diffMins < 1) return "Baru saja";
+        if (diffMins < 60) return `${diffMins} menit lalu`;
+        if (diffHours < 24) return `${diffHours} jam lalu`;
+        return `${diffDays} hari lalu`;
     };
+
+    if (isLoading && userId) {
+        return <div className="p-12 text-center text-slate-500 uppercase tracking-widest font-bold text-xs animate-pulse">Memuat Notifikasi...</div>;
+    }
 
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in">
@@ -110,14 +99,16 @@ export default function NotificationsPage() {
             <div className="flex justify-end pb-6 border-b border-white/5">
                 <div className="flex items-center gap-3 shrink-0">
                     <button 
-                        onClick={markAllRead}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-[var(--bg-card)] border border-[var(--border-light)] hover:border-white/20 transition-all"
+                        onClick={() => markAllReadMutation.mutate()}
+                        disabled={unreadCount === 0}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white bg-[var(--bg-card)] border border-[var(--border-light)] hover:border-white/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <CheckCheck size={14} /> Tandai Semua Dibaca
                     </button>
                     <button 
-                        onClick={clearAll}
-                        className="flex items-center gap-2 p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-transparent transition-all"
+                        onClick={() => clearAllMutation.mutate()}
+                        disabled={notifications.length === 0}
+                        className="flex items-center gap-2 p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-400/10 border border-transparent transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <Trash2 size={16} />
                     </button>
@@ -126,7 +117,7 @@ export default function NotificationsPage() {
 
             {/* List */}
             <div className="space-y-3">
-                <AnimatePresence>
+                <AnimatePresence mode="popLayout">
                     {notifications.length === 0 ? (
                         <motion.div 
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -136,14 +127,14 @@ export default function NotificationsPage() {
                             <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Tidak ada notifikasi baru.</p>
                         </motion.div>
                     ) : (
-                        notifications.map((notif) => (
+                        notifications.map((notif: any) => (
                             <motion.div
                                 layout
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 key={notif.id}
-                                onClick={() => !notif.read && toggleRead(notif.id)}
+                                onClick={() => !notif.read && markReadMutation.mutate(notif.id)}
                                 className={`w-full p-4 md:p-5 rounded-2xl border transition-all cursor-pointer hover:border-white/20 ${getColors(notif.type, notif.read)}`}
                             >
                                 <div className="flex gap-4">
@@ -158,18 +149,12 @@ export default function NotificationsPage() {
                                                 {notif.title}
                                             </h4>
                                             <span className="text-[10px] font-bold text-slate-500 whitespace-nowrap flex items-center gap-1 shrink-0 mt-1">
-                                                <Clock size={10} /> {notif.time}
+                                                <Clock size={10} /> {formatTime(notif.created_at)}
                                             </span>
                                         </div>
                                         <p className={`text-sm leading-relaxed ${notif.read ? 'text-slate-500' : 'text-slate-300'}`}>
                                             {notif.message}
                                         </p>
-                                        
-                                        {notif.reward && (
-                                            <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs font-bold">
-                                                <Gift size={12} /> {notif.reward}
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             </motion.div>
@@ -177,7 +162,6 @@ export default function NotificationsPage() {
                     )}
                 </AnimatePresence>
             </div>
-
         </div>
     );
 }

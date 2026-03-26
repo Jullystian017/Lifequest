@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 
-const SYSTEM_PROMPT = `You are a Game Master and Productivity Coach for a gamified workspace called LifeQuest.
-The user will give you their ultimate goal. Your job is to create a comprehensive quest plan to achieve that goal.
-Break the goal into 4-7 actionable quests (sub-tasks) that progressively build towards the goal.
+const SYSTEM_PROMPT = `You are a Game Master and Technical Mentor for a gamified workspace called LifeQuest.
+The user wants to achieve a specific technical goal. 
+Context:
+- User Specialty: {userClass}
+- User Skill Level: {userLevel}
+
+Your job is to create a comprehensive quest roadmap. 
+If the user is a "frontend" dev, focus on UI/UX and client-side logic. 
+If "backend", focus on APIs and data. 
+Scale the difficulty and depth of descriptions based on their level.
 
 Return ONLY a valid JSON array with this schema:
 [
@@ -18,20 +25,22 @@ Return ONLY a valid JSON array with this schema:
 ]
 
 Rules:
-- Write all text in Indonesian language
-- Start with easier quests and progressively increase difficulty
-- The last quest should always be a "feature" or "planning" category representing the completed goal
-- Make quests specific, measurable, and actionable
-- XP rewards should scale with difficulty
-- Do NOT include markdown, code blocks, or any text outside the JSON array`;
+- Text in Indonesian
+- High technical relevance to the {userClass} specialty
+- Difficulty should represent {userLevel} expectations
+- Do NOT include markdown.`;
 
 export async function POST(req: Request) {
     try {
-        const { goal } = await req.json();
+        const { goal, userClass, userLevel } = await req.json();
 
         if (!goal || typeof goal !== "string") {
             return NextResponse.json({ error: "Goal is required" }, { status: 400 });
         }
+
+        const dynamicPrompt = SYSTEM_PROMPT
+            .replace(/{userClass}/g, userClass || "General Developer")
+            .replace(/{userLevel}/g, `Level ${userLevel || 1}`);
 
         const apiKey = process.env.GROQ_API_KEY;
         if (!apiKey || apiKey === "your-groq-api-key") {
@@ -56,7 +65,7 @@ export async function POST(req: Request) {
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: [
-                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "system", content: dynamicPrompt },
                     { role: "user", content: `Goal saya: ${goal}` }
                 ],
                 temperature: 0.7,

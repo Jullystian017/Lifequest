@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUser, userQueryKey, fetchLeaderboard, leaderboardQueryKey } from "@/lib/queries";
+import { fetchUser, userQueryKey, fetchLeaderboard, leaderboardQueryKey, fetchWorkspaceLeaderboard } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/client";
+import { useWorkspaceStore } from "@/store/workspaceStore";
 import {
     Trophy,
     Medal,
@@ -32,6 +33,7 @@ interface DBUser {
 
 export default function LeaderboardPage() {
     const supabase = createClient();
+    const { activeWorkspaceId } = useWorkspaceStore();
     const [userId, setUserId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<LeaderboardTab>('global');
 
@@ -47,15 +49,20 @@ export default function LeaderboardPage() {
         enabled: !!userId,
     });
     
-    const { data: players = [] } = useQuery({
+    const { data: globalPlayers = [] } = useQuery({
         queryKey: leaderboardQueryKey(),
         queryFn: fetchLeaderboard,
+        enabled: activeTab === 'global',
+    });
+
+    const { data: workspacePlayers = [] } = useQuery({
+        queryKey: ["workspaceLeaderboard", activeWorkspaceId],
+        queryFn: () => fetchWorkspaceLeaderboard(activeWorkspaceId!),
+        enabled: activeTab === 'friends' && !!activeWorkspaceId,
     });
     
     const currentUsername = user?.username || "PlayerOne";
-
-    // Simulate friends list (just a subset)
-    const displayPlayers = activeTab === 'global' ? (players as DBUser[]) : (players as DBUser[]).filter(p => [1, 3, 5, 8].includes(p.rank));
+    const displayPlayers = (activeTab === 'global' ? globalPlayers : workspacePlayers) as DBUser[];
 
     const topThree = displayPlayers.slice(0, 3);
     const rest = displayPlayers.slice(3);
@@ -86,7 +93,7 @@ export default function LeaderboardPage() {
                             activeTab === 'friends' ? 'bg-[var(--primary)] text-white shadow-lg' : 'text-slate-400 hover:text-white'
                         }`}
                     >
-                        <Users size={16} /> Teman
+                        <Users size={16} /> Team
                     </button>
                 </div>
             </div>
