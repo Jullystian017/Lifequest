@@ -188,6 +188,10 @@ export const fetchChatMessages = async (chatId: string) => {
 export const workspacesQueryKey = (userId: string) => ["workspaces", userId] as const;
 export const workspaceMembersQueryKey = (workspaceId: string) => ["workspace_members", workspaceId] as const;
 export const workspaceActivityQueryKey = (workspaceId: string) => ["workspace_activity", workspaceId] as const;
+export const teamStatsQueryKey = (workspaceId: string) => ["team_stats", workspaceId] as const;
+export const workspaceLeaderboardQueryKey = (workspaceId: string) => ["workspace_leaderboard", workspaceId] as const;
+export const memberProfileQueryKey = (userId: string) => ["member_profile", userId] as const;
+export const memberRecentQuestsQueryKey = (userId: string, workspaceId: string) => ["member_recent_quests", userId, workspaceId] as const;
 
 export const fetchUserWorkspaces = async (userId: string) => {
     const { data, error } = await supabase
@@ -228,6 +232,171 @@ export const fetchWorkspaceActivity = async (workspaceId: string) => {
     if (error) throw error;
     return data ?? [];
 };
+
+export const fetchTeamStats = async (workspaceId: string) => {
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay()); // Sunday
+    weekStart.setHours(0, 0, 0, 0);
+
+    // Get all members
+    const { data: members } = await supabase
+        .from("workspace_members")
+        .select("user_id, users(id, username, level, total_xp, streak, class)")
+        .eq("workspace_id", workspaceId);
+
+    const memberIds = (members ?? []).map((m: any) => m.user_id);
+
+    // Quests completed this week in this workspace
+    const { data: weekQuests } = await supabase
+        .from("quests")
+        .select("user_id, xp_reward")
+        .eq("workspace_id", workspaceId)
+        .eq("is_completed", true)
+        .gte("completed_at", weekStart.toISOString());
+
+    // All completed quests total
+    const { data: allQuests } = await supabase
+        .from("quests")
+        .select("user_id, xp_reward, is_completed")
+        .eq("workspace_id", workspaceId)
+        .eq("is_completed", true);
+
+    const weekQuestsCount = (weekQuests ?? []).length;
+    const weekXpGained = (weekQuests ?? []).reduce((sum: number, q: any) => sum + (q.xp_reward ?? 0), 0);
+
+    // Most active member this week
+    const questCountByUser: Record<string, number> = {};
+    for (const q of (weekQuests ?? [])) {
+        questCountByUser[q.user_id] = (questCountByUser[q.user_id] ?? 0) + 1;
+    }
+
+    let mostActiveUser: any = null;
+    let maxQuests = 0;
+    for (const m of (members ?? [])) {
+        const count = questCountByUser[(m as any).user_id] ?? 0;
+        if (count > maxQuests) {
+            maxQuests = count;
+            mostActiveUser = (m as any).users;
+        }
+    }
+
+    // Highest streak in team
+    const highestStreak = Math.max(0, ...(members ?? []).map((m: any) => m.users?.streak ?? 0));
+    const totalTeamXp = (members ?? []).reduce((sum: number, m: any) => sum + (m.users?.total_xp ?? 0), 0);
+    const activeMembers = Object.keys(questCountByUser).length;
+
+    return {
+        weekQuestsCount,
+        weekXpGained,
+        totalTeamXp,
+        highestStreak,
+        activeMembers,
+        totalMembers: memberIds.length,
+        mostActiveUser,
+        mostActiveUserQuestCount: maxQuests,
+        totalQuestsEver: (allQuests ?? []).length,
+    };
+};
+
+export const fetchMemberProfile = async (userId: string) => {
+    const { data, error } = await supabase
+        .from("users")
+        .select("id, username, avatar_url, level, total_xp, xp, xp_to_next_level, streak, highest_streak, class, stats, created_at")
+        .eq("id", userId)
+        .single();
+    if (error) throw error;
+    return data;
+};
+
+export const fetchMemberRecentQuests = async (userId: string, workspaceId: string) => {
+    const { data, error } = await supabase
+        .from("quests")
+        .select("id, title, difficulty, xp_reward, is_completed, completed_at, created_at")
+        .eq("user_id", userId)
+        .eq("workspace_id", workspaceId)
+        .order("created_at", { ascending: false })
+        .limit(5);
+    if (error) throw error;
+    return data ?? [];
+};
+
+export const fetchWeeklyTeamReport = async (workspaceId: string) => {
+    const now = new Date();
+    // This week
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(now.getDate() - 6);
+    thisWeekStart.setHours(0, 0, 0, 0);
+    // Last week
+    const lastWeekStart = new Date(thisWeekStart);
+    lastWeekStart.setDate(lastWeekStart.getDate() - 7);
+
+    const { data: members } = await supabase
+        .from("workspace_members")
+        .select("user_id, users(id, username, class)")
+        .eq("workspace_id", workspaceId);
+
+    const { data: completedQuests } = await supabase
+        .from("quests")
+        .select("user_id, xp_reward, completed_at, title, difficulty")
+        .eq("workspace_id", workspaceId)
+        .eq("is_completed", true)
+        .gte("completed_at", thisWeekStart.toISOString())
+        .order("completed_at", { ascending: false });
+
+    const { data: lastWeekQuests } = await supabase
+        .from("quests")
+        .select("user_id, xp_reward")
+        .eq("workspace_id", workspaceId)
+        .eq("is_completed", true)
+        .gte("completed_at", lastWeekStart.toISOString())
+        .lt("completed_at", thisWeekStart.toISOString());
+
+    const questsByUser: Record<string, { count: number; xp: number; user: any }> = {};
+    for (const m of (members ?? [])) {
+        const u = (m as any).users;
+        questsByUser[u.id] = { count: 0, xp: 0, user: u };
+    }
+    for (const q of (completedQuests ?? [])) {
+        if (questsByUser[q.user_id]) {
+            questsByUser[q.user_id].count++;
+            questsByUser[q.user_id].xp += q.xp_reward ?? 0;
+        }
+    }
+
+    const contributorRanking = Object.values(questsByUser)
+        .sort((a, b) => b.count - a.count);
+
+    const totalQuestsThisWeek = (completedQuests ?? []).length;
+    const totalQuestsLastWeek = (lastWeekQuests ?? []).length;
+    const totalXpThisWeek = (completedQuests ?? []).reduce((sum: number, q: any) => sum + (q.xp_reward ?? 0), 0);
+
+    // Activity by day of week
+    const dayLabels = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
+    const activityByDay = Array(7).fill(0);
+    for (const q of (completedQuests ?? [])) {
+        const d = new Date(q.completed_at);
+        const dayIdx = (d.getDay() + 6) % 7; // Mon=0
+        activityByDay[dayIdx]++;
+    }
+
+    return {
+        totalQuestsThisWeek,
+        totalQuestsLastWeek,
+        questGrowth: totalQuestsLastWeek > 0
+            ? Math.round(((totalQuestsThisWeek - totalQuestsLastWeek) / totalQuestsLastWeek) * 100)
+            : totalQuestsThisWeek > 0 ? 100 : 0,
+        totalXpThisWeek,
+        contributorRanking,
+        recentCompletions: (completedQuests ?? []).slice(0, 10),
+        activityByDay,
+        dayLabels,
+        weekStart: thisWeekStart.toLocaleDateString("id-ID", { day: "numeric", month: "long" }),
+        weekEnd: now.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" }),
+    };
+};
+
+export const weeklyReportQueryKey = (workspaceId: string) => ["weekly_report", workspaceId] as const;
 
 export const fetchWorkspaceInvite = async (inviteCode: string) => {
     const { data, error } = await supabase

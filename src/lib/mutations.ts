@@ -508,6 +508,117 @@ export async function logActivityFeedEvent(
     if (error) console.error("Activity feed log error:", error);
 }
 
+export async function createTeamQuest(userId: string, workspaceId: string, sprintId: string | null, quest: {
+    title: string;
+    description?: string;
+    difficulty?: string;
+    xp_reward: number;
+    coin_reward: number;
+    assignee_id?: string | null;
+    category?: string;
+}) {
+    const { data, error } = await supabase
+        .from("quests")
+        .insert({
+            ...quest,
+            user_id: userId,
+            workspace_id: workspaceId,
+            sprint_id: sprintId,
+            status: "todo",
+            type: "team",
+        })
+        .select()
+        .single();
+    if (error) throw error;
+    // Log to activity feed
+    await logActivityFeedEvent(workspaceId, userId, "quest_created", { title: quest.title, questId: data.id });
+    return data;
+}
+
+export async function assignQuest(questId: string, assigneeId: string | null) {
+    const { error } = await supabase
+        .from("quests")
+        .update({ assignee_id: assigneeId })
+        .eq("id", questId);
+    if (error) throw error;
+}
+
+export async function updateWorkspaceSettings(workspaceId: string, updates: { name?: string; description?: string }) {
+    const { data, error } = await supabase
+        .from("workspaces")
+        .update(updates)
+        .eq("id", workspaceId)
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+export async function regenerateInviteCode(workspaceId: string) {
+    const newCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const { data, error } = await supabase
+        .from("workspaces")
+        .update({ invite_code: newCode })
+        .eq("id", workspaceId)
+        .select()
+        .single();
+    if (error) throw error;
+    return data;
+}
+
+export async function updateMemberRole(workspaceId: string, userId: string, role: "admin" | "member") {
+    const { error } = await supabase
+        .from("workspace_members")
+        .update({ role })
+        .eq("workspace_id", workspaceId)
+        .eq("user_id", userId);
+    if (error) throw error;
+}
+
+export async function kickMember(workspaceId: string, userId: string) {
+    const { error } = await supabase
+        .from("workspace_members")
+        .delete()
+        .eq("workspace_id", workspaceId)
+        .eq("user_id", userId);
+    if (error) throw error;
+}
+
+export async function leaveWorkspace(workspaceId: string, userId: string) {
+    const { error } = await supabase
+        .from("workspace_members")
+        .delete()
+        .eq("workspace_id", workspaceId)
+        .eq("user_id", userId);
+    if (error) throw error;
+}
+
+export async function deleteWorkspace(workspaceId: string) {
+    const { error } = await supabase
+        .from("workspaces")
+        .delete()
+        .eq("id", workspaceId);
+    if (error) throw error;
+}
+
+export async function sendTeamNotification(workspaceId: string, title: string, message: string) {
+    // Get all member IDs
+    const { data: members } = await supabase
+        .from("workspace_members")
+        .select("user_id")
+        .eq("workspace_id", workspaceId);
+
+    if (!members?.length) return;
+    const notifs = members.map((m: any) => ({
+        user_id: m.user_id,
+        type: "social" as const,
+        title,
+        message,
+    }));
+    const { error } = await supabase.from("notifications").insert(notifs);
+    if (error) console.error("Team notification error:", error);
+}
+
 // ─── Boss (Project) Mutations ───────────────────────────────────────────────
 export async function createBoss(workspaceId: string, userId: string, data: {
     name: string;

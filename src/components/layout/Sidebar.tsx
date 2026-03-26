@@ -46,6 +46,8 @@ const personalNav = [
 const teamNav = [
   { label: "Dashboard Tim", href: "/dashboard/team", icon: Users },
   { label: "Sprint Board", href: "/dashboard/team/board", icon: Globe },
+  { label: "Leaderboard Tim", href: "/dashboard/team/leaderboard", icon: Trophy },
+  { label: "Weekly Report", href: "/dashboard/team/report", icon: BarChart3 },
   { label: "Focus Mode", href: "/dashboard/focus", icon: Timer },
   { label: "Boss Raids", href: "/dashboard/team/boss", icon: Skull },
   { label: "Activity Feed", href: "/dashboard/team/feed", icon: Activity },
