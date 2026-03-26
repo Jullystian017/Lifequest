@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { workspacesQueryKey, fetchUserWorkspaces, workspaceLeaderboardQueryKey, fetchWorkspaceLeaderboard } from "@/lib/queries";
 import { useWorkspaceStore } from "@/store/workspaceStore";
-import { Trophy, Crown, Medal, Loader2, Zap, Flame, Code2, Shield, Swords, Star } from "lucide-react";
+import Link from "next/link";
+import { Trophy, Crown, Medal, Loader2, Zap, Flame, Code2, Shield, Swords, Star, Plus } from "lucide-react";
 
 const CLASS_COLORS: Record<string, string> = { frontend: "text-cyan-400", backend: "text-purple-400", devops: "text-orange-400", fullstack: "text-emerald-400" };
 const CLASS_ICONS: Record<string, any> = { frontend: Code2, backend: Shield, devops: Zap, fullstack: Swords };
@@ -58,26 +59,39 @@ export default function TeamLeaderboardPage() {
         <h1 className="text-2xl font-black text-white flex items-center gap-3">
           <Trophy size={24} className="text-yellow-400" /> Team Leaderboard
         </h1>
-        <p className="text-slate-400 text-sm mt-1">Ranking anggota tim {activeWorkspace.name}</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-1">
+          <p className="text-slate-400 text-sm">Ranking anggota tim {activeWorkspace.name}</p>
+          {leaders.length < 3 && (
+            <Link href="/dashboard/team" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-bold hover:bg-orange-500 hover:text-white transition-all">
+              <Plus size={12} /> Undang Anggota Baru
+            </Link>
+          )}
+        </div>
       </div>
 
       {isLoading && <div className="flex justify-center py-20"><Loader2 className="animate-spin text-indigo-400" size={32} /></div>}
 
-      {/* Top 3 Podium */}
-      {!isLoading && (leaders as any[]).length >= 3 && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {/* 2nd */}
-          <div className="flex flex-col items-center gap-2 pt-6">
-            <PodiumCard leader={(leaders as any[])[1]} rank={2} isMe={(leaders as any[])[1]?.id === userId} />
-          </div>
-          {/* 1st */}
-          <div className="flex flex-col items-center gap-2">
+      {/* Adaptive Podium */}
+      {!isLoading && (leaders as any[]).length > 0 && (
+        <div className={`flex flex-wrap justify-center items-end gap-3 md:gap-8 mb-10 py-4 px-2`}>
+          {/* 2nd place (show only if 2+ members) */}
+          {(leaders as any[]).length >= 2 && (
+            <div className="order-2 md:order-1 flex-1 max-w-[120px]">
+              <PodiumCard leader={(leaders as any[])[1]} rank={2} isMe={(leaders as any[])[1]?.id === userId} />
+            </div>
+          )}
+
+          {/* 1st place (always show) */}
+          <div className="order-1 md:order-2 flex-1 max-w-[140px] -translate-y-4">
             <PodiumCard leader={(leaders as any[])[0]} rank={1} isMe={(leaders as any[])[0]?.id === userId} />
           </div>
-          {/* 3rd */}
-          <div className="flex flex-col items-center gap-2 pt-12">
-            <PodiumCard leader={(leaders as any[])[2]} rank={3} isMe={(leaders as any[])[2]?.id === userId} />
-          </div>
+
+          {/* 3rd place (show only if 3+ members) */}
+          {(leaders as any[]).length >= 3 && (
+            <div className="order-3 flex-1 max-w-[120px]">
+              <PodiumCard leader={(leaders as any[])[2]} rank={3} isMe={(leaders as any[])[2]?.id === userId} />
+            </div>
+          )}
         </div>
       )}
 
