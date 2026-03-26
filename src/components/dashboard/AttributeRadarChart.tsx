@@ -22,10 +22,10 @@ export default function AttributeRadarChart() {
 
     // Stats mapped to points on a pentagon
     const data = useMemo(() => [
-        { label: "DIS", value: stats.discipline, color: "var(--discipline)" },
-        { label: "INT", value: stats.knowledge, color: "var(--knowledge)" },
-        { label: "VIT", value: stats.vitality, color: "var(--health)" },
-        { label: "CRT", value: stats.creativity, color: "var(--creativity)" },
+        { label: "DIS", value: stats.discipline || 0, color: "var(--discipline)" },
+        { label: "INT", value: stats.knowledge || 0, color: "var(--knowledge)" },
+        { label: "VIT", value: stats.vitality || 0, color: "var(--health)" },
+        { label: "CRT", value: stats.creativity || 0, color: "var(--creativity)" },
     ], [stats]);
 
     const size = 200;
