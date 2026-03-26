@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# <img src="./public/Lifequest.png" width="40" height="40" alt="LifeQuest Logo" /> LifeQuest
 
-## Getting Started
+> **Transform your professional growth into an epic RPG adventure.**
 
-First, run the development server:
+LifeQuest is a premium, developer-centric productivity platform that gamifies the software development lifecycle. Built for those who want to track their progress, crush their bugs, and level up their careers with the same intensity as an open-world RPG.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Key Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🛡️ Dashboard & Character Stats
+- **RPG Identity**: Track your progress through four core developer attributes: **Vitality, Intelligence, Discipline, and Creativity**.
+- **Dynamic Leveling**: Earn XP from completed tasks to level up your character and unlock new capabilities.
+- **Analytics**: Beautifully rendered charts (via Recharts) to visualize your productivity trends.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### ⚔️ Quests & Boss Raids
+- **Personal Quests**: Organize your daily work using a high-fidelity Kanban board.
+- **Team Workspaces**: Collaborate with colleagues in specialized environments.
+- **Boss Battles**: Large projects are transformed into "Boss Raids" where team members must coordinate to deplete the boss's HP through task completion.
+- **Bug Monsters**: Encounter AI-generated "Bug Monsters" that represent technical debt or unexpected issues.
 
-## Learn More
+### 📜 Habits & AI Insights
+- **Habit Tracking**: Maintain streaks for positive developer behaviors (like TDD or daily standups).
+- **AI Companion**: Get personalized retrospectives and productivity advice powered by advanced AI models.
+- **Weekly Retros**: Detailed analysis of your week's performance, burnout risk, and areas for improvement.
 
-To learn more about Next.js, take a look at the following resources:
+### 🎒 Inventory & Shop
+- **Gold & Rewards**: Exchange your hard-earned quest gold for virtual items, profile decorations, or team perks.
+- **Class System**: Specialize as a Frontend, Backend, DevOps, or Fullstack specialist.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Tech Stack
 
-## Deploy on Vercel
+- **Core**: [Next.js 16](https://nextjs.org/) (App Router), [React 19](https://react.dev/)
+- **Backend / Auth**: [Supabase](https://supabase.com/) (PostgreSQL + OAuth)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/), [TanStack Query v5](https://tanstack.com/query/latest)
+- **Visuals**: [Lucide React](https://lucide.dev/), [Recharts](https://recharts.org/)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (Latest LTS)
+- npm / pnpm / bun
+- A Supabase project
+
+### Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/your-username/lifequest.git
+   cd lifequest
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**:
+   Create a `.env.local` file in the root directory:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Run development server**:
+   ```bash
+   npm run dev
+   ```
+
+### Database Setup
+
+The projects migrations are managed via Supabase. Visit the [Supabase Dashboard](https://supabase.com/dashboard) to set up your tables:
+- `users`: Core profile and stats.
+- `quests`: Task management.
+- `habits`: Recurring tracking.
+- `workspaces`: Team collaboration.
+
+---
+
+## 🎨 Design Philosophy
+
+LifeQuest follows a **Premium Dark Aesthetic** designed specifically for developers.
+- **Glassmorphism**: Subtle backgrounds and translucent layers.
+- **Micro-animations**: Smooth transitions using Framer Motion.
+- **High Contrast**: Vibrant accent colors (Purple/Indigo) on deep midnight backgrounds.
+
+---
+
+## 👥 Meet the Team
+
+- **[Jullystian](https://github.com/jullystian)** - Lead Developer / Architect
+- **Hasboy** - Core Contributor
+- **Nnaff1** - Core Contributor
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Built with ❤️ for Modern Developers.
