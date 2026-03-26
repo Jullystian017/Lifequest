@@ -63,11 +63,11 @@ export default function CharacterPage() {
     });
 
     const level = user?.level || 1;
-    const xp = user?.total_xp || 0;
+    const xp = user?.xp || 0;
     const xpToNextLevel = user?.xp_to_next_level || 100;
     const statPoints = user?.stat_points || 0;
     const stats: Record<string, number> = user?.stats || { vitality: 0, knowledge: 0, discipline: 0, creativity: 0 };
-    const coins = user?.coins || 0;
+    const coins = user?.gold || 0;
     const username = user?.username || "Petualang";
     const inventory = user?.inventory || [];
     const equippedItems = user?.equipped_items || {};
@@ -79,7 +79,7 @@ export default function CharacterPage() {
 
     const ownedCosmetics = items.filter(i => i.category === 'cosmetic' && inventory.includes(i.id));
     const xpPercentage = xpToNextLevel > 0 ? (xp / xpToNextLevel) * 100 : 0;
-    const completedQuests = quests.filter((q: any) => q.is_completed);
+    const completedQuests = quests.filter((q: any) => q.is_completed).sort((a: any, b: any) => new Date(b.completed_at || b.created_at).getTime() - new Date(a.completed_at || a.created_at).getTime());
     const streakCount = habits.filter((h: any) => h.completed_today).length;
     const totalXpEarned = completedQuests.reduce((sum: number, q: any) => sum + (q.xp_reward || 0), 0);
 
