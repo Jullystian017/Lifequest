@@ -142,7 +142,6 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Left Column (Wider) */}
                 <div className="lg:col-span-8 space-y-10">
-                    <AIInsightWidget />
                     
                     {pendingQuests.length > 0 && (
                         <Link href="/dashboard/quests" className="p-6 rounded-3xl bg-gradient-to-r from-indigo-600/10 to-purple-600/10 border border-indigo-500/20 flex items-center justify-between group hover:border-indigo-500/40 transition-all cursor-pointer shadow-xl">
@@ -173,6 +172,7 @@ export default function DashboardPage() {
 
                 {/* Right Column (Narrower) */}
                 <div className="lg:col-span-4 space-y-10">
+                    <AIInsightWidget />
                     <ActiveStreaksWidget
                         habits={habits}
                         userId={userId!}
