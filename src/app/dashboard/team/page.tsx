@@ -477,23 +477,6 @@ export default function TeamPage() {
         </div>
       )}
 
-      {/* ── Quick Nav Cards ──────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {[
-          { label: "Sprint Board", href: "/dashboard/team/board", icon: Globe, color: "from-blue-500/20 to-cyan-500/10 border-blue-500/20", iconColor: "text-blue-400" },
-          { label: "Boss Raids", href: "/dashboard/team/boss", icon: Swords, color: "from-red-500/20 to-orange-500/10 border-red-500/20", iconColor: "text-red-400" },
-          { label: "Activity Feed", href: "/dashboard/team/feed", icon: Activity, color: "from-yellow-500/20 to-amber-500/10 border-yellow-500/20", iconColor: "text-yellow-400" },
-          { label: "Leaderboard", href: "/dashboard/team/leaderboard", icon: Trophy, color: "from-purple-500/20 to-indigo-500/10 border-purple-500/20", iconColor: "text-purple-400" },
-          { label: "Weekly Report", href: "/dashboard/team/report", icon: BarChart3, color: "from-emerald-500/20 to-teal-500/10 border-emerald-500/20", iconColor: "text-emerald-400" },
-        ].map(nav => (
-          <Link key={nav.href} href={nav.href}
-            className={`p-4 rounded-2xl bg-gradient-to-br ${nav.color} border flex flex-col gap-2 hover:opacity-90 transition-all group`}>
-            <nav.icon size={20} className={nav.iconColor} />
-            <p className="text-xs font-bold text-white">{nav.label}</p>
-            <ChevronRight size={12} className="text-slate-500 group-hover:text-white transition-colors" />
-          </Link>
-        ))}
-      </div>
 
       {/* ── Members ─────────────────────────────────────────────────────────── */}
       <div className="bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl p-6">
