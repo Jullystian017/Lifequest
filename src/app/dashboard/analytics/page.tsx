@@ -9,11 +9,9 @@ import {
     Zap,
     Flame,
     Target,
-    Award,
     ArrowRight,
     BarChart3,
     CheckCircle2,
-    Coins,
     Clock,
     Timer,
 } from "lucide-react";
@@ -101,26 +99,7 @@ export default function AnalyticsPage() {
     const focusHours = Math.floor(totalFocusMinutes / 60);
     const focusRemainingMinutes = totalFocusMinutes % 60;
     
-    // Focus time last 7 days for a separate chart or combined stats
-    const focus7Days: { label: string; minutes: number }[] = [];
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(d.getDate() - i);
-        const dayIdx = d.getDay();
-        const dateStr = d.toISOString().split('T')[0];
 
-        const dayFocus = focusSessions.filter((s: any) => {
-            if (!s.created_at) return false;
-            return s.created_at.startsWith(dateStr);
-        });
-
-        focus7Days.push({
-            label: dayNames[dayIdx],
-            minutes: dayFocus.reduce((s: number, f: any) => s + (f.duration || 0), 0),
-        });
-    }
-
-    const maxFocus = Math.max(...focus7Days.map(d => d.minutes), 1);
 
     // Quest type breakdown
     const dailyCount = quests.filter((q: any) => q.type === 'daily').length;
@@ -140,7 +119,7 @@ export default function AnalyticsPage() {
     return (
         <div className="space-y-8 pb-20 w-full animate-fade-in">
             {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><Target size={60} /></div>
                     <div className="flex items-center gap-3 mb-4">
@@ -181,9 +160,9 @@ export default function AnalyticsPage() {
                     <div className="text-xs font-bold text-slate-500 mt-1">{focusSessions.length} sesi fokus terselesaikan</div>
                 </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* XP Chart - Real Data */}
-                <div className="lg:col-span-2 p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)]">
+                <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)]">
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
@@ -193,61 +172,28 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
 
-                    <div className="h-[280px] mt-6 flex justify-between gap-2 sm:gap-6 px-2 sm:px-6">
+                    <div className="mt-6 space-y-4">
                         {last7Days.map((day, i) => (
-                            <div key={i} className="flex flex-col items-center justify-end w-full h-full group">
-                                <div className="opacity-0 group-hover:opacity-100 mb-2 translate-y-2 group-hover:translate-y-0 transition-all duration-300 text-xs font-bold text-white bg-[var(--primary)] shadow-lg shadow-[var(--primary)]/20 px-2 py-1 rounded-lg pointer-events-none whitespace-nowrap">
-                                    {day.xp} XP · {day.quests} quest
-                                </div>
-
-                                <div className="w-full max-w-[48px] flex-1 bg-slate-800/40 rounded-2xl flex items-end overflow-hidden border border-white/5 relative shadow-inner">
-                                    <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${day.xp > 0 ? Math.max((day.xp / maxXp) * 100, 8) : 3}%` }}
-                                        transition={{ duration: 0.8, delay: i * 0.1 }}
-                                        className={`w-full transition-all duration-1000 group-hover:brightness-110 relative ${
-                                            day.xp > 0 ? "bg-gradient-to-t from-[var(--primary)] to-blue-400" : "bg-slate-700/50"
-                                        }`}
-                                    >
-                                        <div className="absolute top-0 left-0 right-0 h-2/3 bg-gradient-to-b from-white/30 to-transparent mix-blend-overlay" />
-                                    </motion.div>
-                                </div>
-
-                                <span className="text-[10px] sm:text-xs font-bold text-slate-500 mt-4 uppercase tracking-widest group-hover:text-white transition-colors">
+                            <div key={i} className="flex items-center gap-4 group">
+                                <span className="w-10 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest group-hover:text-[var(--primary)] transition-colors">
                                     {day.label}
                                 </span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Focus Intensity Chart */}
-                <div className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-light)]">
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                                <Timer size={16} className="text-emerald-400" /> Intensitas Fokus (Menit)
-                            </h3>
-                            <p className="text-xs text-slate-500 mt-1">Total menit dalam mode fokus</p>
-                        </div>
-                    </div>
-
-                    <div className="h-[180px] mt-6 flex justify-between gap-1 sm:gap-3 px-2">
-                        {focus7Days.map((day, i) => (
-                            <div key={i} className="flex flex-col items-center justify-end w-full h-full group">
-                                <div className="w-full bg-slate-800/40 rounded-t-lg flex items-end overflow-hidden border border-white/5 relative">
+                                <div className="flex-1 h-2.5 bg-slate-800/40 rounded-full overflow-hidden border border-white/5 relative shadow-inner">
                                     <motion.div
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${day.minutes > 0 ? Math.max((day.minutes / maxFocus) * 100, 10) : 5}%` }}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${day.xp > 0 ? Math.max((day.xp / maxXp) * 100, 2) : 0}%` }}
                                         transition={{ duration: 0.8, delay: i * 0.1 }}
-                                        className={`w-full transition-all duration-1000 ${
-                                            day.minutes > 0 ? "bg-emerald-500/60" : "bg-slate-700/20"
-                                        }`}
+                                        className="h-full bg-gradient-to-r from-[var(--primary)] to-blue-400 group-hover:brightness-110 transition-all"
                                     />
                                 </div>
-                                <span className="text-[8px] font-bold text-slate-500 mt-2 uppercase">
-                                    {day.label}
-                                </span>
+                                <div className="flex flex-col items-end min-w-[60px]">
+                                    <span className="text-[10px] font-bold text-white tracking-widest leading-none">
+                                        {day.xp} <span className="text-[8px] text-slate-500">XP</span>
+                                    </span>
+                                    <span className="text-[8px] font-bold text-slate-500 group-hover:text-[var(--primary)] transition-colors">
+                                        {day.quests} QST
+                                    </span>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -261,31 +207,41 @@ export default function AnalyticsPage() {
                             <CheckCircle2 size={14} className="text-emerald-400" /> Ringkasan Quest
                         </h4>
                         <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-400 font-semibold">Quest Selesai</span>
-                                <span className="text-sm font-bold text-emerald-400">{completedQuests.length}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-400 font-semibold">Quest Aktif</span>
-                                <span className="text-sm font-bold text-yellow-500">{activeQuests.length}</span>
-                            </div>
+                            {[
+                                { label: "Quest Selesai", value: completedQuests.length, valColor: "text-emerald-400" },
+                                { label: "Quest Aktif", value: activeQuests.length, valColor: "text-yellow-500" }
+                            ].map((item, i) => (
+                                <motion.div 
+                                    key={i}
+                                    initial={{ opacity: 0, x: -10 }} 
+                                    animate={{ opacity: 1, x: 0 }} 
+                                    transition={{ delay: i * 0.1 }}
+                                    className="flex justify-between items-center"
+                                >
+                                    <span className="text-xs text-slate-400 font-semibold">{item.label}</span>
+                                    <span className={`text-sm font-bold ${item.valColor}`}>{item.value}</span>
+                                </motion.div>
+                            ))}
+                            
                             <div className="h-px bg-white/5 my-2" />
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-400 font-semibold">Harian</span>
-                                <span className="text-xs font-bold text-slate-300">{dailyCount}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-400 font-semibold">Mingguan</span>
-                                <span className="text-xs font-bold text-slate-300">{weeklyCount}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-400 font-semibold">Cerita</span>
-                                <span className="text-xs font-bold text-slate-300">{storyCount}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-400 font-semibold">Dari AI</span>
-                                <span className="text-xs font-bold text-slate-300">{aiCount}</span>
-                            </div>
+                            
+                            {[
+                                { label: "Harian", value: dailyCount },
+                                { label: "Mingguan", value: weeklyCount },
+                                { label: "Cerita", value: storyCount },
+                                { label: "Dari AI", value: aiCount }
+                            ].map((item, i) => (
+                                <motion.div 
+                                    key={item.label}
+                                    initial={{ opacity: 0, x: -10 }} 
+                                    animate={{ opacity: 1, x: 0 }} 
+                                    transition={{ delay: 0.2 + (i * 0.05) }}
+                                    className="flex justify-between items-center"
+                                >
+                                    <span className="text-xs text-slate-400 font-semibold">{item.label}</span>
+                                    <span className="text-xs font-bold text-slate-300">{item.value}</span>
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
 
