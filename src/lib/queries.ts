@@ -22,6 +22,28 @@ export const fetchUser = async (userId: string) => {
     return data;
 };
 
+// ─── Leaderboard ────────────────────────────────────────────────────────────
+export const leaderboardQueryKey = () => ["leaderboard"] as const;
+
+export const fetchLeaderboard = async () => {
+    const { data, error } = await supabase
+        .from("users")
+        .select("id, username, level, xp")
+        .order("xp", { ascending: false })
+        .limit(100);
+    if (error) throw error;
+    
+    // Map data to add rank
+    return (data || []).map((user, index) => ({
+        ...user,
+        rank: index + 1,
+        // Mock rank change and streak since they aren't directly on user table
+        rankChange: 'same' as const,
+        rankChangeValue: 0,
+        streak: 0,
+    }));
+};
+
 // ─── Quests ─────────────────────────────────────────────────────────────────
 export const questsQueryKey = (userId: string) => ["quests", userId] as const;
 

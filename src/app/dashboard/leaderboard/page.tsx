@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { fetchUser, userQueryKey } from "@/lib/queries";
+import { fetchUser, userQueryKey, fetchLeaderboard, leaderboardQueryKey } from "@/lib/queries";
 import { createClient } from "@/lib/supabase/client";
 import {
     Trophy,
@@ -30,20 +30,6 @@ interface DBUser {
     rankChangeValue: number;
 }
 
-// Dummy data for demo until we connect to a real players table
-const DUMMY_PLAYERS: DBUser[] = [
-    { id: "u1", username: "ShadowSlayer99", level: 24, xp: 12500, streak: 45, rank: 1, rankChange: 'same', rankChangeValue: 0 },
-    { id: "u2", username: "ProductivityNinja", level: 22, xp: 11200, streak: 30, rank: 2, rankChange: 'up', rankChangeValue: 1 },
-    { id: "u3", username: "Alex Miller", level: 12, xp: 4500, streak: 12, rank: 3, rankChange: 'up', rankChangeValue: 5 }, // Fake current user
-    { id: "u4", username: "TaskMaster2024", level: 20, xp: 10800, streak: 14, rank: 4, rankChange: 'down', rankChangeValue: 2 },
-    { id: "u5", username: "HabitBuilder", level: 18, xp: 9500, streak: 60, rank: 5, rankChange: 'up', rankChangeValue: 1 },
-    { id: "u6", username: "ZeroDelay", level: 17, xp: 8200, streak: 5, rank: 6, rankChange: 'down', rankChangeValue: 1 },
-    { id: "u7", username: "FocusKing", level: 15, xp: 7100, streak: 21, rank: 7, rankChange: 'same', rankChangeValue: 0 },
-    { id: "u8", username: "DailyGrinder", level: 14, xp: 6800, streak: 8, rank: 8, rankChange: 'up', rankChangeValue: 2 },
-    { id: "u9", username: "IronDiscipline", level: 14, xp: 6500, streak: 100, rank: 9, rankChange: 'down', rankChangeValue: 1 },
-    { id: "u10", username: "QuestHunter", level: 11, xp: 4200, streak: 2, rank: 10, rankChange: 'same', rankChangeValue: 0 },
-];
-
 export default function LeaderboardPage() {
     const supabase = createClient();
     const [userId, setUserId] = useState<string | null>(null);
@@ -61,16 +47,15 @@ export default function LeaderboardPage() {
         enabled: !!userId,
     });
     
+    const { data: players = [] } = useQuery({
+        queryKey: leaderboardQueryKey(),
+        queryFn: fetchLeaderboard,
+    });
+    
     const currentUsername = user?.username || "PlayerOne";
 
-    // In a real app, this would fetch from Supabase
-    // For demo, we just inject the actual current user's name if they are "Rank 3"
-    const players = DUMMY_PLAYERS.map(p => 
-        p.id === "u3" ? { ...p, username: currentUsername || "PlayerOne" } : p
-    ).sort((a, b) => a.rank - b.rank); // Sort by rank
-
     // Simulate friends list (just a subset)
-    const displayPlayers = activeTab === 'global' ? players : players.filter(p => [1, 3, 5, 8].includes(p.rank));
+    const displayPlayers = activeTab === 'global' ? (players as DBUser[]) : (players as DBUser[]).filter(p => [1, 3, 5, 8].includes(p.rank));
 
     const topThree = displayPlayers.slice(0, 3);
     const rest = displayPlayers.slice(3);
