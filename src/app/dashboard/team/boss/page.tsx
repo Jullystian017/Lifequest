@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { workspacesQueryKey, fetchUserWorkspaces, fetchWorkspaceBosses, bossesQueryKey } from "@/lib/queries";
-import { createBoss, damageBoss } from "@/lib/mutations";
+import { workspacesQueryKey, fetchUserWorkspaces, fetchWorkspaceBosses, bossesQueryKey, fetchWorkspaceActivity, workspaceActivityQueryKey } from "@/lib/queries";
+import { createBoss } from "@/lib/mutations";
 import { useWorkspaceStore } from "@/store/workspaceStore";
-import { Swords, Plus, Loader2, Skull, Trophy, Shield, Zap, ChevronDown, ChevronUp } from "lucide-react";
+import { Swords, Plus, Loader2, Skull, Trophy, Shield, Zap, ChevronDown, ChevronUp, Info, History } from "lucide-react";
 
 function HPBar({ current, max, color = "from-red-500 to-orange-500" }: { current: number; max: number; color?: string }) {
   const pct = max > 0 ? Math.max(0, (current / max) * 100) : 0;
@@ -32,7 +32,6 @@ export default function BossRaidsPage() {
   const [bossDesc, setBossDesc] = useState("");
   const [bossMaxHp, setBossMaxHp] = useState(1000);
   const [expandedBoss, setExpandedBoss] = useState<string | null>(null);
-  const [damageInput, setDamageInput] = useState<Record<string, number>>({});
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => { if (data.user) setUserId(data.user.id); });
@@ -54,17 +53,20 @@ export default function BossRaidsPage() {
     enabled: !!activeWorkspace?.id,
   });
 
+  const { data: activity = [] } = useQuery({
+    queryKey: workspaceActivityQueryKey(activeWorkspace?.id),
+    queryFn: () => fetchWorkspaceActivity(activeWorkspace?.id),
+    enabled: !!activeWorkspace?.id,
+  });
+
+  const damageLogs = activity.filter((a: any) => a.event_type === "boss_damage");
+
   const createMutation = useMutation({
     mutationFn: () => createBoss(activeWorkspace.id, userId!, { name: bossName, description: bossDesc, max_hp: bossMaxHp }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bossesQueryKey(activeWorkspace.id) });
       setShowCreateModal(false); setBossName(""); setBossDesc(""); setBossMaxHp(1000);
     },
-  });
-
-  const damageMutation = useMutation({
-    mutationFn: ({ bossId, dmg }: { bossId: string; dmg: number }) => damageBoss(bossId, dmg),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: bossesQueryKey(activeWorkspace.id) }),
   });
 
   const activeBosses = (bosses as any[]).filter((b: any) => !b.is_defeated);
@@ -134,18 +136,37 @@ export default function BossRaidsPage() {
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-                      className="border-t border-white/5 pt-4 space-y-3">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Serang Boss</p>
-                      <div className="flex gap-2">
-                        <input type="number" min={1} value={damageInput[boss.id] ?? 50}
-                          onChange={e => setDamageInput(p => ({ ...p, [boss.id]: Number(e.target.value) }))}
-                          className="flex-1 bg-[#0D1017] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm outline-none focus:border-red-500 transition-all" />
-                        <button
-                          onClick={() => damageMutation.mutate({ bossId: boss.id, dmg: damageInput[boss.id] ?? 50 })}
-                          disabled={damageMutation.isPending}
-                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:opacity-90 transition-all disabled:opacity-50">
-                          <Swords size={14} /> Serang
-                        </button>
+                      className="border-t border-white/5 pt-4 space-y-4">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                        <Info size={16} className="text-blue-400 shrink-0" />
+                        <p className="text-xs text-blue-200">
+                          Boss ini tidak bisa diserang secara manual. <span className="font-bold text-white">Selesaikan Quest Tim</span> di Sprint Board untuk memberikan damage sesuai dengan XP Reward quest tersebut!
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                          <History size={10} /> Riwayat Damage Terkini
+                        </h4>
+                        <div className="space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar">
+                          {damageLogs.filter((log: any) => log.event_data.bossId === boss.id).length === 0 ? (
+                            <p className="text-[10px] text-slate-600 italic">Belum ada damage yang tercatat.</p>
+                          ) : (
+                            damageLogs.filter((log: any) => log.event_data.bossId === boss.id).map((log: any) => (
+                              <div key={log.id} className="flex items-center justify-between p-2 rounded-lg bg-white/2 border border-white/5">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                                    {log.users?.username?.[0]?.toUpperCase() ?? "?"}
+                                  </div>
+                                  <span className="text-[10px] text-slate-300 font-medium">
+                                    <span className="text-white font-bold">{log.users?.username}</span> menyelesaikan quest
+                                  </span>
+                                </div>
+                                <span className="text-[10px] font-black text-red-400">-{log.event_data.damage} HP</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
                     </motion.div>
                   )}

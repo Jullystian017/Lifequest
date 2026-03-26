@@ -8,6 +8,7 @@ import {
   workspacesQueryKey, fetchUserWorkspaces,
   workspaceMembersQueryKey, fetchWorkspaceMembers,
   sprintsQueryKey, fetchWorkspaceSprints,
+  boardQuestsQueryKey, fetchWorkspaceBoardQuests
 } from "@/lib/queries";
 import { createSprint, createTeamQuest, updateQuestStatus } from "@/lib/mutations";
 import { useWorkspaceStore } from "@/store/workspaceStore";
@@ -37,8 +38,6 @@ export default function TeamBoardPage() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const [userId, setUserId] = useState<string | null>(null);
-  const [sharedQuests, setSharedQuests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null);
   const [showSprintModal, setShowSprintModal] = useState(false);
   const [showQuestModal, setShowQuestModal] = useState(false);
@@ -74,20 +73,11 @@ export default function TeamBoardPage() {
     enabled: !!activeWorkspace?.id,
   });
 
-  const fetchQuests = async () => {
-    if (!activeWorkspace?.id) return;
-    setLoading(true);
-    let query = supabase
-      .from("quests")
-      .select("*, users(id, username, class, avatar_url)")
-      .eq("workspace_id", activeWorkspace.id);
-    if (selectedSprintId) query = query.eq("sprint_id", selectedSprintId);
-    const { data } = await query.order("created_at", { ascending: false });
-    setSharedQuests(data ?? []);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchQuests(); }, [activeWorkspace?.id, selectedSprintId]);
+  const { data: sharedQuests = [], isLoading: loading } = useQuery({
+    queryKey: boardQuestsQueryKey(activeWorkspace?.id, selectedSprintId),
+    queryFn: () => fetchWorkspaceBoardQuests(activeWorkspace!.id, selectedSprintId),
+    enabled: !!activeWorkspace?.id,
+  });
 
   // Sprint progress
   const totalQuests = sharedQuests.length;
@@ -110,7 +100,7 @@ export default function TeamBoardPage() {
       assignee_id: questForm.assignee_id || null,
     }),
     onSuccess: () => {
-      fetchQuests();
+      queryClient.invalidateQueries({ queryKey: boardQuestsQueryKey(activeWorkspace!.id, selectedSprintId) });
       setShowQuestModal(false);
       setQuestForm({ title: "", description: "", difficulty: "medium", xp_reward: 100, coin_reward: 50, category: "feature", assignee_id: "" });
     },
@@ -130,18 +120,14 @@ export default function TeamBoardPage() {
     let newStatus = colId;
     const isCompleted = colId === "done";
 
-    // Optimistically update UI
-    setSharedQuests(prev => prev.map(q => q.id === draggingId
-      ? { ...q, status: newStatus, is_completed: isCompleted }
-      : q
-    ));
-
     // Update in DB
     await supabase.from("quests").update({
-      status: newStatus,
-      is_completed: isCompleted,
-      completed_at: isCompleted ? new Date().toISOString() : null,
+      status: colId,
+      is_completed: colId === "done",
+      completed_at: colId === "done" ? new Date().toISOString() : null,
     }).eq("id", draggingId);
+
+    queryClient.invalidateQueries({ queryKey: boardQuestsQueryKey(activeWorkspace!.id, selectedSprintId) });
 
     setDraggingId(null);
     setDragOverCol(null);
@@ -370,7 +356,8 @@ export default function TeamBoardPage() {
 function QuestCard({ quest, index, onDragStart, onDragEnd, isDragging }: {
   quest: any; index: number; onDragStart: () => void; onDragEnd: () => void; isDragging: boolean;
 }) {
-  const assignee = quest.users;
+  const assignee = quest.assignee;
+  const creator = quest.creator;
   const classKey = assignee?.class ?? "fullstack";
   const ClassIcon = CLASS_ICONS[classKey] ?? Swords;
 
@@ -406,14 +393,18 @@ function QuestCard({ quest, index, onDragStart, onDragEnd, isDragging }: {
           <span className="text-[10px] text-indigo-400 flex items-center gap-1 font-bold"><Zap size={9} /> {quest.xp_reward} XP</span>
           <span className="text-[10px] text-yellow-500 flex items-center gap-1"><Coins size={9} /> {quest.coin_reward}G</span>
         </div>
-        {assignee?.username && (
-          <div className="flex items-center gap-1">
-            <div className={`w-5 h-5 rounded-lg bg-gradient-to-br from-indigo-500/30 to-purple-500/20 flex items-center justify-center text-[8px] font-bold text-white border border-white/10`}>
+        <div className="flex -space-x-1.5 overflow-hidden">
+          {creator && (
+            <div className={`w-5 h-5 rounded-lg bg-slate-800 flex items-center justify-center text-[7px] font-bold text-slate-400 border border-white/10 relative z-10`} title={`Creator: ${creator.username}`}>
+              {creator.avatar_url ? <img src={creator.avatar_url} alt="" className="w-full h-full object-cover rounded" /> : creator.username?.[0]?.toUpperCase()}
+            </div>
+          )}
+          {assignee && (
+            <div className={`w-5 h-5 rounded-lg bg-[var(--primary)]/20 flex items-center justify-center text-[7px] font-bold text-white border border-white/20 relative z-20 -ml-1`} title={`Assignee: ${assignee.username}`}>
               {assignee.avatar_url ? <img src={assignee.avatar_url} alt="" className="w-full h-full object-cover rounded" /> : assignee.username?.[0]?.toUpperCase()}
             </div>
-            <span className="text-[9px] text-slate-400">{assignee.username}</span>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </motion.div>
   );

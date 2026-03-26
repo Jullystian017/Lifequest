@@ -27,6 +27,7 @@ interface Quest {
 
 interface UserRow {
     id: string;
+    username: string;
     total_xp: number;
     gold: number;
     level: number;
@@ -110,7 +111,37 @@ export async function completeQuest(userId: string, quest: Quest, currentUser: U
         await spawnBugMonster(quest.workspace_id, userId).catch(console.error);
     }
 
-    // 5. Create notification for quest completion
+    // 5. NEW: Auto-Damage Bosses in Workspace
+    if (quest.workspace_id) {
+        // Find active bosses for this workspace
+        const { data: activeBosses } = await supabase
+            .from("bosses")
+            .select("id, name")
+            .eq("workspace_id", quest.workspace_id)
+            .eq("status", "active");
+        
+        if (activeBosses && activeBosses.length > 0) {
+            for (const boss of activeBosses) {
+                const { defeated } = await damageBoss(boss.id, quest.xp_reward);
+                
+                // Log to activity feed
+                await logActivityFeedEvent(quest.workspace_id, userId, "boss_damage", {
+                    bossId: boss.id,
+                    bossName: boss.name,
+                    damage: quest.xp_reward,
+                    questTitle: quest.id.slice(0, 8),
+                    defeated
+                });
+
+                if (defeated) {
+                    await sendTeamNotification(quest.workspace_id, "Boss Victory! 🏆", 
+                        `${currentUser.username} telah mengalahkan ${boss.name}!`);
+                }
+            }
+        }
+    }
+
+    // 6. Create notification for quest completion
     await createNotification(userId, {
         type: "reward",
         title: "Quest Selesai!",

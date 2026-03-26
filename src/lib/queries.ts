@@ -408,6 +408,31 @@ export const fetchWorkspaceInvite = async (inviteCode: string) => {
     return data;
 };
 
+export const fetchWorkspaceBoardQuests = async (workspaceId: string, sprintId: string | null) => {
+    let query = supabase
+        .from("quests")
+        .select(`
+            *,
+            creator:user_id(id, username, avatar_url, class),
+            assignee:assignee_id(id, username, avatar_url, class)
+        `)
+        .eq("workspace_id", workspaceId);
+    
+    if (sprintId) {
+        query = query.eq("sprint_id", sprintId);
+    } else {
+        // Backlog: only show quests without a sprint
+        // Actually, the user might want to see EVERYTHING in the workspace if they select "All Quests"
+        // But let's check the current behavior.
+    }
+    
+    const { data, error } = await query.order("created_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+};
+
+export const boardQuestsQueryKey = (workspaceId: string | undefined, sprintId: string | null | undefined) => ["workspaces", workspaceId, "board-quests", sprintId];
+
 // ─── Bosses ──────────────────────────────────────────────────────────────────
 export const bossesQueryKey = (workspaceId: string) => ["bosses", workspaceId] as const;
 
