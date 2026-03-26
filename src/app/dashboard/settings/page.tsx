@@ -17,10 +17,14 @@ import {
     Moon,
     Volume2,
     Save,
-    Loader2
+    Loader2,
+    Camera,
+    X,
+    Trash2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { uploadUserAvatar, removeUserAvatar } from "@/lib/mutations";
 
 type SettingsTab = 'account' | 'ai' | 'appearance' | 'notifications';
 
@@ -53,6 +57,7 @@ export default function SettingsPage() {
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         const fetchUserSession = async () => {
@@ -106,7 +111,7 @@ export default function SettingsPage() {
 
         // Update username in Supabase
         if (settings.displayName !== username && userId) {
-            await supabase.from("profiles").upsert({
+            await supabase.from("users").upsert({
                 id: userId,
                 username: settings.displayName,
                 updated_at: new Date().toISOString(),
@@ -276,7 +281,68 @@ export default function SettingsPage() {
                                         <p className="text-slate-400 text-sm">Kelola informasi pemain utamamu.</p>
                                     </div>
 
-                                    <div className="space-y-4 max-w-md">
+                                    <div className="space-y-6 max-w-md">
+                                        {/* Avatar Section */}
+                                        <div className="flex flex-col gap-4">
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Foto Profil</label>
+                                            <div className="flex items-center gap-6">
+                                                <div className="relative group">
+                                                    <div className="w-24 h-24 rounded-3xl bg-indigo-500/10 border-2 border-white/10 flex items-center justify-center text-3xl font-black text-white overflow-hidden shadow-xl group-hover:border-[var(--primary)]/50 transition-all">
+                                                        {user?.avatar_url ? (
+                                                            <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            user?.username?.[0]?.toUpperCase() ?? "?"
+                                                        )}
+                                                        {isUploading && (
+                                                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                                                <Loader2 size={24} className="animate-spin text-white" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <label className="absolute -bottom-2 -right-2 p-2 rounded-xl bg-[var(--primary)] text-white shadow-lg cursor-pointer hover:scale-110 transition-all active:scale-95">
+                                                        <Camera size={16} />
+                                                        <input 
+                                                            type="file" 
+                                                            className="hidden" 
+                                                            accept="image/*"
+                                                            onChange={async (e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (file && userId) {
+                                                                    try {
+                                                                        setIsUploading(true);
+                                                                        await uploadUserAvatar(userId, file);
+                                                                        queryClient.invalidateQueries({ queryKey: userQueryKey(userId) });
+                                                                    } catch (err) {
+                                                                        console.error("Upload error:", err);
+                                                                        alert("Gagal mengunggah foto.");
+                                                                    } finally {
+                                                                        setIsUploading(false);
+                                                                    }
+                                                                }
+                                                            }}
+                                                        />
+                                                    </label>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <h3 className="text-sm font-bold text-white">Avatar Hero</h3>
+                                                    <p className="text-xs text-slate-500 max-w-[200px]">Format JPG, PNG atau WebP. Maksimal 2MB.</p>
+                                                    {user?.avatar_url && (
+                                                        <button 
+                                                            onClick={async () => {
+                                                                if (confirm("Hapus foto profil?")) {
+                                                                    await removeUserAvatar(userId!);
+                                                                    queryClient.invalidateQueries({ queryKey: userQueryKey(userId!) });
+                                                                }
+                                                            }}
+                                                            className="text-xs text-red-400 hover:text-red-300 font-bold flex items-center gap-1 pt-2"
+                                                        >
+                                                            <Trash2 size={12} /> Hapus Foto
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div>
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block">Nama Pengguna</label>
                                             <input

@@ -812,3 +812,72 @@ export async function recordFocusSession(userId: string, durationMinutes: number
     if (error) throw error;
     return data;
 }
+
+// ─── Profile & Avatar ───────────────────────────────────────────────────────
+export async function uploadUserAvatar(userId: string, file: File) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `avatar-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+    
+    // 1. Upload to storage
+    const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    // 2. Get public URL
+    const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+    // 3. Update users table
+    const { error: updateError } = await supabase
+        .from('users')
+        .update({ avatar_url: publicUrl })
+        .eq('id', userId);
+
+    if (updateError) throw updateError;
+    
+    return publicUrl;
+}
+
+export async function removeUserAvatar(userId: string) {
+    // 1. Reset user record
+    const { error: updateError } = await supabase
+        .from('users')
+        .update({ avatar_url: null })
+        .eq('id', userId);
+    if (updateError) throw updateError;
+
+    // 2. We don't necessarily delete from storage here to keep things simple, 
+    // but the next upload will replace or the bucket has folder for user.
+}
+
+export async function uploadWorkspaceAvatar(workspaceId: string, file: File) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `workspace-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `workspaces/${workspaceId}/${fileName}`;
+    
+    // 1. Upload to storage
+    const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    // 2. Get public URL
+    const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+    // 3. Update workspaces table
+    const { error: updateError } = await supabase
+        .from('workspaces')
+        .update({ avatar_url: publicUrl })
+        .eq('id', workspaceId);
+
+    if (updateError) throw updateError;
+    
+    return publicUrl;
+}

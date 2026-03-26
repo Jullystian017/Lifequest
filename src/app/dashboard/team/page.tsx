@@ -16,7 +16,7 @@ import {
   joinWorkspaceByCode, createWorkspace,
   updateWorkspaceSettings, regenerateInviteCode,
   updateMemberRole, kickMember, leaveWorkspace, deleteWorkspace,
-  sendTeamNotification, logActivityFeedEvent,
+  sendTeamNotification, logActivityFeedEvent, uploadWorkspaceAvatar
 } from "@/lib/mutations";
 import { useWorkspaceStore } from "@/store/workspaceStore";
 import { useRouter } from "next/navigation";
@@ -26,7 +26,7 @@ import {
   Users, Plus, LogIn, Copy, Check, Swords, Zap, Shield, Code2, Crown,
   ChevronRight, Loader2, Globe, BarChart3, Settings, Trophy, Target,
   RefreshCw, Trash2, UserMinus, Star, Activity, X, ChevronDown,
-  ShieldCheck, UserCheck, Flame, BookOpen, TrendingUp, Calendar,
+  ShieldCheck, UserCheck, Flame, BookOpen, TrendingUp, Calendar, Camera,
 } from "lucide-react";
 
 const CLASS_ICONS: Record<string, any> = { frontend: Code2, backend: Shield, devops: Zap, fullstack: Swords };
@@ -136,6 +136,7 @@ function WorkspaceSettingsModal({ workspace, userId, onClose }: { workspace: any
   const [name, setName] = useState(workspace?.name ?? "");
   const [desc, setDesc] = useState(workspace?.description ?? "");
   const [copiedCode, setCopiedCode] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const updateMutation = useMutation({
     mutationFn: () => updateWorkspaceSettings(workspace.id, { name, description: desc }),
@@ -170,6 +171,55 @@ function WorkspaceSettingsModal({ workspace, userId, onClose }: { workspace: any
           <h3 className="text-lg font-black text-white flex items-center gap-2"><Settings size={18} className="text-[var(--primary)]" /> Pengaturan Workspace</h3>
           <button onClick={onClose} className="p-1.5 rounded-xl bg-white/5 text-slate-400 hover:text-white transition-colors"><X size={14} /></button>
         </div>
+        
+        {/* Workspace Avatar Upload */}
+        <div className="flex flex-col gap-3 mb-2">
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Icon Workspace</label>
+          <div className="flex items-center gap-4">
+            <div className="relative group">
+              <div className="w-16 h-16 rounded-2xl bg-[#0D1017] border border-white/10 flex items-center justify-center text-2xl font-black text-white overflow-hidden shadow-lg">
+                {workspace?.avatar_url ? (
+                  <img src={workspace.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <Users size={24} className="text-slate-700" />
+                )}
+                {isUploading && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <Loader2 size={20} className="animate-spin text-white" />
+                  </div>
+                )}
+              </div>
+              <label className="absolute -bottom-1 -right-1 p-1.5 rounded-lg bg-[var(--primary)] text-white shadow-lg cursor-pointer hover:scale-110 transition-all active:scale-95">
+                <Camera size={12} />
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file && workspace.id) {
+                      try {
+                        setIsUploading(true);
+                        await uploadWorkspaceAvatar(workspace.id, file);
+                        queryClient.invalidateQueries({ queryKey: workspacesQueryKey(userId) });
+                      } catch (err) {
+                        console.error("Workspace avatar upload error:", err);
+                        alert("Gagal mengunggah foto tim.");
+                      } finally {
+                        setIsUploading(false);
+                      }
+                    }
+                  }}
+                />
+              </label>
+            </div>
+            <div className="space-y-0.5">
+              <h3 className="text-xs font-bold text-white">Identitas Visual</h3>
+              <p className="text-[10px] text-slate-500 max-w-[180px]">Gunakan logo tim atau ikon proyek (JPG/PNG/WebP, Max 2MB).</p>
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-4">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Nama Workspace</label>

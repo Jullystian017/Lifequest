@@ -115,6 +115,7 @@ export default function WorkspaceSwitcher() {
                                     <WorkspaceOption 
                                         key={workspace.id}
                                         name={workspace.name}
+                                        avatarUrl={workspace.avatar_url}
                                         icon={<Users size={12} />}
                                         isActive={workspace.id === activeWorkspaceId}
                                         onSelect={() => {
@@ -158,7 +159,7 @@ export default function WorkspaceSwitcher() {
     );
 }
 
-function WorkspaceOption({ name, icon, isActive, onSelect }: { name: string; icon: React.ReactNode; isActive: boolean; onSelect: () => void }) {
+function WorkspaceOption({ name, icon, avatarUrl, isActive, onSelect }: { name: string; icon: React.ReactNode; avatarUrl?: string; isActive: boolean; onSelect: () => void }) {
     return (
         <button
             onClick={onSelect}
@@ -167,8 +168,12 @@ function WorkspaceOption({ name, icon, isActive, onSelect }: { name: string; ico
             }`}
         >
             <div className="flex items-center gap-3 overflow-hidden">
-                 <div className="w-6 h-6 shrink-0 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] border border-white/5 text-slate-400">
-                    {icon}
+                 <div className="w-6 h-6 shrink-0 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] border border-white/5 text-slate-400 overflow-hidden">
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                        icon
+                    )}
                 </div>
                 <div className="flex flex-col items-start pr-2 min-w-0">
                     <span className={`text-xs font-semibold truncate ${isActive ? 'text-indigo-400' : 'text-slate-300'}`}>
