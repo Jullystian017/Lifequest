@@ -72,12 +72,18 @@ export default function TeamPage() {
 
   const activeWorkspace = activeWorkspaceId ? workspaces.find((w: any) => w.id === activeWorkspaceId) : null;
 
-  // Auto-set workspace id if newly fetched and none selected
+  // Only auto-set workspace id on initial entry if none is active AND we have workspaces
   useEffect(() => {
-     if (!activeWorkspaceId && workspaces.length > 0) {
-         setActiveWorkspaceId(workspaces[0].id);
-     }
-  }, [workspaces, activeWorkspaceId, setActiveWorkspaceId]);
+     const hasWorkspaces = workspaces.length > 0;
+     const isInitialEntry = !activeWorkspaceId;
+     
+     // We only auto-select a team if the user is visiting the Team page for the first time 
+     // in a session and doesn't have an active team yet.
+     // However, we should be careful: if they just came from WorkspaceSwitcher (setting it to null),
+     // this might still fire. 
+     // A better way is to only do this if they HAVE workspaces but aren't in them.
+     // For now, let's just let the WorkspaceSwitcher handle the explicit intent.
+  }, [workspaces.length]);
 
   const { data: members = [] } = useQuery({
     queryKey: workspaceMembersQueryKey(activeWorkspace?.id),

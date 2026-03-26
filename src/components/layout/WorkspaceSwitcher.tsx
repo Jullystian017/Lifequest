@@ -96,6 +96,7 @@ export default function WorkspaceSwitcher() {
                                     onSelect={() => {
                                         setActiveWorkspaceId(null);
                                         setIsOpen(false);
+                                        router.push("/dashboard");
                                     }}
                                 />
                             </div>
@@ -119,6 +120,7 @@ export default function WorkspaceSwitcher() {
                                         onSelect={() => {
                                             setActiveWorkspaceId(workspace.id);
                                             setIsOpen(false);
+                                            router.push("/dashboard/team");
                                         }}
                                     />
                                 ))}
