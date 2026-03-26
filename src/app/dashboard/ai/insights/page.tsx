@@ -161,13 +161,7 @@ export default function AIInsightsPage() {
   return (
     <div className="space-y-8 animate-fade-in pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-white flex items-center gap-3">
-            <Brain size={24} className="text-[var(--primary)]" /> AI Self-Reflection
-          </h1>
-          <p className="text-slate-400 text-sm mt-1">Weekly retrospective & burnout detection powered by AI.</p>
-        </div>
+      <div className="flex justify-end mb-4">
         <button onClick={generateInsights} disabled={isGenerating || !userId}
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[var(--primary)] text-white font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-[var(--primary)]/20 disabled:opacity-50">
           {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}

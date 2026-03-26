@@ -73,6 +73,8 @@ export default function Navbar() {
         return { title: "Analitik", subtitle: "Pantau perkembangan dan performa" };
       case "/dashboard/ai":
         return { title: "Asisten AI", subtitle: "Game Master pribadimu" };
+      case "/dashboard/ai/insights":
+        return { title: "AI Self-Reflection", subtitle: "Weekly retrospective & burnout detection" };
       case "/dashboard/notes":
         return { title: "Catatan", subtitle: "Basis pengetahuan dan ide-idemu" };
       case "/dashboard/achievements":
