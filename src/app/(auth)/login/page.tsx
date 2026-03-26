@@ -34,6 +34,15 @@ export default function LoginPage() {
     setLoading(false);
   };
 
+  const handleGoogleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen bg-[#0b0f1a] flex flex-col md:flex-row overflow-hidden font-sans">
       
@@ -128,19 +137,18 @@ export default function LoginPage() {
             {/* SEPARATOR */}
             <div className="relative my-8 flex items-center">
               <div className="flex-1 h-px bg-white/5" />
-              <span className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Or Login With</span>
+              <span className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-widest">Or Continue With</span>
               <div className="flex-1 h-px bg-white/5" />
             </div>
 
             {/* SOCIAL LOGIN */}
-            <div className="grid grid-cols-2 gap-4">
-              <button className="flex items-center justify-center gap-3 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group scale-100 active:scale-95">
-                <img src="https://www.google.com/favicon.ico" className="w-4 h-4 grayscale group-hover:grayscale-0 transition-all" alt="Google" />
-                <span className="text-xs font-bold text-slate-300">Google</span>
-              </button>
-              <button className="flex items-center justify-center gap-3 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group scale-100 active:scale-95">
-                <Github size={16} className="text-slate-400 group-hover:text-white transition-all" />
-                <span className="text-xs font-bold text-slate-300">GitHub</span>
+            <div className="flex flex-col gap-4">
+              <button 
+                onClick={handleGoogleLogin}
+                className="flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group scale-100 active:scale-[0.98] shadow-lg shadow-black/20"
+              >
+                <img src="https://www.google.com/favicon.ico" className="w-5 h-5 grayscale group-hover:grayscale-0 transition-all" alt="Google" />
+                <span className="text-sm font-black text-slate-300 group-hover:text-white uppercase tracking-widest">Login via Google</span>
               </button>
             </div>
 
