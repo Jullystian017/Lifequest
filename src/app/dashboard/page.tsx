@@ -99,41 +99,6 @@ export default function DashboardPage() {
     return (
         <div className="space-y-10 pb-20 animate-fade-in w-full">
 
-            {/* Compact Header Section */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-indigo-500/30 shadow-lg shrink-0">
-                  <img src={avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold text-white tracking-tight">Halo, {username}!</h1>
-                  <p className="text-sm text-slate-500 font-medium">Selamat datang kembali di petualanganmu hari ini.</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="px-4 py-2 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-3 shadow-sm">
-                  <div className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400">
-                    <Zap size={16} />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-slate-500 leading-none mb-1">LEVEL {level}</span>
-                    <div className="w-24 h-1.5 bg-[#1a1b2e] rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }} 
-                        animate={{ width: `${xpPercent}%` }} 
-                        className="h-full bg-indigo-500" 
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="px-4 py-2 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-light)] flex items-center gap-2 shadow-sm">
-                  <Star size={16} className="text-yellow-500 shrink-0" />
-                  <span className="text-sm font-bold text-white leading-none">{gold.toLocaleString()} Gold</span>
-                </div>
-              </div>
-            </div>
 
             {/* Summary Stat Cards */}
             <SummaryStatCards stats={stats} />
