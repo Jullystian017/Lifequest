@@ -1,4 +1,8 @@
-# <img src="public/Lifequest.png" width="40" height="40" alt="LifeQuest Logo" /> LifeQuest
+<p align="center">
+  <img src="public/Lifequest.png" width="120" alt="LifeQuest Logo" />
+</p>
+
+<h1 align="center">LifeQuest</h1>
 
 > **Transform your professional growth into an epic RPG adventure.**
 
