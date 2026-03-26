@@ -62,11 +62,18 @@ export default function ActiveStreaksWidget({
     const newStreak = becomingCompleted ? (habit.current_streak || 0) + 1 : Math.max(0, (habit.current_streak || 0) - 1);
     const longestStreak = Math.max(habit.longest_streak || 0, newStreak);
 
-    await supabase.from("habits").update({
+    const updateData: any = {
       completed_today: becomingCompleted,
       current_streak: newStreak,
       longest_streak: longestStreak,
-    }).eq("id", habit.id);
+    };
+
+    if (becomingCompleted) {
+       updateData.last_completed_at = new Date().toISOString();
+       updateData.last_evaluated_at = new Date().toISOString().split('T')[0];
+    }
+
+    await supabase.from("habits").update(updateData).eq("id", habit.id);
 
     onHabitToggled?.();
   };

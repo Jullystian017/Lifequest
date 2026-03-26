@@ -36,6 +36,23 @@ export default function DashboardPage() {
         });
     }, []);
 
+    // Evaluate Habit Streaks daily
+    useEffect(() => {
+        if (!userId) return;
+        fetch("/api/habits/evaluate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ clientDate: new Date().toISOString().split("T")[0] })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.evaluated > 0) {
+                queryClient.invalidateQueries({ queryKey: habitsQueryKey(userId) });
+            }
+        })
+        .catch(console.error);
+    }, [userId, queryClient]);
+
     // Parallel queries — all fire at once
     const { data: user, isLoading: loadingUser } = useQuery({
         queryKey: userQueryKey(userId!),

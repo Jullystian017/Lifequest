@@ -17,6 +17,8 @@ export interface Habit {
     completed_today: boolean;
     completions: HabitCompletion[];
     created_at: string;
+    last_completed_at?: string;
+    last_evaluated_at?: string;
 }
 
 export interface HabitCompletion {
