@@ -2,6 +2,8 @@ import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingHero from "@/components/landing/LandingHero";
 import LandingFeatures from "@/components/landing/LandingFeatures";
 import LandingFooter from "@/components/landing/LandingFooter";
+import LandingContact from "@/components/landing/LandingContact";
+import LandingAbout from "@/components/landing/LandingAbout";
 
 export default function LandingPage() {
   return (
@@ -15,6 +17,8 @@ export default function LandingPage() {
 
         {/* Features Section */}
         <LandingFeatures />
+        <LandingAbout/>
+        <LandingContact />
 
         {/* Call to Action Section (Mini) */}
         <section className="py-16 md:py-24 bg-gradient-to-b from-[var(--bg-main)] to-[var(--bg-sidebar)]">
