@@ -1,4 +1,4 @@
-# <img src="./public/Lifequest.png" width="40" height="40" alt="LifeQuest Logo" /> LifeQuest
+# <img src="public/Lifequest.png" width="40" height="40" alt="LifeQuest Logo" /> LifeQuest
 
 > **Transform your professional growth into an epic RPG adventure.**
 
