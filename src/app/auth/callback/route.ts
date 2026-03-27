@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       // Check if user already exists in public users table
       const { data: existingUser } = await supabase
         .from('users')
-        .select('id, username')
+        .select('id, username, class')
         .eq('id', user.id)
         .single();
       
@@ -38,7 +38,11 @@ export async function GET(request: Request) {
         }).eq('id', user.id);
       }
 
-      return NextResponse.redirect(`${origin}${next}`)
+      // Determine final redirect: Onboarding if no class is set
+      const isNewUser = !existingUser || !existingUser.class;
+      const finalNext = isNewUser ? '/dashboard/onboarding' : next;
+
+      return NextResponse.redirect(`${origin}${finalNext}`)
     }
   }
 
