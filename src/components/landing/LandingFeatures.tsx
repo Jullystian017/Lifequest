@@ -77,7 +77,7 @@ const interactiveTabs = [
         </div>
         <div className="grid grid-cols-3 gap-2 mt-5">
           {["⚔ Attack", "🛡 Defend", "✨ Spell"].map((a) => (
-            <button key={a} className="py-2 rounded-lg text-[11px] font-bold border border-white/10 bg-white/[0.04] hover:bg-white/[0.09] hover:border-red-500/30 transition-all text-white/70 hover:text-white">
+            <button suppressHydrationWarning key={a} className="py-2 rounded-lg text-[11px] font-bold border border-white/10 bg-white/[0.04] hover:bg-white/[0.09] hover:border-red-500/30 transition-all text-white/70 hover:text-white">
               {a}
             </button>
           ))}
@@ -120,10 +120,10 @@ const interactiveTabs = [
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="flex-1 py-2 rounded-lg text-[11px] font-bold bg-purple-500/15 text-purple-400 border border-purple-500/20 hover:bg-purple-500/25 transition-all">
+          <button suppressHydrationWarning className="flex-1 py-2 rounded-lg text-[11px] font-bold bg-purple-500/15 text-purple-400 border border-purple-500/20 hover:bg-purple-500/25 transition-all">
             ✓ Activate Quest
           </button>
-          <button className="px-4 py-2 rounded-lg text-[11px] font-bold bg-white/[0.04] text-[var(--text-muted)] border border-white/10 hover:bg-white/[0.08] transition-all">
+          <button suppressHydrationWarning className="px-4 py-2 rounded-lg text-[11px] font-bold bg-white/[0.04] text-[var(--text-muted)] border border-white/10 hover:bg-white/[0.08] transition-all">
             Skip
           </button>
         </div>
@@ -294,6 +294,7 @@ export default function LandingFeatures() {
                 const active = activeTab === i;
                 return (
                   <button
+                    suppressHydrationWarning
                     key={tab.id}
                     onClick={() => setActiveTab(i)}
                     className="relative flex items-center gap-2.5 px-7 py-3 rounded-xl text-sm font-semibold transition-all duration-300"

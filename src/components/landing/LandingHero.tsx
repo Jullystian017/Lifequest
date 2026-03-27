@@ -171,7 +171,7 @@ export default function LandingHero() {
             </span>
           </Link>
 
-          <button className="group w-full sm:w-auto px-8 py-4 bg-white/[0.04] border border-white/[0.1] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-3 transition-all duration-300 hover:bg-white/[0.08] hover:border-white/[0.18] active:scale-95">
+          <button suppressHydrationWarning className="group w-full sm:w-auto px-8 py-4 bg-white/[0.04] border border-white/[0.1] text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-3 transition-all duration-300 hover:bg-white/[0.08] hover:border-white/[0.18] active:scale-95">
             <span className="w-7 h-7 rounded-full bg-[var(--primary)]/15 flex items-center justify-center group-hover:bg-[var(--primary)]/25 transition-colors">
               <Play
                 size={11}

@@ -34,11 +34,11 @@ const footerSections = [
 ];
 
 const socials = [
-  { Icon: Twitter, href: "#", label: "Twitter" },
-  { Icon: Github, href: "#", label: "GitHub" },
+  { Icon: Twitter,   href: "#", label: "Twitter"   },
+  { Icon: Github,    href: "#", label: "GitHub"    },
   { Icon: Instagram, href: "#", label: "Instagram" },
-  { Icon: Linkedin, href: "#", label: "LinkedIn" },
-  { Icon: Mail, href: "#", label: "Email" },
+  { Icon: Linkedin,  href: "#", label: "LinkedIn"  },
+  { Icon: Mail,      href: "#", label: "Email"     },
 ];
 
 export default function LandingFooter() {
