@@ -32,7 +32,7 @@ const channels = [
     title: "Discord Community",
     desc: "Chat with thousands of active heroes, ask questions, and find your guild.",
     cta: "Join Discord",
-    href: "#",
+    href: "discord.com",
     color: "#5865F2",
   },
   {
@@ -40,7 +40,7 @@ const channels = [
     title: "Twitter / X",
     desc: "Follow for updates, tips, and the occasional legendary loot drop announcement.",
     cta: "Follow Us",
-    href: "#",
+    href: "x.com",
     color: "#1d9bf0",
   },
   {
@@ -48,7 +48,7 @@ const channels = [
     title: "GitHub",
     desc: "We're building in public. Star the repo, file issues, or contribute to the quest.",
     cta: "View Repo",
-    href: "#",
+    href: "https://github.com/Jullystian017/Lifequest",
     color: "#e6edf3",
   },
   {
@@ -56,7 +56,7 @@ const channels = [
     title: "Email Support",
     desc: "For billing, account issues, or partnership inquiries. We reply within 24 hours.",
     cta: "Send Email",
-    href: "mailto:hello@lifequest.gg",
+    href: "mailto:muhammadhasbi.t@gmail.com",
     color: "var(--primary)",
   },
 ];
@@ -96,13 +96,27 @@ export default function LandingContact() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormState("loading");
-    // Simulate API call
-    await new Promise((res) => setTimeout(res, 1400));
-    setFormState("success");
-  };
+  e.preventDefault();
+  setFormState("loading");
 
+  try {
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+
+    if (!res.ok) throw new Error("Failed");
+
+    setFormState("success");
+    setForm({ name: "", email: "", subject: "", message: "" });
+
+  } catch (err) {
+    setFormState("error");
+  }
+};
   const inputBase =
     "w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.09] text-white text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--primary)]/50 focus:bg-white/[0.06] transition-all duration-200";
 
