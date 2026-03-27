@@ -48,7 +48,7 @@ const channels = [
     title: "GitHub",
     desc: "We're building in public. Star the repo, file issues, or contribute to the quest.",
     cta: "View Repo",
-    href: "https://github.com/Jullystian017/Lifequest",
+    href: "https://github.com",
     color: "#e6edf3",
   },
   {
