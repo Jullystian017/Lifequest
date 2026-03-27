@@ -102,7 +102,7 @@ export default function DashboardPage() {
     const level = user?.level ?? 1;
     const gold = user?.gold ?? 0;
     const username = user?.username ?? "Petualang";
-    const avatar_url = user?.avatar_url ?? "/lifequest.png";
+    const avatar_url = user?.avatar_url ?? "/Lifequest.png";
     const xpPercent = xpToNextLevel > 0 ? Math.round((xp / xpToNextLevel) * 100) : 0;
 
     const completedToday = quests.filter(q => q.is_completed);

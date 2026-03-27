@@ -42,7 +42,7 @@ export default function RegisterPage() {
     } else {
       setSuccessMsg("Selamat datang! Cek emailmu untuk verifikasi identitas.");
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/onboarding");
       }, 2500);
     }
     setLoading(false);

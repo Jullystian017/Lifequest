@@ -57,7 +57,7 @@ export default function LandingFooter() {
           <div className="lg:col-span-2">
             <Link href="/" className="flex items-center gap-2.5 mb-5 group w-fit">
               <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-[var(--primary)]/40 transition-all">
-                <img src="/lifequest.png" alt="LifeQuest" className="w-full h-full object-contain" />
+                <img src="/Lifequest.png" alt="LifeQuest" className="w-full h-full object-contain" />
               </div>
               <span className="text-base font-bold font-[family-name:var(--font-heading)] text-white">
                 LifeQuest

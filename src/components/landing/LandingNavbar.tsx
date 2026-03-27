@@ -2,13 +2,23 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const navLinks = ["Home", "Features", "About", "Contact"];
 
 export default function LandingNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -41,7 +51,7 @@ export default function LandingNavbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="relative w-8 h-8 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-[var(--primary)]/50 transition-all duration-300">
-            <img src="/lifequest.png" alt="LifeQuest" className="w-full h-full object-contain" />
+            <img src="/Lifequest.png" alt="LifeQuest" className="w-full h-full object-contain" />
           </div>
           <span className="text-[15px] font-bold tracking-tight font-[family-name:var(--font-heading)] text-white/90">
             LifeQuest
@@ -64,18 +74,30 @@ export default function LandingNavbar() {
 
         {/* Auth */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="px-4 py-2 text-[12px] font-medium text-[var(--text-secondary)] hover:text-white transition-colors"
-          >
-            Log In
-          </Link>
-          <Link
-            href="/register"
-            className="px-5 py-2.5 text-[12px] font-semibold text-white rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:opacity-90 transition"
-          >
-            Start Your Quest
-          </Link>
+          {user ? (
+            <Link
+              href="/dashboard"
+              className="px-5 py-2.5 text-[12px] font-semibold text-white rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:opacity-90 transition flex items-center gap-2"
+            >
+              <LayoutDashboard size={14} />
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="px-4 py-2 text-[12px] font-medium text-[var(--text-secondary)] hover:text-white transition-colors"
+              >
+                Log In
+              </Link>
+              <Link
+                href="/register"
+                className="px-5 py-2.5 text-[12px] font-semibold text-white rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] hover:opacity-90 transition"
+              >
+                Start Your Quest
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile */}
@@ -106,20 +128,33 @@ export default function LandingNavbar() {
           ))}
 
           <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
-            <Link
-              href="/login"
-              className="w-full py-2.5 text-center text-sm border border-white/10 rounded-lg text-[var(--text-secondary)] hover:bg-white/5"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Log In
-            </Link>
-            <Link
-              href="/register"
-              className="w-full py-2.5 text-center text-sm text-white bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] rounded-lg"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Start Your Quest
-            </Link>
+            {user ? (
+              <Link
+                href="/dashboard"
+                className="w-full py-2.5 text-center text-sm text-white bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] rounded-lg flex items-center justify-center gap-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <LayoutDashboard size={16} />
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="w-full py-2.5 text-center text-sm border border-white/10 rounded-lg text-[var(--text-secondary)] hover:bg-white/5"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/register"
+                  className="w-full py-2.5 text-center text-sm text-white bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] rounded-lg"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Start Your Quest
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

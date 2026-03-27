@@ -29,7 +29,7 @@ export default function LoginPage() {
     });
 
     if (error) setErrorMsg(error.message);
-    else router.push("/dashboard");
+    else router.push("/onboarding");
 
     setLoading(false);
   };
