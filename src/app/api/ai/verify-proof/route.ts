@@ -4,6 +4,10 @@ const SYSTEM_PROMPT = `Kamu adalah AI verifikasi untuk aplikasi produktivitas ga
 User telah menyelesaikan quest dan mengunggah foto sebagai bukti.
 Tugasmu adalah menganalisis foto tersebut dan menentukan apakah foto tersebut benar-benar menunjukkan bukti penyelesaian quest.
 
+ATURAN KHUSUS (WAJIB DIIKUTI):
+1. Jika foto menunjukkan cuplikan kode pemrograman (IDE, terminal, atau tulisan kode), SEGERA VERIFIKASI SEBAGAI TRUE (verified: true) meskipun quest-nya tidak spesifik menyebutkan kode.
+2. Jika tidak diverifikasi (verified: false), kamu WAJIB menyebutkan apa yang kamu lihat di foto tersebut pada bagian "reason". Formatnya: "Saya melihat [apa yang ada di foto], namun quest ini adalah [judul quest]. Mohon unggah bukti yang relevan."
+
 Kamu akan menerima:
 - Judul quest
 - Deskripsi quest
@@ -16,15 +20,18 @@ Berikan respons HANYA dengan objek JSON yang valid (tanpa markdown, tanpa teks t
   "reason": "Penjelasan singkat dalam Bahasa Indonesia mengapa bukti diverifikasi atau tidak"
 }
 
-Jadilah adil namun tidak terlalu ketat. Jika foto secara wajar berkaitan dengan topik quest, verifikasi saja.
-Misalnya, jika quest-nya adalah "Baca buku tentang React", foto yang menunjukkan buku atau laptop dengan kode sudah cukup.`;
+Jadilah adil namun tidak terlalu ketat. Jika foto secara wajar berkaitan dengan topik quest, verifikasi saja.`;
 
 export async function POST(req: Request) {
     try {
         const { questTitle, questDescription, imageBase64 } = await req.json();
 
         if (!questTitle || !imageBase64) {
-            return NextResponse.json({ error: "Quest title and image are required" }, { status: 400 });
+            return NextResponse.json({ 
+                verified: false,
+                confidence: 0,
+                reason: "Judul quest dan gambar wajib ada." 
+            });
         }
 
         const apiKey = process.env.GROQ_API_KEY;
@@ -33,7 +40,7 @@ export async function POST(req: Request) {
             return NextResponse.json({
                 verified: true,
                 confidence: 85,
-                reason: "Foto menunjukkan bukti yang relevan dengan quest. Terverifikasi! 🎉"
+                reason: "Foto menunjukkan bukti yang relevan dengan quest. Terverifikasi! 🎉 (Mode Demo)"
             });
         }
 
@@ -78,22 +85,40 @@ export async function POST(req: Request) {
                 const jsonMatch = resultText.match(/\{[\s\S]*\}/);
                 if (jsonMatch) {
                     const result = JSON.parse(jsonMatch[0]);
-                    return NextResponse.json(result);
+                    return NextResponse.json({
+                        verified: result.verified ?? false,
+                        confidence: result.confidence ?? 0,
+                        reason: result.reason || "AI tidak memberikan alasan."
+                    });
                 }
                 const result = JSON.parse(resultText);
-                return NextResponse.json(result);
+                return NextResponse.json({
+                    verified: result.verified ?? false,
+                    confidence: result.confidence ?? 0,
+                    reason: result.reason || "AI tidak memberikan alasan."
+                });
             } catch {
                 console.error("Failed to parse AI vision response:", resultText);
                 return NextResponse.json({
                     verified: false,
                     confidence: 0,
-                    reason: "Gagal memproses respons AI Vision."
-                }, { status: 500 });
+                    reason: "Format respons AI tidak valid."
+                });
             }
         } else {
-            return NextResponse.json({ error: "Groq Vision API Error", details: data }, { status: 500 });
+            console.error("Groq API Error:", data);
+            return NextResponse.json({ 
+                verified: false,
+                confidence: 0,
+                reason: `AI Error: ${data.error?.message || "Gagal menghubungi pusat AI Vision."}`
+            });
         }
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error("Verification Route Error:", error);
+        return NextResponse.json({ 
+            verified: false,
+            confidence: 0,
+            reason: `Sistem Error: ${error.message}`
+        });
     }
 }

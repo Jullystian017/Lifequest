@@ -54,7 +54,8 @@ export default function ProQuestBoard() {
   const [showProofFlow, setShowProofFlow] = useState(false);
   const [proofImage, setProofImage] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [verifyResult, setVerifyResult] = useState<{ verified: boolean; confidence: number; reason: string } | null>(null);
+  const [verifyResult, setVerifyResult] = useState<{ verified: boolean; confidence: number; reason: string; error?: string } | null>(null);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newDifficulty, setNewDifficulty] = useState<Quest["difficulty"]>("medium");
@@ -170,12 +171,25 @@ export default function ProQuestBoard() {
   };
 
   const handleCompleteWithoutProof = async () => {
-    if (!selectedQuest || !currentUser) return;
-    await completeQuestPenalty(userId!, selectedQuest, currentUser);
-    await updateQuestStatus(selectedQuest.id, "done");
-    invalidate();
-    setSelectedQuest(null);
-    setShowProofFlow(false);
+    if (!selectedQuest || isCompleting) return;
+    
+    if (!currentUser) {
+      alert("Sedang memuat data karakter... Tunggu sebentar dan coba lagi.");
+      return;
+    }
+
+    setIsCompleting(true);
+    try {
+      await completeQuestPenalty(userId!, selectedQuest, currentUser);
+      await updateQuestStatus(selectedQuest.id, "done");
+      invalidate();
+      setSelectedQuest(null);
+      setShowProofFlow(false);
+    } catch (err: any) {
+      alert("Gagal menyelesaikan quest: " + err.message);
+    } finally {
+      setIsCompleting(false);
+    }
   };
 
   const handleProofUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,11 +238,11 @@ export default function ProQuestBoard() {
     setIsVerifying(false);
   };
 
-  if (!isBrowser || loading) {
+  if (!isBrowser || loading || !currentUser) {
     return (
       <div className="w-full h-[60vh] flex flex-col items-center justify-center text-slate-500 gap-4">
         <Loader2 className="animate-spin text-[var(--primary)]" size={40} />
-        <p className="text-sm font-semibold uppercase tracking-widest">Memuat Quest Board...</p>
+        <p className="text-sm font-semibold uppercase tracking-widest">Sinkronisasi Data Karakter...</p>
       </div>
     );
   }
@@ -506,7 +520,11 @@ export default function ProQuestBoard() {
                                 </div>
 
                                 {/* Opsi 2: Skip Proof - Penalty */}
-                                <div className="p-5 rounded-2xl border border-white/5 bg-black/20 hover:bg-black/40 transition-colors flex flex-col text-left group">
+                                <button 
+                                    onClick={handleCompleteWithoutProof}
+                                    disabled={isCompleting}
+                                    className="p-5 rounded-2xl border border-white/5 bg-black/20 hover:bg-black/40 hover:border-red-500/30 transition-all flex flex-col text-left group disabled:opacity-50"
+                                >
                                     <div className="flex items-center gap-3 mb-3">
                                         <div className="p-2.5 bg-slate-800 rounded-xl shrink-0 opacity-60"><Zap size={20} className="text-slate-500" /></div>
                                         <div>
@@ -515,8 +533,11 @@ export default function ProQuestBoard() {
                                         </div>
                                     </div>
                                     <p className="text-xs text-slate-500 group-hover:text-slate-400 transition-colors mb-4 leading-relaxed">Selesaikan quest secara instan tanpa perlu bukti. Konsekuensinya, exp dan gold yang didapat terpotong separuh.</p>
-                                    <button onClick={handleCompleteWithoutProof} className="mt-auto w-full py-2.5 rounded-xl border border-white/5 text-slate-400 font-bold text-xs text-center group-hover:bg-white/10 group-hover:text-white transition-all">Selesaikan (Skip Bukti)</button>
-                                </div>
+                                    <div className="mt-auto w-full py-2.5 rounded-xl border border-white/5 text-slate-400 font-bold text-xs text-center group-hover:bg-red-500 group-hover:text-white transition-all flex items-center justify-center gap-2">
+                                        {isCompleting ? <Loader2 size={14} className="animate-spin" /> : null}
+                                        {isCompleting ? "Memproses..." : "Selesaikan (Skip Bukti)"}
+                                    </div>
+                                </button>
                             </div>
                         ) : (
                             <div className="space-y-4 animate-fade-in">
@@ -551,7 +572,9 @@ export default function ProQuestBoard() {
                                             <span className={`text-lg font-black ${verifyResult.verified ? "text-emerald-400" : "text-red-400"}`}>
                                                 {verifyResult.verified ? "BUKTI VALID!" : "GAGAL DIVALIDASI"}
                                             </span>
-                                            <span className="text-xs font-bold text-slate-500 ml-auto bg-black/30 px-3 py-1 rounded-lg">AI Conf: {verifyResult.confidence}%</span>
+                                            {verifyResult.confidence !== undefined && (
+                                                <span className="text-xs font-bold text-slate-500 ml-auto bg-black/30 px-3 py-1 rounded-lg">AI Conf: {verifyResult.confidence}%</span>
+                                            )}
                                         </div>
                                         <p className="text-sm text-slate-300 leading-relaxed font-medium mb-4">{verifyResult.reason}</p>
                                         {verifyResult.verified && (
