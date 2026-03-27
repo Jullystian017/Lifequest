@@ -302,7 +302,7 @@ export const fetchTeamStats = async (workspaceId: string) => {
 export const fetchMemberProfile = async (userId: string) => {
     const { data, error } = await supabase
         .from("users")
-        .select("id, username, avatar_url, level, total_xp, xp, xp_to_next_level, streak, highest_streak, class, stats, created_at")
+        .select("id, username, avatar_url, level, total_xp, xp, xp_to_next_level, streak, highest_streak, last_quest_completed_at, class, stats, created_at")
         .eq("id", userId)
         .single();
     if (error) throw error;

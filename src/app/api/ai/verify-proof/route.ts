@@ -51,7 +51,7 @@ export async function POST(req: Request) {
                 "Authorization": `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "llama-3.2-90b-vision-preview",
+                model: "llama-3.2-11b-vision-preview",
                 messages: [
                     { role: "system", content: SYSTEM_PROMPT },
                     {
