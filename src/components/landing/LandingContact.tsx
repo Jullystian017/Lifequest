@@ -32,7 +32,7 @@ const channels = [
     title: "Discord Community",
     desc: "Chat with thousands of active heroes, ask questions, and find your guild.",
     cta: "Join Discord",
-    href: "discord.com",
+    href: "https://discord.com",
     color: "#5865F2",
   },
   {
@@ -40,7 +40,7 @@ const channels = [
     title: "Twitter / X",
     desc: "Follow for updates, tips, and the occasional legendary loot drop announcement.",
     cta: "Follow Us",
-    href: "x.com",
+    href: "https://x.com",
     color: "#1d9bf0",
   },
   {
