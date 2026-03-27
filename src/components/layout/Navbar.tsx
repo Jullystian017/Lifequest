@@ -170,7 +170,7 @@ export default function Navbar() {
   const xp = user?.xp ?? 0;
   const xpToNextLevel = user?.xp_to_next_level ?? 100;
   const username = user?.username ?? "Petualang";
-  const avatar_url = user?.avatar_url ?? "/Lifequest.png";
+  const avatar_url = user?.avatar_url ?? "/logo.png";
 
 // ... (rest of the logic remains same)
   const totalCompletedQuests = useMemo(() => quests.filter((q: any) => q.is_completed).length, [quests]);
@@ -284,7 +284,7 @@ export default function Navbar() {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
           >
             <div className={`w-10 h-10 rounded-xl overflow-hidden border transition-all shadow-sm shrink-0 ${isProfileOpen ? 'border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.3)]' : 'border-white/[0.05] group-hover:border-indigo-500 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.3)]'}`}>
-              <img src={avatar_url || "/Lifequest.png"} alt="Profile" className="w-full h-full object-cover" />
+              <img src={avatar_url || "/logo.png"} alt="Profile" className="w-full h-full object-cover" />
             </div>
             <div className="flex flex-col items-start hidden md:flex min-w-[100px]">
               <span className="text-sm font-bold text-white group-hover:text-white transition-colors truncate">{username}</span>
@@ -309,7 +309,7 @@ export default function Navbar() {
                 <div className="p-5 border-b border-white/[0.05] bg-white/[0.01]">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 rounded-xl overflow-hidden border border-indigo-500/50 object-cover">
-                      <img src={avatar_url || "/Lifequest.png"} alt="Profile" className="w-full h-full object-cover" />
+                      <img src={avatar_url || "/logo.png"} alt="Profile" className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-base leading-tight">{username}</h4>

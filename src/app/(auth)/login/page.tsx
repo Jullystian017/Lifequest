@@ -29,7 +29,7 @@ export default function LoginPage() {
     });
 
     if (error) setErrorMsg(error.message);
-    else router.push("/onboarding");
+    else router.push("/dashboard/onboarding");
 
     setLoading(false);
   };
@@ -51,7 +51,7 @@ export default function LoginPage() {
         {/* LOGO */}
         <div className="absolute top-8 left-8 md:top-12 md:left-12 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center p-1">
-             <img src="/Lifequest.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
+             <img src="/logo.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
           </div>
           <span className="text-xl font-black text-white tracking-tight">LifeQuest</span>
         </div>

@@ -103,7 +103,7 @@ export default function OnboardingPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[var(--bg-app)] flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="min-h-[80vh] flex items-center justify-center p-6 relative overflow-hidden">
             {/* Background elements */}
             <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[var(--primary)] rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-pulse" />
             <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-[var(--secondary)] rounded-full mix-blend-screen filter blur-[150px] opacity-20 animate-pulse" style={{ animationDelay: '2s' }} />
@@ -115,7 +115,7 @@ export default function OnboardingPage() {
                         <div 
                             key={i} 
                             className={`h-1.5 rounded-full transition-all duration-500 ${i === step ? 'w-12 bg-[var(--primary)]' : i < step ? 'w-6 bg-white/40' : 'w-2 bg-white/10'}`} 
-                        />
+                            />
                     ))}
                 </div>
 

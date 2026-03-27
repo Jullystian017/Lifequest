@@ -42,7 +42,7 @@ export default function RegisterPage() {
     } else {
       setSuccessMsg("Selamat datang! Cek emailmu untuk verifikasi identitas.");
       setTimeout(() => {
-        router.push("/onboarding");
+        router.push("/dashboard/onboarding");
       }, 2500);
     }
     setLoading(false);
@@ -65,7 +65,7 @@ export default function RegisterPage() {
         {/* LOGO */}
         <div className="absolute top-8 left-8 md:top-12 md:left-12 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center p-1">
-             <img src="/Lifequest.png" alt="LifeQuest" className="w-full h-full object-contain" />
+             <img src="/logo.png" alt="LifeQuest" className="w-full h-full object-contain" />
           </div>
           <span className="text-xl font-black text-white tracking-tight">LifeQuest</span>
         </div>

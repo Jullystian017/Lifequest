@@ -115,7 +115,7 @@ export default function Sidebar() {
       {/* Branding */}
       <div className="p-6 flex items-center gap-3 overflow-hidden">
         <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
-          <img src="/Lifequest.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
+          <img src="/logo.png" alt="LifeQuest Logo" className="w-full h-full object-contain" />
         </div>
         {!isCollapsed && (
           <motion.span

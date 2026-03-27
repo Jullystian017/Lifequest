@@ -51,7 +51,7 @@ export default function LandingNavbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
           <div className="relative w-8 h-8 rounded-xl overflow-hidden ring-1 ring-white/10 group-hover:ring-[var(--primary)]/50 transition-all duration-300">
-            <img src="/Lifequest.png" alt="LifeQuest" className="w-full h-full object-contain" />
+            <img src="/logo.png" alt="LifeQuest" className="w-full h-full object-contain" />
           </div>
           <span className="text-[15px] font-bold tracking-tight font-[family-name:var(--font-heading)] text-white/90">
             LifeQuest
